@@ -15,164 +15,175 @@ const double wi[] = {w0,ws,ws,ws,ws,wd,wd,wd,wd};
 const int dirx[] = {0,1,0,-1, 0,1,-1,-1, 1};
 const int diry[] = {0,0,1, 0,-1,1, 1,-1,-1};
 
-void taylor_green(amrex::Real t, amrex::MultiFab &rho, amrex::MultiFab &ux, amrex::MultiFab &uy, double rho0, double u_max, double nu, int Nx, int Ny, amrex::GpuArray<amrex::Real, 2> dx)
+void taylor_green(amrex::Real t, amrex::MultiFab &rho, amrex::MultiFab &ux, amrex::MultiFab &uy, double rho0, double u_max, double nu, int Nx, int Ny, amrex::GpuArray<amrex::Real, 2> dx, int Nghost)
 {
     // amrex::Print() << "rho0: " << rho0 << "  u_max: " << u_max << "\n";
     // loop over boxes
-    for (amrex::MFIter mfi(rho); mfi.isValid(); ++mfi)
-    {
-        const amrex::Box &bx = mfi.validbox();
+    // for (amrex::MFIter mfi(rho); mfi.isValid(); ++mfi)
+    // {
+    //     const amrex::Box &bx = mfi.validbox();
 
-        const amrex::Array4<amrex::Real> &rho_local = rho.array(mfi);
-        const amrex::Array4<amrex::Real> &ux_local = ux.array(mfi);
-        const amrex::Array4<amrex::Real> &uy_local = uy.array(mfi);
+    //     const amrex::Array4<amrex::Real> &rho_local = rho.array(mfi);
+    //     const amrex::Array4<amrex::Real> &ux_local = ux.array(mfi);
+    //     const amrex::Array4<amrex::Real> &uy_local = uy.array(mfi);
 
-        amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j)
-                           {
-                               // **********************************
-                               // SET VALUES FOR EACH CELL
-                               // **********************************
-                            //    amrex::Print() << "dx: " << dx[0] << " , " << dx[1] << "\n";
+    //     amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j)
+    //                        {
+    //                            // **********************************
+    //                            // SET VALUES FOR EACH CELL
+    //                            // **********************************
+    //                         //    amrex::Print() << "dx: " << dx[0] << " , " << dx[1] << "\n";
                                
-                               double kx = 2.0 * M_PI / Nx;
-                               double ky = 2.0 * M_PI / Ny;
-                               double td = 1.0 / (nu * (kx * kx + ky * ky));
+    //                            double kx = 2.0 * M_PI / Nx;
+    //                            double ky = 2.0 * M_PI / Ny;
+    //                            double td = 1.0 / (nu * (kx * kx + ky * ky));
 
-                               double X = i + 0.5;
-                               double Y = j + 0.5;
-                               ux_local(i, j, 0) = -u_max * sqrt(ky / kx) * cos(kx * X) * sin(ky * Y) * exp(-1.0 * t / td);
-                               uy_local(i, j, 0) = u_max * sqrt(kx / ky) * sin(kx * X) * cos(ky * Y) * exp(-1.0 * t / td);
-                               double P = -0.25 * rho0 * u_max * u_max * ((ky / kx) * cos(2.0 * kx * X) + (kx / ky) * cos(2.0 * ky * Y)) * exp(-2.0 * t / td);
-                               rho_local(i, j, 0) = rho0 + 3.0 * P; 
-                            //    amrex::Print() << "i,j: " << i << " , " << j << "  rho: " << rho_local(i, j, 0) << "\n";
+    //                            double X = i + 0.5;
+    //                            double Y = j + 0.5;
+    //                            ux_local(i, j, 0) = -u_max * sqrt(ky / kx) * cos(kx * X) * sin(ky * Y) * exp(-1.0 * t / td);
+    //                            uy_local(i, j, 0) = u_max * sqrt(kx / ky) * sin(kx * X) * cos(ky * Y) * exp(-1.0 * t / td);
+    //                            double P = -0.25 * rho0 * u_max * u_max * ((ky / kx) * cos(2.0 * kx * X) + (kx / ky) * cos(2.0 * ky * Y)) * exp(-2.0 * t / td);
+    //                            rho_local(i, j, 0) = rho0 + 3.0 * P; 
+    //                         //    amrex::Print() << "i,j: " << i << " , " << j << "  rho: " << rho_local(i, j, 0) << "\n";
                                
-                               });
+    //                            });
                                
-    }
+    // }
+    
+    const amrex::MultiArray4<amrex::Real>& rho_arrs = rho.arrays();
+    const amrex::MultiArray4<amrex::Real>& ux_arrs = ux.arrays();
+    const amrex::MultiArray4<amrex::Real>& uy_arrs = uy.arrays();
+    const amrex::IntVect ngs(Nghost);
+
+    amrex::ParallelFor(rho, ngs, [=] AMREX_GPU_DEVICE( int nbx, int i, int j,int k) noexcept {
+
+        double kx = 2.0 * M_PI / Nx;
+        double ky = 2.0 * M_PI / Ny;
+        double td = 1.0 / (nu * (kx * kx + ky * ky));
+
+        double X = i + 0.5;
+        double Y = j + 0.5;
+        ux_arrs[nbx](i,j,k) = -u_max * sqrt(ky / kx) * cos(kx * X) * sin(ky * Y) * exp(-1.0 * t / td);
+        uy_arrs[nbx](i,j,k) = u_max * sqrt(kx / ky) * sin(kx * X) * cos(ky * Y) * exp(-1.0 * t / td);
+        double P = -0.25 * rho0 * u_max * u_max * ((ky / kx) * cos(2.0 * kx * X) + (kx / ky) * cos(2.0 * ky * Y)) * exp(-2.0 * t / td);
+        rho_arrs[nbx](i,j,k) = rho0 + 3.0 * P; 
+    });
 }
 
 
 
-void init_equilibrium(amrex::MultiFab &f1,amrex::MultiFab &rho, amrex::MultiFab &ux, amrex::MultiFab &uy ){
-    for (amrex::MFIter mfi(f1); mfi.isValid(); ++mfi)
-    {
-        const amrex::Box &bx = mfi.validbox();
-        const amrex::Array4<amrex::Real> &f1_local = f1.array(mfi);
-        const amrex::Array4<amrex::Real> &rho_local = rho.array(mfi);
-        const amrex::Array4<amrex::Real> &ux_local = ux.array(mfi);
-        const amrex::Array4<amrex::Real> &uy_local = uy.array(mfi);
+void init_equilibrium(amrex::MultiFab &f1,amrex::MultiFab &rho, amrex::MultiFab &ux, amrex::MultiFab &uy ,int Nghost){
+    const amrex::MultiArray4<amrex::Real>& f1_arrs = f1.arrays();
+    const amrex::MultiArray4<amrex::Real>& rho_arrs = rho.arrays();
+    const amrex::MultiArray4<amrex::Real>& ux_arrs = ux.arrays();
+    const amrex::MultiArray4<amrex::Real>& uy_arrs = uy.arrays();
+    const amrex::IntVect ngs(Nghost);
 
-        amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j)
-                           {
-                            for(unsigned int k = 0; k < ndir; ++k)
+    amrex::ParallelFor(f1, ngs, [=] AMREX_GPU_DEVICE( int nbx, int i, int j,int k) noexcept {
+
+        for(unsigned int i_dir = 0; i_dir < ndir; ++i_dir)
                                {
-                                double cidotu = dirx[k]*ux_local(i,j,0) + diry[k]*uy_local(i,j,0);
+                                double cidotu = dirx[i_dir]* ux_arrs[nbx](i,j,k) + diry[i_dir]* uy_arrs[nbx](i,j,k);
 
                                 // amrex::Print() <<cidotu << "\t" << rho_local(i,j,0) << "\t" << ux_local(i,j,0) << "\t" << uy_local(i,j,0) << "\n";
 
-                                f1_local(i,j,k) = wi[k]*rho_local(i,j,0)*(1.0 + 3.0*cidotu + 4.5*cidotu*cidotu - 1.5*(ux_local(i,j,0)*ux_local(i,j,0)+uy_local(i,j,0)*uy_local(i,j,0)));
+                                f1_arrs[nbx](i,j,k,i_dir)= wi[i_dir]*rho_arrs[nbx](i,j,k)*(1.0 + 3.0*cidotu + 4.5*cidotu*cidotu - 1.5*(ux_arrs[nbx](i,j,k)*ux_arrs[nbx](i,j,k)+uy_arrs[nbx](i,j,k)*uy_arrs[nbx](i,j,k)));
                                 // f1_local(i,j,k) = 0.0;
                                 // amrex::Print() << "i,j,k: " << i << " , " << j <<  " , " << k << "  f1: " << f1_local(i, j, k) << "\n";
                                }
-                              
-                               });
-    }
+    });
 }
 
 
-void stream(amrex::MultiFab &f_old,amrex::MultiFab &f_new,  int Nx, int Ny){
-    for (amrex::MFIter mfi(f_new); mfi.isValid(); ++mfi)
-    {
-        const amrex::Box &bx = mfi.validbox();
-        const amrex::Array4<amrex::Real> &f_old_local = f_old.array(mfi);
-        const amrex::Array4<amrex::Real> &f_new_local = f_new.array(mfi);
+void stream(amrex::MultiFab &f_old,amrex::MultiFab &f_new,  int Nx, int Ny,int Nghost){
+  
+    const amrex::MultiArray4<amrex::Real>& f_old_arrs = f_old.arrays();
+    const amrex::MultiArray4<amrex::Real>& f_new_arrs = f_new.arrays();
 
+    const amrex::IntVect ngs(Nghost);
 
-        amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j)
-                           {
-                            for( int k = 0; k < ndir; ++k)
+    amrex::ParallelFor(f_old, ngs, [=] AMREX_GPU_DEVICE( int nbx, int i, int j,int k) noexcept {
+
+        for(unsigned int i_dir = 0; i_dir < ndir; ++i_dir)
                                {
-                                // amrex::Print() <<"k, dirx[k], diry[k]: " << k << " , " << dirx[k] << " , " << diry[k] << "\n";
-                                 int imd = (Nx+i-dirx[k])%Nx;
-                                 int jmd = (Ny+j-diry[k])%Ny;
-                                f_new_local(i,j,k) = f_old_local(imd,jmd,k);
-                                // if (k == 1 && (i==31 || i ==32)){
-                                //     amrex::Print() << "i,j,k: " << i << " , " << j <<  " , " << k << "  imd,jmd: " << imd << " , " << jmd << "  f1: " << f_new_local(i, j, k) <<" \t" <<f_old_local(imd,jmd,k) << "\n";
-                                // }
-                                // amrex::Print() << "i,j,k: " << i << " , " << j <<  " , " << k << "  imd,jmd: " << imd << " , " << jmd << "  f1: " << f_new_local(i, j, k) << "\n";
+                                int imd = (Nx+i-dirx[i_dir])%Nx;
+                                int jmd = (Ny+j-diry[i_dir])%Ny;
+#if (AMREX_SPACEDIM == 2)
+                                f_new_arrs[nbx](i,j,k,i_dir) = f_old_arrs[nbx](imd,jmd,k,i_dir);
+#elif (AMREX_SPACEDIM == 3)
+                                int kmd = (Nz+k-dirz[i_dir])%Nz;
+                                f_new_arrs[nbx](i,j,k,i_dir) = f_old_arrs[nbx](imd,jmd,kmd,i_dir);
+#endif
                                }
-                              
-                               });
-    }
+    });
 }
 
 
-void compute_rho_u(amrex::MultiFab &f1,amrex::MultiFab &rho, amrex::MultiFab &ux, amrex::MultiFab &uy){
-    for (amrex::MFIter mfi(f1); mfi.isValid(); ++mfi)
-    {
-        const amrex::Box &bx = mfi.validbox();
-        const amrex::Array4<amrex::Real> &f1_local = f1.array(mfi);
-        const amrex::Array4<amrex::Real> &rho_local = rho.array(mfi);
-        const amrex::Array4<amrex::Real> &ux_local = ux.array(mfi);
-        const amrex::Array4<amrex::Real> &uy_local = uy.array(mfi);
+void compute_rho_u(amrex::MultiFab &f1,amrex::MultiFab &rho, amrex::MultiFab &ux, amrex::MultiFab &uy,int Nghost){
 
 
-        amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j)
-                           {
-                            double rho_temp=0.0;
-                            double ux_temp=0.0;
-                            double uy_temp=0.0;
-                            for(unsigned int k = 0; k < ndir; ++k)
-                               {
-                                rho_temp+=f1_local(i,j,k);
-                                ux_temp+=dirx[k]*f1_local(i,j,k);
-                                uy_temp+=diry[k]*f1_local(i,j,k);
-                               }
-                            rho_local(i,j,0) = rho_temp;
-                            ux_local(i,j,0) = ux_temp/rho_temp;
-                            uy_local(i,j,0) = uy_temp/rho_temp;
+    
+
+    const amrex::MultiArray4<amrex::Real>& f1_arrs = f1.arrays();
+    const amrex::MultiArray4<amrex::Real>& rho_arrs = rho.arrays();
+    const amrex::MultiArray4<amrex::Real>& ux_arrs = ux.arrays();
+    const amrex::MultiArray4<amrex::Real>& uy_arrs = uy.arrays();
+    const amrex::IntVect ngs(Nghost);
+
+    amrex::ParallelFor(f1, ngs, [=] AMREX_GPU_DEVICE( int nbx, int i, int j,int k) noexcept {
+        double rho_temp=0.0;
+        double ux_temp=0.0;
+        double uy_temp=0.0;
+                          
+                       
+        for(unsigned int i_dir = 0; i_dir < ndir; ++i_dir)
+                    {
+
+                    rho_temp+=f1_arrs[nbx](i,j,k,i_dir);
+                    ux_temp+=dirx[i_dir]*f1_arrs[nbx](i,j,k,i_dir);
+                    uy_temp+=diry[i_dir]*f1_arrs[nbx](i,j,k,i_dir);
+                    
+                    }
+        rho_arrs[nbx](i,j,k) = rho_temp;
+        ux_arrs[nbx](i,j,k) = ux_temp/rho_temp;
+        uy_arrs[nbx](i,j,k) = uy_temp/rho_temp;
                                 
-                               });
+    });
 
-    }
+
 }
 
-void collide(amrex::MultiFab &f1,amrex::MultiFab &rho, amrex::MultiFab &ux, amrex::MultiFab &uy,double nu)
+void collide(amrex::MultiFab &f1,amrex::MultiFab &rho, amrex::MultiFab &ux, amrex::MultiFab &uy,double nu,int Nghost)
 {
     // useful constants
     double tauinv = 2.0/(6.0*nu+1.0); // 1/tau
     double omtauinv = 1.0-tauinv;     // 1 - 1/tau
 
-    // amrex::Print() << "omtauinv: " << omtauinv << "\n";
-    for (amrex::MFIter mfi(f1); mfi.isValid(); ++mfi)
-    {
-        const amrex::Box &bx = mfi.validbox();
-        const amrex::Array4<amrex::Real> &f1_local = f1.array(mfi);
-        const amrex::Array4<amrex::Real> &rho_local = rho.array(mfi);
-        const amrex::Array4<amrex::Real> &ux_local = ux.array(mfi);
-        const amrex::Array4<amrex::Real> &uy_local = uy.array(mfi);
 
 
-        amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j)
-                           {
-                            
-                           
-                            for(unsigned int k = 0; k < ndir; ++k)
-                               {
-                                
-                                // calculate dot product
-                                double cidotu = dirx[k]*ux_local(i,j,0) + diry[k]*uy_local(i,j,0);
+    const amrex::MultiArray4<amrex::Real>& f1_arrs = f1.arrays();
+    const amrex::MultiArray4<amrex::Real>& rho_arrs = rho.arrays();
+    const amrex::MultiArray4<amrex::Real>& ux_arrs = ux.arrays();
+    const amrex::MultiArray4<amrex::Real>& uy_arrs = uy.arrays();
+    const amrex::IntVect ngs(Nghost);
+
+    amrex::ParallelFor(f1, ngs, [=] AMREX_GPU_DEVICE( int nbx, int i, int j,int k) noexcept {
+       
+                       
+        for(unsigned int i_dir = 0; i_dir < ndir; ++i_dir)
+                    {
+
+                    double cidotu = dirx[i_dir]*ux_arrs[nbx](i,j,k) + diry[i_dir]*uy_arrs[nbx](i,j,k) ;
                                 // calculate equilibrium
-                                double feq = wi[k]*rho_local(i,j,0)*(1.0 + 3.0*cidotu + 4.5*cidotu*cidotu - 1.5*(ux_local(i,j,0)*ux_local(i,j,0)+uy_local(i,j,0)*uy_local(i,j,0)));
+                                double feq = wi[i_dir]*rho_arrs[nbx](i,j,k)*(1.0 + 3.0*cidotu + 4.5*cidotu*cidotu - 1.5*(ux_arrs[nbx](i,j,k)*ux_arrs[nbx](i,j,k)+uy_arrs[nbx](i,j,k)*uy_arrs[nbx](i,j,k)));
                                 
                                 // relax to equilibrium
-                                f1_local(i,j,k)  = omtauinv*f1_local(i,j,k) + tauinv*feq;
-                               }
-                            //   amrex::Print() << "i,j: " << i <<"\t"<<j << "\n";
+                                f1_arrs[nbx](i,j,k,i_dir)  = omtauinv*f1_arrs[nbx](i,j,k,i_dir) + tauinv*feq;
+                    
+                    }
+      
                                 
-                               });
-
-    }
+    });
 }
 
 
@@ -294,8 +305,8 @@ int main(int argc, char *argv[])
         // // INITIALIZE DATA LOOP
         // // **********************************
 
-        taylor_green(time, rho, ux, uy, rho0, u_max, nu, Nx, Ny, dx);
-        init_equilibrium(f_old, rho, ux, uy);
+        taylor_green(time, rho, ux, uy, rho0, u_max, nu, Nx, Ny, dx,Nghost);
+        init_equilibrium(f_old, rho, ux, uy,Nghost);
 
         // **********************************
         // WRITE INITIAL PLOT FILE
@@ -323,10 +334,10 @@ int main(int argc, char *argv[])
         for (int step = 1; step <= NSTEP; ++step)
         {
             amrex::Print() << "step: " << step << "\n";
-            stream(f_old, f_new, Nx, Ny);
+            stream(f_old, f_new, Nx, Ny,Nghost);
             
-            compute_rho_u(f_new, rho, ux, uy);
-            collide(f_new, rho, ux, uy, nu);
+            compute_rho_u(f_new, rho, ux, uy,Nghost);
+            collide(f_new, rho, ux, uy, nu,Nghost);
             amrex::MultiFab::Swap(f_new, f_old, 0, 0, ndir, Nghost);
             if (plot_int > 0){
                 if(step %  plot_int == 0)
