@@ -1,6 +1,5 @@
 /*
- * A simplified single file version of the HeatEquation_EX0_C exmaple.
- * This code is designed to be used with Demo_Tutorial.rst.
+ * A simplified single file version of the lattice boltzmann exmaple.
  *
  */
 
