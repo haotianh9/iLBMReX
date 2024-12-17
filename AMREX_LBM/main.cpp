@@ -103,11 +103,15 @@ void stream(amrex::MultiFab &f_old,amrex::MultiFab &f_new,  int Nx, int Ny,int N
     const amrex::IntVect ngs(Nghost);
 
     amrex::ParallelFor(f_old, ngs, [=] AMREX_GPU_DEVICE( int nbx, int i, int j,int k) noexcept {
-
+        // amrex::Print() << "nbx: " << nbx << " i: " << i << " j: " << j << "\n";
         for(unsigned int i_dir = 0; i_dir < ndir; ++i_dir)
                                {
                                 int imd = (Nx+i-dirx[i_dir])%Nx;
                                 int jmd = (Ny+j-diry[i_dir])%Ny;
+                                // if (i_dir == 1){
+                                //     amrex::Print() << i_dir<<"\t" << i <<"\t" << j  <<"\t"<< imd <<"\t" <<jmd << "\n";
+                                // }
+                                
 #if (AMREX_SPACEDIM == 2)
                                 f_new_arrs[nbx](i,j,k,i_dir) = f_old_arrs[nbx](imd,jmd,k,i_dir);
 #elif (AMREX_SPACEDIM == 3)
@@ -153,21 +157,20 @@ void compute_rho_u(amrex::MultiFab &f1,amrex::MultiFab &rho, amrex::MultiFab &ux
 
 }
 
-void collide(amrex::MultiFab &f1,amrex::MultiFab &rho, amrex::MultiFab &ux, amrex::MultiFab &uy,double nu,int Nghost)
+void collide(amrex::MultiFab &f1,amrex::MultiFab &f2,amrex::MultiFab &rho, amrex::MultiFab &ux, amrex::MultiFab &uy,double nu,int Nghost)
 {
     // useful constants
     double tauinv = 2.0/(6.0*nu+1.0); // 1/tau
     double omtauinv = 1.0-tauinv;     // 1 - 1/tau
 
-
-
     const amrex::MultiArray4<amrex::Real>& f1_arrs = f1.arrays();
+    const amrex::MultiArray4<amrex::Real>& f2_arrs = f2.arrays();
     const amrex::MultiArray4<amrex::Real>& rho_arrs = rho.arrays();
     const amrex::MultiArray4<amrex::Real>& ux_arrs = ux.arrays();
     const amrex::MultiArray4<amrex::Real>& uy_arrs = uy.arrays();
     const amrex::IntVect ngs(Nghost);
 
-    amrex::ParallelFor(f1, ngs, [=] AMREX_GPU_DEVICE( int nbx, int i, int j,int k) noexcept {
+    amrex::ParallelFor(f2, ngs, [=] AMREX_GPU_DEVICE( int nbx, int i, int j,int k) noexcept {
        
                        
         for(unsigned int i_dir = 0; i_dir < ndir; ++i_dir)
@@ -178,7 +181,7 @@ void collide(amrex::MultiFab &f1,amrex::MultiFab &rho, amrex::MultiFab &ux, amre
                                 double feq = wi[i_dir]*rho_arrs[nbx](i,j,k)*(1.0 + 3.0*cidotu + 4.5*cidotu*cidotu - 1.5*(ux_arrs[nbx](i,j,k)*ux_arrs[nbx](i,j,k)+uy_arrs[nbx](i,j,k)*uy_arrs[nbx](i,j,k)));
                                 
                                 // relax to equilibrium
-                                f1_arrs[nbx](i,j,k,i_dir)  = omtauinv*f1_arrs[nbx](i,j,k,i_dir) + tauinv*feq;
+                                f2_arrs[nbx](i,j,k,i_dir)  = omtauinv*f1_arrs[nbx](i,j,k,i_dir) + tauinv*feq;
                     
                     }
       
@@ -307,7 +310,11 @@ int main(int argc, char *argv[])
 
         taylor_green(time, rho, ux, uy, rho0, u_max, nu, Nx, Ny, dx,Nghost);
         init_equilibrium(f_old, rho, ux, uy,Nghost);
-
+        f_new.FillBoundary(geom.periodicity());
+        f_old.FillBoundary(geom.periodicity());
+        rho.FillBoundary(geom.periodicity());
+        ux.FillBoundary(geom.periodicity());
+        uy.FillBoundary(geom.periodicity());
         // **********************************
         // WRITE INITIAL PLOT FILE
         // **********************************
@@ -337,8 +344,26 @@ int main(int argc, char *argv[])
             stream(f_old, f_new, Nx, Ny,Nghost);
             
             compute_rho_u(f_new, rho, ux, uy,Nghost);
-            collide(f_new, rho, ux, uy, nu,Nghost);
             amrex::MultiFab::Swap(f_new, f_old, 0, 0, ndir, Nghost);
+            f_new.FillBoundary(geom.periodicity());
+            f_old.FillBoundary(geom.periodicity());
+            rho.FillBoundary(geom.periodicity());
+            ux.FillBoundary(geom.periodicity());
+            uy.FillBoundary(geom.periodicity());
+            collide(f_new ,f_old,rho, ux, uy, nu,Nghost);
+            amrex::MultiFab::Swap(f_new, f_old, 0, 0, ndir, Nghost);
+            f_new.FillBoundary(geom.periodicity());
+            f_old.FillBoundary(geom.periodicity());
+            rho.FillBoundary(geom.periodicity());
+            ux.FillBoundary(geom.periodicity());
+            uy.FillBoundary(geom.periodicity());
+
+            // fills physical domain boundary ghost cells for a cell-centered multifab
+            // if (not geom.isAllPeriodic()) {
+            //     GpuBndryFuncFab<MyExtBCFill> bf(MyExtBCFill{});
+            //     PhysBCFunct<GpuBndryFuncFab<MyExtBCFill> > physbcf(geom, bc, bf);
+            //     physbcf(mf, 0, mf.nComp(), mf.nGrowVector(), time, 0);
+            // }
             if (plot_int > 0){
                 if(step %  plot_int == 0)
                     {
