@@ -6,14 +6,7 @@
 #include <AMReX.H>
 #include <AMReX_ParmParse.H>
 #include <AMReX_PlotFileUtil.H>
-// D2Q9 parameters
-const unsigned int ndir = 9;
-const double w0 = 4.0 / 9.0;  // zero weight
-const double ws = 1.0 / 9.0;  // adjacent weight
-const double wd = 1.0 / 36.0; // diagonal weight
-const double wi[] = {w0, ws, ws, ws, ws, wd, wd, wd, wd};
-const int dirx[] = {0, 1, 0, -1, 0, 1, -1, -1, 1};
-const int diry[] = {0, 0, 1, 0, -1, 1, 1, -1, -1};
+#include "velocity_set_data.H"
 
 void taylor_green(amrex::Real t, amrex::MultiFab &rho, amrex::MultiFab &ux,
                   amrex::MultiFab &uy, double rho0, double u_max, double nu,
