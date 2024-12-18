@@ -3,4 +3,4 @@ max_grid_size = 16 // a problem here, using patches would cause problem in strea
 
 Nx = 32
 NSTEP=200
-plot_int=50
+plot_int=25

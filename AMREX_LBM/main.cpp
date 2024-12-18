@@ -63,24 +63,23 @@ void taylor_green(amrex::Real t, amrex::MultiFab &rho, amrex::MultiFab &ux,
   const amrex::MultiArray4<amrex::Real> &uy_arrs = uy.arrays();
   const amrex::IntVect ngs(Nghost);
 
-  amrex::ParallelFor(
-      rho, ngs, [=] AMREX_GPU_DEVICE(int nbx, int i, int j, int k) noexcept {
-        double kx = 2.0 * M_PI / Nx;
-        double ky = 2.0 * M_PI / Ny;
-        double td = 1.0 / (nu * (kx * kx + ky * ky));
+  amrex::ParallelFor(rho, [=] AMREX_GPU_DEVICE(int nbx, int i, int j,
+                                               int k) noexcept {
+    double kx = 2.0 * M_PI / Nx;
+    double ky = 2.0 * M_PI / Ny;
+    double td = 1.0 / (nu * (kx * kx + ky * ky));
 
-        double X = i + 0.5;
-        double Y = j + 0.5;
-        ux_arrs[nbx](i, j, k) = -u_max * sqrt(ky / kx) * cos(kx * X) *
-                                sin(ky * Y) * exp(-1.0 * t / td);
-        uy_arrs[nbx](i, j, k) = u_max * sqrt(kx / ky) * sin(kx * X) *
-                                cos(ky * Y) * exp(-1.0 * t / td);
-        double P =
-            -0.25 * rho0 * u_max * u_max *
-            ((ky / kx) * cos(2.0 * kx * X) + (kx / ky) * cos(2.0 * ky * Y)) *
-            exp(-2.0 * t / td);
-        rho_arrs[nbx](i, j, k) = rho0 + 3.0 * P;
-      });
+    double X = i + 0.5;
+    double Y = j + 0.5;
+    ux_arrs[nbx](i, j, k) =
+        -u_max * sqrt(ky / kx) * cos(kx * X) * sin(ky * Y) * exp(-1.0 * t / td);
+    uy_arrs[nbx](i, j, k) =
+        u_max * sqrt(kx / ky) * sin(kx * X) * cos(ky * Y) * exp(-1.0 * t / td);
+    double P = -0.25 * rho0 * u_max * u_max *
+               ((ky / kx) * cos(2.0 * kx * X) + (kx / ky) * cos(2.0 * ky * Y)) *
+               exp(-2.0 * t / td);
+    rho_arrs[nbx](i, j, k) = rho0 + 3.0 * P;
+  });
 }
 
 void init_equilibrium(amrex::MultiFab &f1, amrex::MultiFab &rho,
@@ -92,7 +91,7 @@ void init_equilibrium(amrex::MultiFab &f1, amrex::MultiFab &rho,
   const amrex::IntVect ngs(Nghost);
 
   amrex::ParallelFor(
-      f1, ngs, [=] AMREX_GPU_DEVICE(int nbx, int i, int j, int k) noexcept {
+      f1, [=] AMREX_GPU_DEVICE(int nbx, int i, int j, int k) noexcept {
         for (unsigned int i_dir = 0; i_dir < ndir; ++i_dir) {
           double cidotu = dirx[i_dir] * ux_arrs[nbx](i, j, k) +
                           diry[i_dir] * uy_arrs[nbx](i, j, k);
@@ -105,6 +104,12 @@ void init_equilibrium(amrex::MultiFab &f1, amrex::MultiFab &rho,
               (1.0 + 3.0 * cidotu + 4.5 * cidotu * cidotu -
                1.5 * (ux_arrs[nbx](i, j, k) * ux_arrs[nbx](i, j, k) +
                       uy_arrs[nbx](i, j, k) * uy_arrs[nbx](i, j, k)));
+
+          // if (i==7 && j== 6 && i_dir == 1){
+          //   amrex::Print() << "nbx, i,j,k: " << nbx << " , " << i << " , " <<
+          //   j << " , " << k << " f1: " << f1_arrs[nbx](i, j, k, i_dir) <<
+          //   "\n";
+          // }
           // f1_local(i,j,k) = 0.0;
           // amrex::Print() << "i,j,k: " << i << " , " << j <<  " , " << k << "
           // f1: " << f1_local(i, j, k) << "\n";
@@ -121,23 +126,42 @@ void stream(amrex::MultiFab &f_old, amrex::MultiFab &f_new, int Nx, int Ny,
   const amrex::IntVect ngs(Nghost);
 
   amrex::ParallelFor(
-      f_old, ngs, [=] AMREX_GPU_DEVICE(int nbx, int i, int j, int k) noexcept {
-        // amrex::Print() << "nbx: " << nbx << " i: " << i << " j: " << j <<
-        // "\n";
+      f_new, [=] AMREX_GPU_DEVICE(int nbx, int i, int j, int k) noexcept {
+        // amrex::Print() << "nbx: " << nbx << " i: " << i << " j: " << j
+        // <<"\n";
         for (unsigned int i_dir = 0; i_dir < ndir; ++i_dir) {
-          int imd = (Nx + i - dirx[i_dir]) % Nx;
-          int jmd = (Ny + j - diry[i_dir]) % Ny;
-      // if (i_dir == 1){
-      //     amrex::Print() << i_dir<<"\t" << i <<"\t" << j  <<"\t"<< imd <<"\t"
-      //     <<jmd << "\n";
-      // }
+          int imd = i - dirx[i_dir];
+          int jmd = j - diry[i_dir];
 
+      // need to find the box index of  imd,jmd,kmd , no, find the corresponding
+      // ghost cell in my own box
 #if (AMREX_SPACEDIM == 2)
           f_new_arrs[nbx](i, j, k, i_dir) = f_old_arrs[nbx](imd, jmd, k, i_dir);
 #elif (AMREX_SPACEDIM == 3)
-                                int kmd = (Nz+k-dirz[i_dir])%Nz;
+                                int kmd = k-dirz[i_dir];
                                 f_new_arrs[nbx](i,j,k,i_dir) = f_old_arrs[nbx](imd,jmd,kmd,i_dir);
 #endif
+          //           int inew =  i + dirx[i_dir];
+          //           int jnew =  j + diry[i_dir];
+          //           // if (i_dir == 1){
+          //           //     amrex::Print() << i_dir<<"\t" << i <<"\t" << j
+          //           <<"\t"<< imd <<"\t"
+          //           //     <<jmd << "\n";
+          //           // }
+          //           // if ((i_dir == 1) && (imd ==0)) {
+          //           //   amrex::Print() <<
+          //           i_dir<<"\t"<<dirx[i_dir]<<"\t"<<diry[i_dir]<<"\t" << i
+          //           <<"\t" << j  <<"\t"<< imd <<"\t"<<jmd << "\n";
+          //           // }
+
+          // #if (AMREX_SPACEDIM == 2)
+          //           f_new_arrs[nbx](inew, jnew, k, i_dir) =
+          //           f_old_arrs[nbx](i, j, k, i_dir);
+          // #elif (AMREX_SPACEDIM == 3)
+          //                                 int new = (Nz+k+dirz[i_dir])%Nz;
+          //                                 f_new_arrs[nbx](inew,jnew,knew,i_dir)
+          //                                 = f_old_arrs[nbx](i, j, k,i_dir);
+          // #endif
         }
       });
 }
@@ -152,7 +176,7 @@ void compute_rho_u(amrex::MultiFab &f1, amrex::MultiFab &rho,
   const amrex::IntVect ngs(Nghost);
 
   amrex::ParallelFor(
-      f1, ngs, [=] AMREX_GPU_DEVICE(int nbx, int i, int j, int k) noexcept {
+      f1, [=] AMREX_GPU_DEVICE(int nbx, int i, int j, int k) noexcept {
         double rho_temp = 0.0;
         double ux_temp = 0.0;
         double uy_temp = 0.0;
@@ -169,21 +193,23 @@ void compute_rho_u(amrex::MultiFab &f1, amrex::MultiFab &rho,
       });
 }
 
-void collide(amrex::MultiFab &f1, amrex::MultiFab &f2, amrex::MultiFab &rho,
-             amrex::MultiFab &ux, amrex::MultiFab &uy, double nu, int Nghost) {
+void collide(amrex::MultiFab &f_old, amrex::MultiFab &f_new,
+             amrex::MultiFab &rho, amrex::MultiFab &ux, amrex::MultiFab &uy,
+             double nu, int Nghost) {
   // useful constants
   double tauinv = 2.0 / (6.0 * nu + 1.0); // 1/tau
   double omtauinv = 1.0 - tauinv;         // 1 - 1/tau
 
-  const amrex::MultiArray4<amrex::Real> &f1_arrs = f1.arrays();
-  const amrex::MultiArray4<amrex::Real> &f2_arrs = f2.arrays();
+  const amrex::MultiArray4<amrex::Real> &f_old_arrs = f_old.arrays();
+  const amrex::MultiArray4<amrex::Real> &f_new_arrs = f_new.arrays();
   const amrex::MultiArray4<amrex::Real> &rho_arrs = rho.arrays();
   const amrex::MultiArray4<amrex::Real> &ux_arrs = ux.arrays();
   const amrex::MultiArray4<amrex::Real> &uy_arrs = uy.arrays();
   const amrex::IntVect ngs(Nghost);
 
   amrex::ParallelFor(
-      f2, ngs, [=] AMREX_GPU_DEVICE(int nbx, int i, int j, int k) noexcept {
+      f_old, [=] AMREX_GPU_DEVICE(int nbx, int i, int j, int k) noexcept {
+        //  amrex::Print() <<"\t" << i <<"\t" << j   <<"\n";
         for (unsigned int i_dir = 0; i_dir < ndir; ++i_dir) {
 
           double cidotu = dirx[i_dir] * ux_arrs[nbx](i, j, k) +
@@ -195,8 +221,8 @@ void collide(amrex::MultiFab &f1, amrex::MultiFab &f2, amrex::MultiFab &rho,
                                uy_arrs[nbx](i, j, k) * uy_arrs[nbx](i, j, k)));
 
           // relax to equilibrium
-          f2_arrs[nbx](i, j, k, i_dir) =
-              omtauinv * f1_arrs[nbx](i, j, k, i_dir) + tauinv * feq;
+          f_new_arrs[nbx](i, j, k, i_dir) =
+              omtauinv * f_old_arrs[nbx](i, j, k, i_dir) + tauinv * feq;
         }
       });
 }
@@ -351,12 +377,13 @@ int main(int argc, char *argv[]) {
     for (int step = 1; step <= NSTEP; ++step) {
 
       amrex::Print() << "step: " << step << "\n";
+
       stream(f_old, f_new, Nx, Ny, Nghost);
 
       compute_rho_u(f_new, rho, ux, uy, Nghost);
       amrex::MultiFab::Swap(f_new, f_old, 0, 0, ndir, Nghost);
-
-      collide(f_new, f_old, rho, ux, uy, nu, Nghost);
+      f_old.FillBoundary(geom.periodicity());
+      collide(f_old, f_new, rho, ux, uy, nu, Nghost);
       amrex::MultiFab::Swap(f_new, f_old, 0, 0, ndir, Nghost);
       f_new.FillBoundary(geom.periodicity());
       f_old.FillBoundary(geom.periodicity());
