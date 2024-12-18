@@ -1,6 +1,0 @@
-scale=2
-max_grid_size = 16 // a problem here, using patches would cause problem in stream
-
-Nx = 32
-NSTEP=200
-plot_int=25

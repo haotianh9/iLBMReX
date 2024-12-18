@@ -1,16 +1,15 @@
 # Prerequisites
 *.d
-
 # Compiled Object files
 *.slo
 *.lo
 *.o
 *.obj
+*.ex
 *tmp_build_dir/*
 # Precompiled Headers
 *.gch
 *.pch
-
 # Compiled Dynamic libraries
 *.so
 *.dylib
@@ -34,6 +33,10 @@
 
 # Debug files
 *Backtrace.0
+Visualization_debug.ipynb
+
+#development files
+.vscode
 
 # Data files
 *plt*/
