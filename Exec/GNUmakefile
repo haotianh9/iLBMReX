@@ -31,10 +31,3 @@ check-format: $(MY_SRC_FILES)
 	@echo "Checking formatting of project-specific files..."
 	@$(foreach file,$(MY_SRC_FILES),$(FORMATTER) --dry-run --Werror $(file) || exit 1;)
 
-.PHONY: help
-help:
-	@echo "Available targets:"
-	@echo "  format       - Format project-specific source files in ../Src."
-	@echo "  check-format - Check formatting of project-specific source files."
-	@echo "  clean        - Clean up temporary files (if needed)."
-	@echo "  all          - Default build target (from AMReX rules)."
