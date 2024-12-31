@@ -1,25 +1,23 @@
-# AMREX_HOME defines the directory in which we will find all the AMReX code.
-AMREX_HOME ?= /home/haotian/Work_LBM/amrex
 
-DEBUG        = True
-USE_MPI      = FALSE
-USE_OMP      = FALSE
-COMP         = gnu
-DIM          = 2
+PRECISION  = DOUBLE
+PROFILE    = FALSE
 
-# Include necessary AMReX and project-specific configurations
-include $(AMREX_HOME)/Tools/GNUMake/Make.defs
-include ../Src/Make.package
-VPATH_LOCATIONS  += ../Src
-INCLUDE_LOCATIONS += ../Src
-include $(AMREX_HOME)/Src/Base/Make.package
-include $(AMREX_HOME)/Tools/GNUMake/Make.rules
+DEBUG      = TRUE
+# DEBUG      = FALSE
 
-# Define formatting rules for your project files only
-FORMATTER = clang-format
-FORMAT_OPTS = -i
-SRC_EXTENSIONS = cpp h
-MY_SRC_FILES = $(shell find ../Src -type f \( $(foreach ext,$(SRC_EXTENSIONS),-name '*.$(ext)') \))
+DIM        = 2
+#DIM       = 3
+
+COMP	   = gnu
+
+USE_MPI    = TRUE
+USE_OMP    = FALSE 
+USE_CUDA   = FALSE
+
+Bpack   := ./Make.package 
+Blocs   := . 
+
+include Make.LBM
 
 .PHONY: format
 format: $(MY_SRC_FILES)

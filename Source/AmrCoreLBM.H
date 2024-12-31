@@ -107,6 +107,9 @@ private:
     // a wrapper for EstTimeStep
     void ComputeDt ();
 
+    // initialize probability density function based on given IC of velocity and density fields
+    void InitEquilibrium () ;
+
     // get plotfile name
     std::string PlotFileName (int lev) const;
 
@@ -115,6 +118,8 @@ private:
 
     // set plotfile variables names
     amrex::Vector<std::string> PlotFileVarNames () const;
+
+    
 
     // write plotfile to disk
     void WritePlotFile () const;
@@ -127,31 +132,39 @@ private:
 
     ////////////////
     // private data members
-    #if (AMREX_SPACEDIM == 2)
+#if (AMREX_SPACEDIM == 2)
     // D2Q9 parameters
-    const unsigned int ndir = 9;
-    const double w0 = 4.0 / 9.0;  // zero weight
-    const double ws = 1.0 / 9.0;  // adjacent weight
-    const double wd = 1.0 / 36.0; // diagonal weight
-    const double wi[] = {w0, ws, ws, ws, ws, wd, wd, wd, wd};
-    const int dirx[] = {0, 1, 0, -1, 0, 1, -1, -1, 1};
-    const int diry[] = {0, 0, 1, 0, -1, 1, 1, -1, -1};
-    #elif (AMREX_SPACEDIM == 3)
+    static constexpr unsigned int ndir = 9;
+    static constexpr double w0 = 4.0 / 9.0;  // zero weight
+    static constexpr double ws = 1.0 / 9.0;  // adjacent weight
+    static constexpr double wd = 1.0 / 36.0; // diagonal weight
+    static constexpr std::array<double, ndir> wi = {w0, ws, ws, ws, ws, wd, wd, wd, wd};
+    static constexpr std::array<int, ndir> dirx = {0, 1, 0, -1, 0, 1, -1, -1, 1};
+    static constexpr std::array<int, ndir> diry = {0, 0, 1, 0, -1, 1, 1, -1, -1};
+#elif (AMREX_SPACEDIM == 3)
     // D3Q27 parameters
-    const unsigned int ndir = 27;
-    const double w0 = 8.0 / 27.0;  // zero weight
-    const double ws = 2.0 / 27.0;  // adjacent weight
-    const double wd = 1.0 / 54.0;  // diagonal weight
-    const double wv = 1.0 / 216.0; // vertex weight
-    const double wi[] = {w0, ws, ws, ws, ws, ws, ws, wd, wd, wd, wd, wd, wd, wd,
-                        wd, wd, wd, wd, wd, wv, wv, wv, wv, wv, wv, wv, wv};
-    const int dirx[] = {0,  +1, -1, 0, 0, 0,  0,  +1, -1, +1, -1, 0,  0, +1,
-                        -1, +1, -1, 0, 0, +1, -1, +1, -1, +1, -1, -1, +1};
-    const int diry[] = {0,  0, 0, +1, -1, 0,  0,  +1, -1, 0,  0,  +1, -1, -1,
-                        +1, 0, 0, +1, -1, +1, -1, +1, -1, -1, +1, +1, -1};
-    const int diry[] = {0, 0,  0,  0,  0,  +1, -1, 0,  0,  +1, -1, +1, -1, 0,
-                        0, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1};
-    #endif
+    static constexpr unsigned int ndir = 27;
+    static constexpr double w0 = 8.0 / 27.0;  // zero weight
+    static constexpr double ws = 2.0 / 27.0;  // adjacent weight
+    static constexpr double wd = 1.0 / 54.0;  // diagonal weight
+    static constexpr double wv = 1.0 / 216.0; // vertex weight
+    static constexpr std::array<double, ndir> wi = {
+        w0, ws, ws, ws, ws, ws, ws, wd, wd, wd, wd, wd, wd, wd, wd, wd, wd, wd, wd, 
+        wv, wv, wv, wv, wv, wv, wv, wv
+    };
+    static constexpr std::array<int, ndir> dirx = {
+        0, +1, -1, 0, 0, 0, 0, +1, -1, +1, -1, 0, 0, +1, -1, +1, -1, 0, 0, +1, -1, 
+        +1, -1, +1, -1, -1, +1
+    };
+    static constexpr std::array<int, ndir> diry = {
+        0, 0, 0, +1, -1, 0, 0, +1, -1, 0, 0, +1, -1, -1, +1, 0, 0, +1, -1, +1, -1, 
+        +1, -1, -1, +1, +1, -1
+    };
+    static constexpr std::array<int, ndir> dirz = {
+        0, 0, 0, 0, 0, +1, -1, 0, 0, +1, -1, +1, -1, 0, 0, -1, +1, -1, +1, +1, -1, 
+        -1, +1, +1, -1, +1, -1
+    };
+#endif
     amrex::Vector<int> istep;      // which step?
     amrex::Vector<int> nsubsteps;  // how many substeps on each level?
 
@@ -159,11 +172,17 @@ private:
     amrex::Vector<amrex::Real> t_new;
     amrex::Vector<amrex::Real> t_old;
     amrex::Vector<amrex::Real> dt;
+    
 
     // array of multifabs to store the solution at each level of refinement
     // after advancing a level we use "swap".
     amrex::Vector<amrex::MultiFab> f_old;
     amrex::Vector<amrex::MultiFab> f_new;
+    amrex::Vector<amrex::MultiFab> ux;
+    amrex::Vector<amrex::MultiFab> uy;
+    amrex::Vector<amrex::MultiFab> rho;
+    
+
 
     // this is essentially a 2*DIM integer array storing the physical boundary
     // condition types at the lo/hi walls in each direction
@@ -190,9 +209,9 @@ private:
     // if >= 0 we restart from a checkpoint
     std::string restart_chkfile = "";
 
-    // advective cfl number - dt = cfl*dx/umax
-    amrex::Real cfl = 0.7;
 
+    double nu = 1.0 / 6.0;
+    double tau = 3.0 * nu + 0.5;
     // how often each level regrids the higher levels of refinement
     // (after a level advances that many time steps)
     int regrid_int = 2;
