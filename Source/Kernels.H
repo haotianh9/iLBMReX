@@ -5,7 +5,7 @@
 #include <Prob.H>
 // #include <Adv_K.H>
 // #include <slope_K.H>
-// #include <Tagging.H>
+#include <Tagging.H>
 // #include <bc_fill.H>
 
 // #if (AMREX_SPACEDIM == 2)

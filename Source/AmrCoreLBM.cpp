@@ -166,7 +166,7 @@ AmrCoreLBM::InitData ()
         // amrex::Print() << "Done with InitData" << std::endl;
         InitEquilibrium();
         AverageDown();
-
+        amrex::Print() << "max_level: " << max_level<< std::endl;
         if (chk_int > 0) {
             WriteCheckpointFile();
         }
@@ -265,6 +265,7 @@ AmrCoreLBM::ClearLevel (int lev)
 void AmrCoreLBM::MakeNewLevelFromScratch (int lev, Real time, const BoxArray& ba,
                                           const DistributionMapping& dm)
 {
+    amrex::Print() << "Making new level " << lev << std::endl;
     const int ncomp = 1;
     const int nghost = 1;
 
@@ -321,50 +322,49 @@ void
 AmrCoreLBM::ErrorEst (int lev, TagBoxArray& tags, Real /*time*/, int /*ngrow*/)
 {
     static bool first = true;
-    static Vector<Real> phierr;
+    static Vector<Real> absvor;
+    // amrex::Print() << "Tagging cells for refinement, level: " << lev << std::endl;
+    // only do this during the first call to ErrorEst
+    if (first)
+    {
+        first = false;
+        // read in an array of "phierr", which is the tagging threshold
+        // in this example, we tag values of "phi" which are greater than phierr
+        // for that particular level
+        // in subroutine state_error, you could use more elaborate tagging, such
+        // as more advanced logical expressions, or gradients, etc.
+        ParmParse pp("lbm");
+        int n = pp.countval("absvor");
+        if (n > 0) {
+            pp.getarr("absvor", absvor, 0, n);
+        }
+    }
 
-//     // only do this during the first call to ErrorEst
-//     if (first)
-//     {
-//         first = false;
-//         // read in an array of "phierr", which is the tagging threshold
-//         // in this example, we tag values of "phi" which are greater than phierr
-//         // for that particular level
-//         // in subroutine state_error, you could use more elaborate tagging, such
-//         // as more advanced logical expressions, or gradients, etc.
-//         ParmParse pp("lbm");
-//         int n = pp.countval("phierr");
-//         if (n > 0) {
-//             pp.getarr("phierr", phierr, 0, n);
-//         }
-//     }
+    if (lev >= absvor.size()) return;
 
-//     if (lev >= phierr.size()) return;
+//    const int clearval = TagBox::CLEAR;
+    const int   tagval = TagBox::SET;
 
-// //    const int clearval = TagBox::CLEAR;
-//     const int   tagval = TagBox::SET;
+    const MultiFab& rho_fab = rho[lev];
+    // for now as a place holder, I used density fluctuation as the indicator for refinement, 
+#ifdef AMREX_USE_OMP
+#pragma omp parallel if(Gpu::notInLaunchRegion())
+#endif
+    {
+        for (MFIter mfi(rho_fab,TilingIfNotGPU()); mfi.isValid(); ++mfi)
+        {
+            const Box& bx  = mfi.tilebox();
+            const auto fabrho = rho_fab.array(mfi);
+            const auto tagfab  = tags.array(mfi);
+            Real absvorticity = absvor[lev];
 
-//     const MultiFab& state = phi_new[lev];
-
-// #ifdef AMREX_USE_OMP
-// #pragma omp parallel if(Gpu::notInLaunchRegion())
-// #endif
-//     {
-
-//         for (MFIter mfi(state,TilingIfNotGPU()); mfi.isValid(); ++mfi)
-//         {
-//             const Box& bx  = mfi.tilebox();
-//             const auto statefab = state.array(mfi);
-//             const auto tagfab  = tags.array(mfi);
-//             Real phierror = phierr[lev];
-
-//             amrex::ParallelFor(bx,
-//             [=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
-//             {
-//                 state_error(i, j, k, tagfab, statefab, phierror, tagval);
-//             });
-//         }
-//     }
+            amrex::ParallelFor(bx,
+            [=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
+            {
+                state_error(i, j, k, tagfab, fabrho, absvorticity, tagval);
+            });
+        }
+    }
 }
 
 // read in some parameters from inputs file
@@ -741,8 +741,8 @@ AmrCoreLBM::PlotFileMF () const
 {
     Vector<const MultiFab*> r;
     for (int i = 0; i <= finest_level; ++i) {
-        r.push_back(&f_old[i]);
-        // r.push_back(&rho[i]);
+        // r.push_back(&f_old[i]);
+        r.push_back(&rho[i]);
         // r.push_back(&ux[i]);
         // r.push_back(&uy[i]);
     }
@@ -754,12 +754,12 @@ AmrCoreLBM::PlotFileMF () const
 Vector<std::string>
 AmrCoreLBM::PlotFileVarNames () const
 {   
-    return {"f0","f1","f2","f3","f4","f5","f6","f7","f8"};
+    // return {"f0","f1","f2","f3","f4","f5","f6","f7","f8"};
     // return {"rho", "ux", "uy"};
     // return {"f_new", "rho", "ux", "uy"};
     // return {"f0","f1","f2","f3","f4","f5","f6","f7","f8", "rho", "ux", "uy"};
     // return {"f_new"};
-    // return {"rho"};
+    return {"rho"};
 }
 
 // write plotfile to disk
@@ -976,10 +976,10 @@ AmrCoreLBM::InitEquilibrium (){
         for (MFIter mfi(f_old_fab,TilingIfNotGPU()); mfi.isValid(); ++mfi)
         {
             const Box& bx  = mfi.tilebox();
-            Array4<Real> fab_ux = ux_fab[mfi].array();
-            Array4<Real> fab_uy = uy_fab[mfi].array();
-            Array4<Real> fab_rho = rho_fab[mfi].array();
-            Array4<Real> fab_f_old = f_old_fab[mfi].array();
+            Array4<Real> ux_array = ux_fab[mfi].array();
+            Array4<Real> uy_array = uy_fab[mfi].array();
+            Array4<Real> rho_array = rho_fab[mfi].array();
+            Array4<Real> f_old_array = f_old_fab[mfi].array();
             const Box& box = mfi.tilebox();
 
              amrex::ParallelFor(bx,
@@ -987,16 +987,16 @@ AmrCoreLBM::InitEquilibrium (){
             {
               
                 for (unsigned int i_dir = 0; i_dir < ndir; ++i_dir) {
-                    double cidotu = dirx[i_dir] * fab_ux(i, j, k) +
-                                    diry[i_dir] * fab_uy(i, j, k);
+                    double cidotu = dirx[i_dir] * ux_array(i, j, k) +
+                                    diry[i_dir] * uy_array(i, j, k);
 
                     // amrex::Print() <<cidotu << "\t" << rho_local(i,j,0) << "\t" <<
                     // ux_local(i,j,0) << "\t" << uy_local(i,j,0) << "\n";
-                    fab_f_old(i, j, k, i_dir) =
-                        wi[i_dir] * fab_rho(i, j, k) *
+                    f_old_array(i, j, k, i_dir) =
+                        wi[i_dir] * rho_array(i, j, k) *
                         (1.0 + 3.0 * cidotu + 4.5 * cidotu * cidotu -
-                        1.5 * (fab_ux(i, j, k) * fab_ux(i, j, k) +
-                                fab_uy(i, j, k) * fab_uy(i, j, k)));
+                        1.5 * (ux_array(i, j, k) * ux_array(i, j, k) +
+                                uy_array(i, j, k) * uy_array(i, j, k)));
                     }
               
             });

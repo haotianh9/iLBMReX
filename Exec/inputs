@@ -61,7 +61,8 @@ lbm.do_reflux = 1
 #            if abs(vor) > 1.1  at level 1, then refine
 #            if abs(vor) > 1.5  at level 2, then refine
 # *****************************************************************
-lbm.absvor = 1.01  1.1  1.5
+# lbm.absvor = 1.01  1.1  1.5
+lbm.absvor = 0.00025 0.0005 0.001
 
 # *****************************************************************
 # Plotfile name and frequency
