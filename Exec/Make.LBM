@@ -1,4 +1,4 @@
-AMREX_HOME ?= /home/haotian/Work_LBM/amrex
+AMREX_HOME ?= ../amrex
 LBM_DIR    = ../
 
 TOP := $(LBM_DIR)
