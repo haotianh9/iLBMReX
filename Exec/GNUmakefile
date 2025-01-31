@@ -19,13 +19,8 @@ Blocs   := .
 
 include Make.LBM
 
-.PHONY: format
-format: $(MY_SRC_FILES)
-	@echo "Formatting project-specific files..."
-	$(foreach file,$(MY_SRC_FILES),$(FORMATTER) $(FORMAT_OPTS) $(file) && echo "Formatted $(file)";)
-
-.PHONY: check-format
-check-format: $(MY_SRC_FILES)
-	@echo "Checking formatting of project-specific files..."
-	@$(foreach file,$(MY_SRC_FILES),$(FORMATTER) --dry-run --Werror $(file) || exit 1;)
-
+format:
+	@echo "Formatting source code..."
+	@find $(foreach dir, $(Bdirs), $(TOP)/$(dir)) -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) \
+		-exec clang-format -i {} +
+	@echo "Formatting complete."
