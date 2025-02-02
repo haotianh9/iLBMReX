@@ -58,19 +58,18 @@ public:
     // overrides the pure virtual function in AmrCore
     virtual void ErrorEst (int lev, amrex::TagBoxArray& tags, amrex::Real time, int ngrow) override;
 
-    // Advance phi at a single level for a single time step, update flux registers
-    void AdvancePhiAtLevel (int lev, amrex::Real time, amrex::Real dt_lev, int iteration, int ncycle);
+    
+   
+    
 
-    // Advance phi at all levels for a single time step
-    void AdvancePhiAllLevels (amrex::Real time, amrex::Real dt_lev, int iteration);
+    // Advance pdf at a single level for a single time step, update flux registers
+    void CollideAndStreamAtLevel (int lev, amrex::Real time, amrex::Real dt_lev, int /*iteration*/, int /*ncycle*/);
 
-    // Define the advection velocity as the curl of a scalar field
-    void DefineVelocityAtLevel (int lev, amrex::Real time);
+    // Advance pdf at all levels for a single time step
+    void CollideAndStreamAllLevels (amrex::Real time, amrex::Real dt_lev, int iteration);
 
-    void DefineVelocityAllLevels (amrex::Real time);
+    void ComputeDensityVelocity (int lev);
 
-    // compute dt from CFL considerations
-    amrex::Real EstTimeStep (int lev, amrex::Real time);
 
 private:
 
@@ -86,9 +85,11 @@ private:
     // more flexible version of AverageDown() that lets you average down across multiple levels
     void AverageDownTo (int crse_lev);
 
+    enum class FillPatchType { fillpatch_class, fillpatch_function };
+
     // compute a new multifab by coping in phi from valid region and filling ghost cells
     // works for single level and 2-level cases (fill fine grid ghost by interpolating from coarse)
-    void FillPatch (int lev, amrex::Real time, amrex::MultiFab& mf, int icomp, int ncomp);
+    void FillPatch (int lev, amrex::Real time, amrex::MultiFab& mf, int icomp, int ncomp, FillPatchType fptype);
 
     // fill an entire multifab by interpolating from the coarser level
     // this comes into play when a new level of refinement appears
@@ -101,12 +102,10 @@ private:
     // Advance a level by dt - includes a recursive call for finer levels
     void timeStepWithSubcycling (int lev, amrex::Real time, int iteration);
 
-    // Advance all levels by the same dt
+    // // Advance all levels by the same dt
     void timeStepNoSubcycling (amrex::Real time, int iteration);
 
-    // a wrapper for EstTimeStep
-    void ComputeDt ();
-
+   
     // initialize probability density function based on given IC of velocity and density fields
     void InitEquilibrium () ;
 
@@ -138,9 +137,9 @@ private:
     static constexpr double w0 = 4.0 / 9.0;  // zero weight
     static constexpr double ws = 1.0 / 9.0;  // adjacent weight
     static constexpr double wd = 1.0 / 36.0; // diagonal weight
-    static constexpr std::array<double, ndir> wi = {w0, ws, ws, ws, ws, wd, wd, wd, wd};
-    static constexpr std::array<int, ndir> dirx = {0, 1, 0, -1, 0, 1, -1, -1, 1};
-    static constexpr std::array<int, ndir> diry = {0, 0, 1, 0, -1, 1, 1, -1, -1};
+    static constexpr double wi[] = {w0, ws, ws, ws, ws, wd, wd, wd, wd};
+    static constexpr int dirx[] ={0, 1, 0, -1, 0, 1, -1, -1, 1};
+    static constexpr int diry[] ={0, 0, 1, 0, -1, 1, 1, -1, -1};
 #elif (AMREX_SPACEDIM == 3)
     // D3Q27 parameters
     static constexpr unsigned int ndir = 27;
@@ -148,19 +147,19 @@ private:
     static constexpr double ws = 2.0 / 27.0;  // adjacent weight
     static constexpr double wd = 1.0 / 54.0;  // diagonal weight
     static constexpr double wv = 1.0 / 216.0; // vertex weight
-    static constexpr std::array<double, ndir> wi = {
+    static constexpr double wi[] = {
         w0, ws, ws, ws, ws, ws, ws, wd, wd, wd, wd, wd, wd, wd, wd, wd, wd, wd, wd, 
         wv, wv, wv, wv, wv, wv, wv, wv
     };
-    static constexpr std::array<int, ndir> dirx = {
+    static constexpr int dirx[] ={
         0, +1, -1, 0, 0, 0, 0, +1, -1, +1, -1, 0, 0, +1, -1, +1, -1, 0, 0, +1, -1, 
         +1, -1, +1, -1, -1, +1
     };
-    static constexpr std::array<int, ndir> diry = {
+    static constexpr int diry[] ={
         0, 0, 0, +1, -1, 0, 0, +1, -1, 0, 0, +1, -1, -1, +1, 0, 0, +1, -1, +1, -1, 
         +1, -1, -1, +1, +1, -1
     };
-    static constexpr std::array<int, ndir> dirz = {
+    static constexpr int dirz[] ={
         0, 0, 0, 0, 0, +1, -1, 0, 0, +1, -1, +1, -1, 0, 0, -1, +1, -1, +1, +1, -1, 
         -1, +1, +1, -1, +1, -1
     };
@@ -199,6 +198,9 @@ private:
     // Velocity on all faces at all levels
     amrex::Vector< amrex::Array<amrex::MultiFab, AMREX_SPACEDIM> > facevel;
 
+    const int ncomp = 1;
+    const int nghost = 1;
+
     ////////////////
     // runtime parameters
 
@@ -229,6 +231,7 @@ private:
     // checkpoint prefix and frequency
     std::string chk_file {"chk"};
     int chk_int = -1;
+    
 };
 
 #endif

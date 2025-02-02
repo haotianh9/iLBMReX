@@ -13,5 +13,5 @@
 // #else
 // #include <compute_flux_3D_K.H>
 // #endif
-
+#include <collide_stream.H>
 #endif

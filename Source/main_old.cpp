@@ -3,10 +3,10 @@
  *
  */
 
+#include "velocity_set_data.H"
 #include <AMReX.H>
 #include <AMReX_ParmParse.H>
 #include <AMReX_PlotFileUtil.H>
-#include "velocity_set_data.H"
 
 void taylor_green(amrex::Real t, amrex::MultiFab &rho, amrex::MultiFab &ux,
                   amrex::MultiFab &uy, double rho0, double u_max, double nu,

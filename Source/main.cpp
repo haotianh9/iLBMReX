@@ -9,36 +9,36 @@
 
 using namespace amrex;
 
-int main(int argc, char* argv[])
-{
-    amrex::Initialize(argc,argv);
-    
-    {
-        // timer for profiling
-        BL_PROFILE("main()");
+int main(int argc, char *argv[]) {
+  amrex::Initialize(argc, argv);
 
-        // wallclock time
-        const auto strt_total = amrex::second();
+  {
+    // timer for profiling
+    BL_PROFILE("main()");
 
-        // constructor - reads in parameters from inputs file
-        //             - sizes multilevel arrays and data structures
-        AmrCoreLBM amr_core_lbm;
+    // wallclock time
+    const auto strt_total = amrex::second();
 
-        // initialize AMR data
-        amr_core_lbm.InitData();
+    // constructor - reads in parameters from inputs file
+    //             - sizes multilevel arrays and data structures
+    AmrCoreLBM amr_core_lbm;
 
-        // // advance solution to final time
-        // amr_core_lbm.Evolve();
+    // initialize AMR data
+    amr_core_lbm.InitData();
 
-        // // wallclock time
-        // auto end_total = amrex::second() - strt_total;
+    // advance solution to final time
+    amr_core_lbm.Evolve();
 
-        // if (amr_core_lbm.Verbose()) {
-        //     // print wallclock time
-        //     ParallelDescriptor::ReduceRealMax(end_total ,ParallelDescriptor::IOProcessorNumber());
-        //     amrex::Print() << "\nTotal Time: " << end_total << '\n';
-        // }
-    }
+    // // wallclock time
+    // auto end_total = amrex::second() - strt_total;
 
-    amrex::Finalize();
+    // if (amr_core_lbm.Verbose()) {
+    //     // print wallclock time
+    //     ParallelDescriptor::ReduceRealMax(end_total
+    //     ,ParallelDescriptor::IOProcessorNumber()); amrex::Print() << "\nTotal
+    //     Time: " << end_total << '\n';
+    // }
+  }
+
+  amrex::Finalize();
 }
