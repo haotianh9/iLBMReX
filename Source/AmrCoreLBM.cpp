@@ -270,7 +270,6 @@ void AmrCoreLBM::ClearLevel(int lev) {
 void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
                                          const DistributionMapping &dm) {
   amrex::Print() << "Making new level " << lev << std::endl;
-  
 
   f_new[lev].define(ba, dm, ndir, nghost);
   f_old[lev].define(ba, dm, ndir, nghost);

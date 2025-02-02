@@ -2,8 +2,8 @@
 #include <Kernels.H>
 using namespace amrex;
 // Advance pdf at a single level for a single time step, update flux registers
-void AmrCoreLBM::CollideAndStreamAtLevel(int lev, Real time, Real dt_lev, int /*iteration*/,
-                             int /*ncycle*/) {
+void AmrCoreLBM::CollideAndStreamAtLevel(int lev, Real time, Real dt_lev,
+                                         int /*iteration*/, int /*ncycle*/) {
   constexpr int Nghost = 1;
   std::swap(
       f_new[lev],
@@ -14,7 +14,8 @@ void AmrCoreLBM::CollideAndStreamAtLevel(int lev, Real time, Real dt_lev, int /*
   const Real dx = geom[lev].CellSize(0);
   const Real dy = geom[lev].CellSize(1);
   const Real dz = (AMREX_SPACEDIM == 2) ? Real(1.0) : geom[lev].CellSize(2);
-  AMREX_D_TERM(Real dtdx = dt_lev / dx;, Real dtdy = dt_lev / dy;   , Real dtdz = dt_lev / dz);
+  AMREX_D_TERM(Real dtdx = dt_lev / dx;, Real dtdy = dt_lev / dy;
+               , Real dtdz = dt_lev / dz);
 
   MultiFab &f_new_fab = f_new[lev];
   MultiFab &f_old_fab = f_old[lev];

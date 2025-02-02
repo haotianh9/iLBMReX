@@ -33,12 +33,20 @@ void collide_stream(amrex::Box const& bx,
                for ( int i_dir = 0; i_dir < ndir; ++i_dir) {
 
                 double cidotu = dirx[i_dir] * ux_arrs(i,j,k) +
-                                diry[i_dir] * uy_arrs(i,j,k);
+                                diry[i_dir] * uy_arrs(i,j,k)
+                                 #if (AMREX_SPACEDIM == 3)
+         + dirz[i_dir] * uz_arrs(i,j,k)
+            #endif
+                                ;
                 // calculate equilibrium
                 double feq = wi[i_dir] * rho_arrs(i,j,k) *
                             (1.0 + 3.0 * cidotu + 4.5 * cidotu * cidotu -
                                 1.5 * (ux_arrs(i,j,k)* ux_arrs(i,j,k) +
-                                    uy_arrs(i,j,k) * uy_arrs(i,j,k)));
+                                    uy_arrs(i,j,k) * uy_arrs(i,j,k)
+                                     #if (AMREX_SPACEDIM == 3)
+            + uz_arrs(i,j,k) * uz_arrs(i,j,k)
+            #endif
+                                    ));
 
                 // relax to equilibrium
                 f_old_arrs(i, j, k, i_dir) =
