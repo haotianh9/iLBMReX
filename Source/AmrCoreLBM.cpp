@@ -31,22 +31,31 @@ AmrCoreLBM::AmrCoreLBM() {
 
   istep.resize(nlevs_max, 0);
   nsubsteps.resize(nlevs_max, 1);
+
   if (do_subcycle) {
     for (int lev = 1; lev <= max_level; ++lev) {
-      nsubsteps[lev] = MaxRefRatio(lev - 1);
+      
+      nsubsteps[lev] =  MaxRefRatio(lev-1); //it means how many steps more relative to the previous step
+      // amrex::Print() << lev << "\t" <<nsubsteps[lev] << "\t" << MaxRefRatio(lev - 1)<< std::endl;
     }
   }
+  for (int lev = 0; lev <= max_level; ++lev) {
+      
+    amrex::Print() << lev << "\t" <<nsubsteps[lev] << "\t" << std::endl;
+  }
+  
   // amrex::Print() <<nlevs_max<<"\t"
   // <<nsubsteps[0]<<"\t"<<nsubsteps[1]<<"\t"<<nsubsteps[2]<<"\t"<<std::endl;
   t_new.resize(nlevs_max, 0.0);
   t_old.resize(nlevs_max, -1.e100);
   dt.resize(nlevs_max, 1.e100);
-
+  tau.resize(nlevs_max, tau_base);
   dt[0] = 1.0;
 
   for (int lev = 1; lev <= max_level; ++lev) {
-    // amrex::Print() << lev << std::endl;
-    dt[lev] = dt[lev - 1] / nsubsteps[lev];
+    // amrex::Print() << lev << "\t" <<nsubsteps[lev]<< std::endl;
+    dt[lev] = dt[lev-1] / nsubsteps[lev];
+    tau[lev] = (tau[lev-1] - 0.5) / nsubsteps[lev] + 0.5;
   }
   // amrex::Print() << dt[0] << "\t" << dt[1] << "\t" << std::endl;
   f_new.resize(nlevs_max);
@@ -116,6 +125,7 @@ void AmrCoreLBM::Evolve() {
 
     int lev = 0;
     int iteration = 1;
+
     if (do_subcycle)
       timeStepWithSubcycling(lev, cur_time, iteration);
     else
@@ -136,10 +146,10 @@ void AmrCoreLBM::Evolve() {
     //             t_new[lev] = cur_time;
     //         }
 
-    //         if (plot_int > 0 && (step+1) % plot_int == 0) {
-    //             last_plot_file_step = step+1;
-    //             WritePlotFile();
-    //         }
+            if (plot_int > 0 && (step+1) % plot_int == 0) {
+                last_plot_file_step = step+1;
+                WritePlotFile();
+            }
 
     //         if (chk_int > 0 && (step+1) % chk_int == 0) {
     //             WriteCheckpointFile();
@@ -604,7 +614,7 @@ void AmrCoreLBM::timeStepWithSubcycling(int lev, Real time, int iteration) {
 
   Real t_nph = t_old[lev] + 0.5 * dt[lev];
 
-  CollideAndStreamAtLevel(lev, time, dt[lev], iteration, nsubsteps[lev]);
+  AdvanceAtLevel(lev, time, dt[lev], iteration, nsubsteps[lev]);
 
   ++istep[lev];
 

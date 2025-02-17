@@ -13,5 +13,7 @@
 // #else
 // #include <compute_flux_3D_K.H>
 // #endif
-#include <collide_stream.H>
+#include <calculate_macro_velo_rho.H>
+#include <stream.H>
+#include <collide.H>
 #endif

@@ -1,2 +1,2 @@
-CEXE_headers += collide_stream.H
+CEXE_headers += kernel.H
 

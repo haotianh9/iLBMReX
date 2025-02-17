@@ -5,8 +5,7 @@
 #include <AMReX_FArrayBox.H>
 #include <AMReX_Geometry.H>
 
-double u_max = (double)0.02;
-double rho0 = 1.0;
+
 
 AMREX_GPU_DEVICE
 AMREX_FORCE_INLINE
@@ -17,6 +16,8 @@ initdata(amrex::Box const& bx, amrex::Array4<amrex::Real> const& rho,amrex::Arra
 {
     using namespace amrex;
     double t=0;
+    double u_max = (double)0.02;
+    double rho0 = 1.0;
     const auto lo = lbound(bx);
     const auto hi = ubound(bx);
     double kx = 2.0 * M_PI / (prob_hi[0]-prob_lo[0]);

@@ -2,15 +2,15 @@
 #include <Kernels.H>
 using namespace amrex;
 // Advance pdf at a single level for a single time step, update flux registers
-void AmrCoreLBM::CollideAndStreamAtLevel(int lev, Real time, Real dt_lev,
-                                         int /*iteration*/, int /*ncycle*/) {
-  constexpr int Nghost = 1;
+void AmrCoreLBM::AdvanceAtLevel(int lev, Real time, Real dt_lev,
+                                int /*iteration*/, int /*ncycle*/) {
+
   std::swap(
       f_new[lev],
       f_old[lev]); // why using std swap instead of using amrex::MultiFab::Swap?
 
-  double tauinv = 2.0 / (6.0 * nu + 1.0); // 1/tau
-  double omtauinv = 1.0 - tauinv;         // 1 - 1/tau
+  double tauinv = tau[lev];       // 1/tau
+  double omtauinv = 1.0 - tauinv; // 1 - 1/tau
   const Real dx = geom[lev].CellSize(0);
   const Real dy = geom[lev].CellSize(1);
   const Real dz = (AMREX_SPACEDIM == 2) ? Real(1.0) : geom[lev].CellSize(2);
@@ -57,18 +57,34 @@ void AmrCoreLBM::CollideAndStreamAtLevel(int lev, Real time, Real dt_lev,
     for (MFIter mfi(f_new_fab, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
       const Box &bx = mfi.tilebox();
       const Box &gbx = amrex::grow(bx, 1);
-      Array4<Real const> f_old_arr = f_old_border.const_array(mfi);
-      Array4<Real const> ux_arr = ux_border.const_array(mfi);
-      Array4<Real const> uy_arr = uy_border.const_array(mfi);
-      Array4<Real const> rho_arr = rho_border.const_array(mfi);
       Array4<Real> f_new_arr = f_new_fab.array(mfi);
+      Array4<Real> f_old_arr = f_old_fab.array(mfi);
+      Array4<Real> ux_arr = ux_fab.array(mfi);
+      Array4<Real> uy_arr = uy_fab.array(mfi);
+      Array4<Real> rho_arr = rho_fab.array(mfi);
+
       amrex::launch(amrex::grow(gbx, 1), [=] AMREX_GPU_DEVICE(const Box &tbx) {
-        collide_stream(tbx, f_new_arr, f_old_arr, rho_arr, ux_arr, uy_arr,
-                       tauinv, omtauinv, ndir, dirx, diry,
+        // amrex::Print() << "tbx: " << tbx << std::endl;
+        // amrex::Print() << "stream" << std::endl;
+        stream(tbx, f_new_arr, f_old_arr, ndir, nghost, dirx, diry,
 #if (AMREX_SPACEDIM == 3)
-                       dirz,
+               dirz,
 #endif
-                       wi);
+               wi);
+        // amrex::Print() << "calculate velocity and density" << std::endl;
+        calculate_macro_velo_rho(tbx, f_new_arr, rho_arr, ux_arr, uy_arr, ndir,
+                                 nghost, dirx, diry,
+#if (AMREX_SPACEDIM == 3)
+                                 dirz,
+#endif
+                                 wi);
+        // amrex::Print() << "collide" << std::endl;
+        collide(tbx, f_new_arr, rho_arr, ux_arr, uy_arr, tauinv, omtauinv, ndir,
+                nghost, dirx, diry,
+#if (AMREX_SPACEDIM == 3)
+                dirz,
+#endif
+                wi);
       });
     }
   }

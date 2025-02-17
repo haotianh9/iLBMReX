@@ -63,10 +63,10 @@ public:
     
 
     // Advance pdf at a single level for a single time step, update flux registers
-    void CollideAndStreamAtLevel (int lev, amrex::Real time, amrex::Real dt_lev, int /*iteration*/, int /*ncycle*/);
+    void AdvanceAtLevel (int lev, amrex::Real time, amrex::Real dt_lev, int /*iteration*/, int /*ncycle*/);
 
     // Advance pdf at all levels for a single time step
-    void CollideAndStreamAllLevels (amrex::Real time, amrex::Real dt_lev, int iteration);
+    void  AdvanceAllLevels (amrex::Real time, amrex::Real dt_lev, int iteration);
 
     void ComputeDensityVelocity (int lev);
 
@@ -171,6 +171,7 @@ private:
     amrex::Vector<amrex::Real> t_new;
     amrex::Vector<amrex::Real> t_old;
     amrex::Vector<amrex::Real> dt;
+    amrex::Vector<amrex::Real> tau; // relaxation time at each level
     
 
     // array of multifabs to store the solution at each level of refinement
@@ -213,7 +214,9 @@ private:
 
 
     double nu = 1.0 / 6.0;
-    double tau = 3.0 * nu + 0.5;
+    double tau_base = 3.0 * nu + 0.5; // at the coarsest level
+    
+    
     // how often each level regrids the higher levels of refinement
     // (after a level advances that many time steps)
     int regrid_int = 2;
