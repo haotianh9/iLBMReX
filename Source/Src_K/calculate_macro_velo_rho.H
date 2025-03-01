@@ -26,27 +26,32 @@ void calculate_macro_velo_rho(amrex::Box const &bx,
 
   const auto lo = amrex::lbound(bx);
   const auto hi = amrex::ubound(bx);
-
+  //  amrex::Print() << "calculate_macro_velo_rho: "  << std::endl;
+  //  amrex::Print() << "lo: " << lo << std::endl;
+  //   amrex::Print() << "hi: " << hi << std::endl;
   // cal rho u
-  for (int k = lo.z+nghost; k <= hi.z-nghost; ++k) {
+ 
+  for (int k = lo.z; k <= hi.z; ++k) {
+
     for (int j = lo.y+nghost; j <= hi.y-nghost; ++j) {
       for (int i = lo.x+nghost; i <= hi.x-nghost; ++i) {
         double rho_temp = 0.0;
         double ux_temp = 0.0;
         double uy_temp = 0.0;
+        // amrex::Print() << "rho before: \t"<< rho_arrs(i, j, k) << std::endl;
         for (int i_dir = 0; i_dir < ndir; ++i_dir) {
           int imd = i - dirx[i_dir];
           int jmd = j - diry[i_dir];
           rho_temp += f_old_arrs(imd, jmd, k, i_dir);
           ux_temp += dirx[i_dir] * f_old_arrs(imd, jmd, k, i_dir);
           uy_temp += diry[i_dir] * f_old_arrs(imd, jmd, k, i_dir);
-// need to find the box index of  imd,jmd,kmd , no, find the corresponding
-// ghost cell in my own box
+
 #if (AMREX_SPACEDIM == 3)
           uz_temp += dirz[i_dir] * f_old_arrs(imd, jmd, kmd, i_dir);
 #endif
         }
         rho_arrs(i, j, k) = rho_temp;
+        // amrex::Print() << "rho after: \t"<< rho_arrs(i, j, k) << std::endl;
         ux_arrs(i, j, k) = ux_temp / rho_temp;
         uy_arrs(i, j, k) = uy_temp / rho_temp;
 #if (AMREX_SPACEDIM == 3)

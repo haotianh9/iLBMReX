@@ -32,23 +32,20 @@ void AmrCoreLBM::AdvanceAtLevel(int lev, Real time, Real dt_lev,
       fluxes[i].define(ba, dmap[lev], ndir, 0);
     }
   }
-  // State with ghost cells
-  MultiFab f_new_border(grids[lev], dmap[lev], f_new_fab.nComp(), nghost);
-  FillPatch(lev, time, f_new_border, 0, f_new_border.nComp(),
-            FillPatchType::fillpatch_class);
+  amrex::Print() << "fill ghost cell" << std::endl;
+  // State with ghost cells, note: here, we only fill in distribution function,
+  // but velocity and density fields in ghost cells  will be updated in function
+  // "calculate_macro_velo_rho", the function stream does not need velocity
+  // field. MultiFab f_new_border(grids[lev], dmap[lev], f_new_fab.nComp(),
+  // nghost); FillPatch(lev, time, f_new_border, 0, f_new_border.nComp(),
+  //           FillPatchType::fillpatch_class);
   MultiFab f_old_border(grids[lev], dmap[lev], f_old_fab.nComp(), nghost);
-  FillPatch(lev, time, f_old_border, 0, f_old_border.nComp(),
-            FillPatchType::fillpatch_class);
-  MultiFab ux_border(grids[lev], dmap[lev], ux_fab.nComp(), nghost);
-  FillPatch(lev, time, ux_border, 0, ux_border.nComp(),
-            FillPatchType::fillpatch_class);
-  MultiFab uy_border(grids[lev], dmap[lev], uy_fab.nComp(), nghost);
-  FillPatch(lev, time, uy_border, 0, uy_border.nComp(),
-            FillPatchType::fillpatch_class);
-  MultiFab rho_border(grids[lev], dmap[lev], rho_fab.nComp(), nghost);
-  FillPatch(lev, time, rho_border, 0, rho_border.nComp(),
-            FillPatchType::fillpatch_class);
-
+  // question: why we need to fill using FillPatch?
+  // 
+  amrex::Print() << "Before FillBoundary: " << f_old[lev].max(1) << "\n";
+  // f_old[lev].FillBoundary(geom[lev].periodicity());
+  FillPatch(lev, time, f_old_border, 0, f_old_border.nComp(),FillPatchType::fillpatch_class);
+  amrex::Print() << "After FillBoundary: " << f_old[lev].max(1) << "\n";
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
@@ -56,14 +53,14 @@ void AmrCoreLBM::AdvanceAtLevel(int lev, Real time, Real dt_lev,
     FArrayBox tmpfab;
     for (MFIter mfi(f_new_fab, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
       const Box &bx = mfi.tilebox();
-      const Box &gbx = amrex::grow(bx, 1);
+      const Box &gbx = amrex::grow(bx, nghost);
       Array4<Real> f_new_arr = f_new_fab.array(mfi);
       Array4<Real> f_old_arr = f_old_fab.array(mfi);
       Array4<Real> ux_arr = ux_fab.array(mfi);
       Array4<Real> uy_arr = uy_fab.array(mfi);
       Array4<Real> rho_arr = rho_fab.array(mfi);
 
-      amrex::launch(amrex::grow(gbx, 1), [=] AMREX_GPU_DEVICE(const Box &tbx) {
+      amrex::launch(gbx, [=] AMREX_GPU_DEVICE(const Box &tbx) {
         // amrex::Print() << "tbx: " << tbx << std::endl;
         // amrex::Print() << "stream" << std::endl;
         stream(tbx, f_new_arr, f_old_arr, ndir, nghost, dirx, diry,

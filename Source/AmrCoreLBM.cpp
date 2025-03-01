@@ -1,4 +1,3 @@
-
 #include <AMReX_FillPatchUtil.H>
 #include <AMReX_MultiFabUtil.H>
 #include <AMReX_ParallelDescriptor.H>
@@ -23,10 +22,13 @@ AmrCoreLBM::AmrCoreLBM() {
   ReadParameters();
 
   // Geometry on all levels has been defined already.
-
+  
   // No valid BoxArray and DistributionMapping have been defined.
   // But the arrays for them have been resized.
-
+  // amrex::Print() << "Periodic in x: " << geom[0].isPeriodic(0) << "\n";
+  // amrex::Print() << "Periodic in y: " << geom[0].isPeriodic(1) << "\n";
+  // amrex::Print() << "Periodic in x: " << geom[1].isPeriodic(0) << "\n";
+  // amrex::Print() << "Periodic in y: " << geom[1].isPeriodic(1) << "\n";
   int nlevs_max = max_level + 1;
 
   istep.resize(nlevs_max, 0);
@@ -34,16 +36,19 @@ AmrCoreLBM::AmrCoreLBM() {
 
   if (do_subcycle) {
     for (int lev = 1; lev <= max_level; ++lev) {
-      
-      nsubsteps[lev] =  MaxRefRatio(lev-1); //it means how many steps more relative to the previous step
-      // amrex::Print() << lev << "\t" <<nsubsteps[lev] << "\t" << MaxRefRatio(lev - 1)<< std::endl;
+
+      nsubsteps[lev] = MaxRefRatio(
+          lev -
+          1); // it means how many steps more relative to the previous step
+      // amrex::Print() << lev << "\t" <<nsubsteps[lev] << "\t" <<
+      // MaxRefRatio(lev - 1)<< std::endl;
     }
   }
   for (int lev = 0; lev <= max_level; ++lev) {
-      
-    amrex::Print() << lev << "\t" <<nsubsteps[lev] << "\t" << std::endl;
+
+    amrex::Print() << lev << "\t" << nsubsteps[lev] << "\t" << std::endl;
   }
-  
+
   // amrex::Print() <<nlevs_max<<"\t"
   // <<nsubsteps[0]<<"\t"<<nsubsteps[1]<<"\t"<<nsubsteps[2]<<"\t"<<std::endl;
   t_new.resize(nlevs_max, 0.0);
@@ -54,8 +59,8 @@ AmrCoreLBM::AmrCoreLBM() {
 
   for (int lev = 1; lev <= max_level; ++lev) {
     // amrex::Print() << lev << "\t" <<nsubsteps[lev]<< std::endl;
-    dt[lev] = dt[lev-1] / nsubsteps[lev];
-    tau[lev] = (tau[lev-1] - 0.5) / nsubsteps[lev] + 0.5;
+    dt[lev] = dt[lev - 1] / nsubsteps[lev];
+    tau[lev] = (tau[lev - 1] - 0.5) / nsubsteps[lev] + 0.5;
   }
   // amrex::Print() << dt[0] << "\t" << dt[1] << "\t" << std::endl;
   f_new.resize(nlevs_max);
@@ -64,52 +69,50 @@ AmrCoreLBM::AmrCoreLBM() {
   ux.resize(nlevs_max);
   uy.resize(nlevs_max);
 
-  // facevel.resize(nlevs_max);
+  facevel.resize(nlevs_max);
 
-  // int bc_lo[AMREX_SPACEDIM];
-  // int bc_hi[AMREX_SPACEDIM];
+  // periodic boundaries
+  int bc_lo[] = {BCType::int_dir, BCType::int_dir, BCType::int_dir};
+  int bc_hi[] = {BCType::int_dir, BCType::int_dir, BCType::int_dir};
 
-  // for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
-  //     if (Geom(0).isPeriodic()[idim] == 1) {
-  //         bc_lo[idim] = bc_hi[idim] = BCType::int_dir;  // periodic
-  //     } else {
-  //         bc_lo[idim] = bc_hi[idim] = BCType::foextrap;  // walls (Neumann)
-  //     }
-  // }
+  /*
+      // walls (Neumann)
+      int bc_lo[] = {amrex::BCType::foextrap, amrex::BCType::foextrap,
+     amrex::BCType::foextrap}; int bc_hi[] = {amrex::BCType::foextrap,
+     amrex::BCType::foextrap, amrex::BCType::foextrap};
+  */
 
-  // bcs.resize(1);     // Setup 1-component
-  // for (int idim = 0; idim < AMREX_SPACEDIM; ++idim)
-  // {
-  //     // lo-side BCs
-  //     if (bc_lo[idim] == BCType::int_dir  ||  // periodic uses "internal
-  //     Dirichlet"
-  //         bc_lo[idim] == BCType::foextrap ||  // first-order extrapolation
-  //         bc_lo[idim] == BCType::ext_dir ) {  // external Dirichlet
-  //         bcs[0].setLo(idim, bc_lo[idim]);
-  //     }
-  //     else {
-  //         amrex::Abort("Invalid bc_lo");
-  //     }
+  bcs.resize(1); // Setup 1-component
+  for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+    // lo-side BCs
+    if (bc_lo[idim] == BCType::int_dir ||  // periodic uses "internal Dirichlet"
+        bc_lo[idim] == BCType::foextrap || // first-order extrapolation
+        bc_lo[idim] == BCType::ext_dir) {  // external Dirichlet
+      bcs[0].setLo(idim, bc_lo[idim]);
+    } else {
+      amrex::Abort("Invalid bc_lo");
+    }
 
-  //     // hi-side BCSs
-  //     if (bc_hi[idim] == BCType::int_dir  ||  // periodic uses "internal
-  //     Dirichlet"
-  //         bc_hi[idim] == BCType::foextrap ||  // first-order extrapolation
-  //         bc_hi[idim] == BCType::ext_dir ) {  // external Dirichlet
-  //         bcs[0].setHi(idim, bc_hi[idim]);
-  //     }
-  //     else {
-  //         amrex::Abort("Invalid bc_hi");
-  //     }
-  // }
+    // hi-side BCSs
+    if (bc_hi[idim] == BCType::int_dir ||  // periodic uses "internal Dirichlet"
+        bc_hi[idim] == BCType::foextrap || // first-order extrapolation
+        bc_hi[idim] == BCType::ext_dir) {  // external Dirichlet
+      bcs[0].setHi(idim, bc_hi[idim]);
+    } else {
+      amrex::Abort("Invalid bc_hi");
+    }
+  }
 
-  // // stores fluxes at coarse-fine interface for synchronization
-  // // this will be sized "nlevs_max+1"
-  // // NOTE: the flux register associated with flux_reg[lev] is associated
-  // // with the lev/lev-1 interface (and has grid spacing associated with
-  // lev-1)
-  // // therefore flux_reg[0] is never actually used in the reflux operation
-  // flux_reg.resize(nlevs_max+1);
+  // stores fluxes at coarse-fine interface for synchronization
+  // this will be sized "nlevs_max+1"
+  // NOTE: the flux register associated with flux_reg[lev] is associated
+  // with the lev/lev-1 interface (and has grid spacing associated with lev-1)
+  // therefore flux_reg[0] is never actually used in the reflux operation
+  flux_reg.resize(nlevs_max + 1);
+
+  // fillpatcher[lev] is for filling data on level lev using the data on
+  // lev-1 and lev.
+  fillpatcher.resize(nlevs_max + 1);
 }
 
 AmrCoreLBM::~AmrCoreLBM() {}
@@ -146,10 +149,10 @@ void AmrCoreLBM::Evolve() {
     //             t_new[lev] = cur_time;
     //         }
 
-            if (plot_int > 0 && (step+1) % plot_int == 0) {
-                last_plot_file_step = step+1;
-                WritePlotFile();
-            }
+    if (plot_int > 0 && (step + 1) % plot_int == 0) {
+      last_plot_file_step = step + 1;
+      WritePlotFile();
+    }
 
     //         if (chk_int > 0 && (step+1) % chk_int == 0) {
     //             WriteCheckpointFile();
@@ -283,9 +286,9 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
 
   f_new[lev].define(ba, dm, ndir, nghost);
   f_old[lev].define(ba, dm, ndir, nghost);
-  rho[lev].define(ba, dm, ncomp, nghost);
-  ux[lev].define(ba, dm, ncomp, nghost);
-  uy[lev].define(ba, dm, ncomp, nghost);
+  rho[lev].define(ba, dm, 1, nghost);
+  ux[lev].define(ba, dm, 1, nghost);
+  uy[lev].define(ba, dm, 1, nghost);
 
   //     t_new[lev] = time;
   //     t_old[lev] = time - 1.e200;
@@ -434,138 +437,146 @@ void AmrCoreLBM::AverageDownTo(int crse_lev) {
                       refRatio(crse_lev));
 }
 
-// compute a new multifab by coping in phi from valid region and filling ghost
+// compute a new multifab by coping in f from valid region and filling ghost
 // cells works for single level and 2-level cases (fill fine grid ghost by
 // interpolating from coarse)
 void AmrCoreLBM::FillPatch(int lev, Real time, MultiFab &mf, int icomp,
                            int ncomp, FillPatchType fptype) {
-  // if (lev == 0)
-  // {
-  //     Vector<MultiFab*> smf;
-  //     Vector<Real> stime;
-  //     GetData(0, time, smf, stime);
+  if (lev == 0) {
 
-  //     if(Gpu::inLaunchRegion())
-  //     {
-  //         GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
-  //         PhysBCFunct<GpuBndryFuncFab<AmrCoreFill> >
-  //         physbc(geom[lev],bcs,gpu_bndry_func);
-  //         amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
-  //                                     geom[lev], physbc, 0);
-  //     }
-  //     else
-  //     {
-  //         CpuBndryFuncFab bndry_func(nullptr);  // Without EXT_DIR, we can
-  //         pass a nullptr. PhysBCFunct<CpuBndryFuncFab>
-  //         physbc(geom[lev],bcs,bndry_func); amrex::FillPatchSingleLevel(mf,
-  //         time, smf, stime, 0, icomp, ncomp,
-  //                                     geom[lev], physbc, 0);
-  //     }
-  // }
-  // else
-  // {
-  //     Vector<MultiFab*> cmf, fmf;
-  //     Vector<Real> ctime, ftime;
-  //     GetData(lev-1, time, cmf, ctime);
-  //     GetData(lev  , time, fmf, ftime);
+    Vector<MultiFab *> smf;
+    Vector<Real> stime;
+    amrex::Print() << "time = " << time  << std::endl;
+    GetData(0, time, smf, stime);
+    
+    amrex::Print() << "stime = " << stime[0]  << std::endl;
+    if (Gpu::inLaunchRegion()) {
+      GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
+      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> physbc(geom[lev], bcs,
+                                                       gpu_bndry_func);
+      amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
+                                  geom[lev], physbc, 0);
+    } else {
+      CpuBndryFuncFab bndry_func(
+          nullptr); // Without EXT_DIR, we can pass a nullptr.
+      PhysBCFunct<CpuBndryFuncFab> physbc(geom[lev], bcs, bndry_func);
+      amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
+                                  geom[lev], physbc, 0);
+    }
+  } else {
+    Vector<MultiFab *> cmf, fmf;
+    Vector<Real> ctime, ftime;
+    GetData(lev - 1, time, cmf, ctime);
+    GetData(lev, time, fmf, ftime);
 
-  //     Interpolater* mapper = &cell_cons_interp;
+    Interpolater *mapper = &cell_cons_interp;
 
-  //     if(Gpu::inLaunchRegion())
-  //     {
-  //         GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
-  //         PhysBCFunct<GpuBndryFuncFab<AmrCoreFill> >
-  //         cphysbc(geom[lev-1],bcs,gpu_bndry_func);
-  //         PhysBCFunct<GpuBndryFuncFab<AmrCoreFill> >
-  //         fphysbc(geom[lev],bcs,gpu_bndry_func);
+    if (fptype == FillPatchType::fillpatch_class) {
+      if (fillpatcher[lev] == nullptr) {
+        fillpatcher[lev] = std::make_unique<FillPatcher<MultiFab>>(
+            boxArray(lev), DistributionMap(lev), Geom(lev), boxArray(lev - 1),
+            DistributionMap(lev - 1), Geom(lev - 1), mf.nGrowVect(), mf.nComp(),
+            mapper);
+      }
+    }
 
-  //         amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime,
-  //                                   0, icomp, ncomp, geom[lev-1], geom[lev],
-  //                                   cphysbc, 0, fphysbc, 0, refRatio(lev-1),
-  //                                   mapper, bcs, 0);
-  //     }
-  //     else
-  //     {
-  //         CpuBndryFuncFab bndry_func(nullptr);  // Without EXT_DIR, we can
-  //         pass a nullptr. PhysBCFunct<CpuBndryFuncFab>
-  //         cphysbc(geom[lev-1],bcs,bndry_func); PhysBCFunct<CpuBndryFuncFab>
-  //         fphysbc(geom[lev],bcs,bndry_func);
+    if (Gpu::inLaunchRegion()) {
+      GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
+      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> cphysbc(geom[lev - 1], bcs,
+                                                        gpu_bndry_func);
+      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> fphysbc(geom[lev], bcs,
+                                                        gpu_bndry_func);
 
-  //         amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime,
-  //                                   0, icomp, ncomp, geom[lev-1], geom[lev],
-  //                                   cphysbc, 0, fphysbc, 0, refRatio(lev-1),
-  //                                   mapper, bcs, 0);
-  //     }
-  // }
+      if (fptype == FillPatchType::fillpatch_class) {
+        fillpatcher[lev]->fill(mf, mf.nGrowVect(), time, cmf, ctime, fmf, ftime,
+                               0, icomp, ncomp, cphysbc, 0, fphysbc, 0, bcs, 0);
+      } else {
+        amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime, 0, icomp,
+                                  ncomp, geom[lev - 1], geom[lev], cphysbc, 0,
+                                  fphysbc, 0, refRatio(lev - 1), mapper, bcs,
+                                  0);
+      }
+    } else {
+      CpuBndryFuncFab bndry_func(
+          nullptr); // Without EXT_DIR, we can pass a nullptr.
+      PhysBCFunct<CpuBndryFuncFab> cphysbc(geom[lev - 1], bcs, bndry_func);
+      PhysBCFunct<CpuBndryFuncFab> fphysbc(geom[lev], bcs, bndry_func);
+
+      if (fptype == FillPatchType::fillpatch_class) {
+        fillpatcher[lev]->fill(mf, mf.nGrowVect(), time, cmf, ctime, fmf, ftime,
+                               0, icomp, ncomp, cphysbc, 0, fphysbc, 0, bcs, 0);
+      } else {
+        amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime, 0, icomp,
+                                  ncomp, geom[lev - 1], geom[lev], cphysbc, 0,
+                                  fphysbc, 0, refRatio(lev - 1), mapper, bcs,
+                                  0);
+      }
+    }
+  }
 }
 
 // fill an entire multifab by interpolating from the coarser level
 // this comes into play when a new level of refinement appears
 void AmrCoreLBM::FillCoarsePatch(int lev, Real time, MultiFab &mf, int icomp,
                                  int ncomp) {
-  // BL_ASSERT(lev > 0);
+  BL_ASSERT(lev > 0);
 
-  // Vector<MultiFab*> cmf;
-  // Vector<Real> ctime;
-  // GetData(lev-1, time, cmf, ctime);
-  // Interpolater* mapper = &cell_cons_interp;
+  Vector<MultiFab*> cmf;
+  Vector<Real> ctime;
+  GetData(lev-1, time, cmf, ctime);
+  Interpolater* mapper = &cell_cons_interp;
 
-  // if (cmf.size() != 1) {
-  //     amrex::Abort("FillCoarsePatch: how did this happen?");
-  // }
+  if (cmf.size() != 1) {
+      amrex::Abort("FillCoarsePatch: how did this happen?");
+  }
 
-  // if(Gpu::inLaunchRegion())
-  // {
-  //     GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
-  //     PhysBCFunct<GpuBndryFuncFab<AmrCoreFill> >
-  //     cphysbc(geom[lev-1],bcs,gpu_bndry_func);
-  //     PhysBCFunct<GpuBndryFuncFab<AmrCoreFill> >
-  //     fphysbc(geom[lev],bcs,gpu_bndry_func);
+  if(Gpu::inLaunchRegion())
+  {
+      GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
+      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill> >
+      cphysbc(geom[lev-1],bcs,gpu_bndry_func);
+      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill> >
+      fphysbc(geom[lev],bcs,gpu_bndry_func);
 
-  //     amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
-  //     geom[lev-1], geom[lev],
-  //                                  cphysbc, 0, fphysbc, 0, refRatio(lev-1),
-  //                                  mapper, bcs, 0);
-  // }
-  // else
-  // {
-  //     CpuBndryFuncFab bndry_func(nullptr);  // Without EXT_DIR, we can pass a
-  //     nullptr. PhysBCFunct<CpuBndryFuncFab>
-  //     cphysbc(geom[lev-1],bcs,bndry_func); PhysBCFunct<CpuBndryFuncFab>
-  //     fphysbc(geom[lev],bcs,bndry_func);
+      amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
+      geom[lev-1], geom[lev],
+                                   cphysbc, 0, fphysbc, 0, refRatio(lev-1),
+                                   mapper, bcs, 0);
+  }
+  else
+  {
+    CpuBndryFuncFab bndry_func(nullptr);  // Without EXT_DIR, we can pass a nullptr.
+    PhysBCFunct<CpuBndryFuncFab> cphysbc(geom[lev-1],bcs,bndry_func);
+    PhysBCFunct<CpuBndryFuncFab> fphysbc(geom[lev],bcs,bndry_func);
 
-  //     amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
-  //     geom[lev-1], geom[lev],
-  //                                  cphysbc, 0, fphysbc, 0, refRatio(lev-1),
-  //                                  mapper, bcs, 0);
-  // }
+
+      amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
+      geom[lev-1], geom[lev],
+                                   cphysbc, 0, fphysbc, 0, refRatio(lev-1),
+                                   mapper, bcs, 0);
+  }
 }
 
 // utility to copy in data from phi_old and/or phi_new into another multifab
 void AmrCoreLBM::GetData(int lev, Real time, Vector<MultiFab *> &data,
                          Vector<Real> &datatime) {
-  // data.clear();
-  // datatime.clear();
+  data.clear();
+  datatime.clear();
 
-  // const Real teps = (t_new[lev] - t_old[lev]) * 1.e-3;
+  const Real teps = (t_new[lev] - t_old[lev]) * 1.e-3;
 
-  // if (time > t_new[lev] - teps && time < t_new[lev] + teps)
-  // {
-  //     data.push_back(&phi_new[lev]);
-  //     datatime.push_back(t_new[lev]);
-  // }
-  // else if (time > t_old[lev] - teps && time < t_old[lev] + teps)
-  // {
-  //     data.push_back(&phi_old[lev]);
-  //     datatime.push_back(t_old[lev]);
-  // }
-  // else
-  // {
-  //     data.push_back(&phi_old[lev]);
-  //     data.push_back(&phi_new[lev]);
-  //     datatime.push_back(t_old[lev]);
-  //     datatime.push_back(t_new[lev]);
-  // }
+  if (time > t_new[lev] - teps && time < t_new[lev] + teps) {
+    data.push_back(&f_new[lev]);
+    datatime.push_back(t_new[lev]);
+  } else if (time > t_old[lev] - teps && time < t_old[lev] + teps) {
+    data.push_back(&f_old[lev]);
+    datatime.push_back(t_old[lev]);
+  } else {
+    data.push_back(&f_old[lev]);
+    data.push_back(&f_new[lev]);
+    datatime.push_back(t_old[lev]);
+    datatime.push_back(t_new[lev]);
+  }
 }
 
 // Advance a level by dt
@@ -913,7 +924,7 @@ void AmrCoreLBM::InitEquilibrium() {
     MultiFab &uy_fab = uy[lev];
     MultiFab &rho_fab = rho[lev];
     MultiFab &f_old_fab = f_old[lev];
-
+    MultiFab &f_new_fab = f_new[lev];
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
@@ -923,7 +934,7 @@ void AmrCoreLBM::InitEquilibrium() {
       Array4<Real> uy_array = uy_fab[mfi].array();
       Array4<Real> rho_array = rho_fab[mfi].array();
       Array4<Real> f_old_array = f_old_fab[mfi].array();
-
+      Array4<Real> f_new_array = f_new_fab[mfi].array();
       const Box &box = mfi.tilebox();
 
       amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j,
@@ -939,6 +950,7 @@ void AmrCoreLBM::InitEquilibrium() {
               (1.0 + 3.0 * cidotu + 4.5 * cidotu * cidotu -
                1.5 * (ux_array(i, j, k) * ux_array(i, j, k) +
                       uy_array(i, j, k) * uy_array(i, j, k)));
+          f_new_array(i, j, k, i_dir) = f_old_array(i, j, k, i_dir);
         }
       });
     }

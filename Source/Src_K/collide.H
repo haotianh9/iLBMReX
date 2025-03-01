@@ -23,7 +23,11 @@ void collide(amrex::Box const &bx,
   const auto lo = amrex::lbound(bx);
   const auto hi = amrex::ubound(bx);
   // collide
+  #if (AMREX_SPACEDIM == 3)
   for (int k = lo.z+nghost; k <= hi.z-nghost; ++k) {
+  #else
+  for (int k = lo.z; k <= hi.z; ++k) {
+   #endif 
     for (int j = lo.y+nghost; j <= hi.y-nghost; ++j) {
       for (int i = lo.x+nghost; i <= hi.x-nghost; ++i) {
         for (int i_dir = 0; i_dir < ndir; ++i_dir) {

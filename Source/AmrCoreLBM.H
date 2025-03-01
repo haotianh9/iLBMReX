@@ -1,17 +1,26 @@
 #ifndef AmrCoreLBM_H_
 #define AmrCoreLBM_H_
 
-#include <string>
-#include <limits>
-#include <memory>
-
-#ifdef AMREX_USE_OMP
-#include <omp.h>
+#include <AMReX_Config.H>
+#ifdef AMREX_PARTICLES
+#   include <AMReX_AmrParticles.H>
+#   include <AMReX_Particles.H>
 #endif
 
 #include <AMReX_AmrCore.H>
-#include <AMReX_FluxRegister.H>
 #include <AMReX_BCRec.H>
+#include <AMReX_FluxRegister.H>
+#include <AMReX_FillPatcher.H>
+#include <AMReX_BC_TYPES.H>
+#ifdef AMREX_USE_OMP
+#   include <omp.h>
+#endif
+
+#include <limits>
+#include <memory>
+#include <string>
+
+
 
 class AmrCoreLBM
     : public amrex::AmrCore
@@ -58,10 +67,6 @@ public:
     // overrides the pure virtual function in AmrCore
     virtual void ErrorEst (int lev, amrex::TagBoxArray& tags, amrex::Real time, int ngrow) override;
 
-    
-   
-    
-
     // Advance pdf at a single level for a single time step, update flux registers
     void AdvanceAtLevel (int lev, amrex::Real time, amrex::Real dt_lev, int /*iteration*/, int /*ncycle*/);
 
@@ -105,7 +110,6 @@ private:
     // // Advance all levels by the same dt
     void timeStepNoSubcycling (amrex::Real time, int iteration);
 
-   
     // initialize probability density function based on given IC of velocity and density fields
     void InitEquilibrium () ;
 
@@ -196,10 +200,14 @@ private:
     // used in the reflux operation
     amrex::Vector<std::unique_ptr<amrex::FluxRegister> > flux_reg;
 
+    // This is for fillpatch during timestepping, but not for regridding.
+    amrex::Vector<std::unique_ptr<amrex::FillPatcher<amrex::MultiFab>>> fillpatcher;
+
+
     // Velocity on all faces at all levels
     amrex::Vector< amrex::Array<amrex::MultiFab, AMREX_SPACEDIM> > facevel;
 
-    const int ncomp = 1;
+
     const int nghost = 1;
 
     ////////////////
