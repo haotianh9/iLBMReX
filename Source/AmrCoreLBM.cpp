@@ -503,6 +503,7 @@ void AmrCoreLBM::FillPatch(int lev, Real time, MultiFab &mf, int icomp,
       PhysBCFunct<CpuBndryFuncFab> fphysbc(geom[lev], bcs, bndry_func);
 
       if (fptype == FillPatchType::fillpatch_class) {
+        amrex::Print() <<   mf.nGrowVect()  << std::endl;
         fillpatcher[lev]->fill(mf, mf.nGrowVect(), time, cmf, ctime, fmf, ftime,
                                0, icomp, ncomp, cphysbc, 0, fphysbc, 0, bcs, 0);
       } else {

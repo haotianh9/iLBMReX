@@ -44,6 +44,8 @@ void AmrCoreLBM::AdvanceAtLevel(int lev, Real time, Real dt_lev,
   // 
   amrex::Print() << "Before FillBoundary: " << f_old[lev].max(1) << "\n";
   // f_old[lev].FillBoundary(geom[lev].periodicity());
+  amrex::Print() <<f_old_border.nComp()<< "\n";
+  // amrex::Print() << FillPatchType::fillpatch_class << "\n";
   FillPatch(lev, time, f_old_border, 0, f_old_border.nComp(),FillPatchType::fillpatch_class);
   amrex::Print() << "After FillBoundary: " << f_old[lev].max(1) << "\n";
 #ifdef AMREX_USE_OMP
