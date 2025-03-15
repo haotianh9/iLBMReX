@@ -8,7 +8,7 @@
 AMREX_GPU_DEVICE
 AMREX_FORCE_INLINE
 void collide(amrex::Box const &bx,
-             amrex::Array4<amrex::Real> const &f_old_arrs,
+             amrex::Array4<amrex::Real> const &f_new_arrs,
              amrex::Array4<amrex::Real const> const &rho_arrs,
              amrex::Array4<amrex::Real const> const &ux_arrs,
              amrex::Array4<amrex::Real const> const &uy_arrs,
@@ -49,8 +49,12 @@ void collide(amrex::Box const &bx,
                                    ));
 
           // relax to equilibrium
-          f_old_arrs(i, j, k, i_dir) =
-              omtauinv * f_old_arrs(i, j, k, i_dir) + tauinv * feq;
+          // amrex::Print() << "f_new_arrs: " << f_new_arrs(i, j, k, i_dir) << std::endl;
+          // amrex::Print() << "tauinv: " << tauinv << std::endl;  
+          // amrex::Print() << "feq: " << feq << std::endl;
+          // amrex::Print() << "omtauinv: " << omtauinv << std::endl;
+          f_new_arrs(i, j, k, i_dir) = omtauinv * f_new_arrs(i, j, k, i_dir) + tauinv * feq;
+          // amrex::Print() << "f_new_arrs: " << f_new_arrs(i, j, k, i_dir) << std::endl;
         }
       }
     }

@@ -117,7 +117,7 @@ private:
     std::string PlotFileName (int lev) const;
 
     // put together an array of multifabs for writing
-    amrex::Vector<const amrex::MultiFab*> PlotFileMF () const;
+    amrex::Vector<std::unique_ptr<amrex::MultiFab>> PlotFileMF () const;
 
     // set plotfile variables names
     amrex::Vector<std::string> PlotFileVarNames () const;

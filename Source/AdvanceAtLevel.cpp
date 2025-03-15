@@ -5,12 +5,20 @@ using namespace amrex;
 void AmrCoreLBM::AdvanceAtLevel(int lev, Real time, Real dt_lev,
                                 int /*iteration*/, int /*ncycle*/) {
 
-  std::swap(
-      f_new[lev],
-      f_old[lev]); // why using std swap instead of using amrex::MultiFab::Swap?
+  // std::swap(
+  //     f_old[lev],
+  //     f_new[lev]); // why using std swap instead of using
+  //     amrex::MultiFab::Swap?
+  // amrex::Print() << "Before Swap: f_old max: " << f_old[lev].max(0)
+  //                << ", f_new max: " << f_new[lev].max(0) << "\n";
+  std::swap(f_old[lev], f_new[lev]);
+  // amrex::Print() << "After Swap: f_old max: " << f_old[lev].max(0)
+  //                << ", f_new max: " << f_new[lev].max(0) << "\n";
 
   double tauinv = tau[lev];       // 1/tau
   double omtauinv = 1.0 - tauinv; // 1 - 1/tau
+  amrex::Print() << "tauinv: " << tauinv << "\n";
+  amrex::Print() << "omtauinv: " << omtauinv << "\n"; 
   const Real dx = geom[lev].CellSize(0);
   const Real dy = geom[lev].CellSize(1);
   const Real dz = (AMREX_SPACEDIM == 2) ? Real(1.0) : geom[lev].CellSize(2);
@@ -32,22 +40,24 @@ void AmrCoreLBM::AdvanceAtLevel(int lev, Real time, Real dt_lev,
       fluxes[i].define(ba, dmap[lev], ndir, 0);
     }
   }
-  amrex::Print() << "fill ghost cell" << std::endl;
+  // amrex::Print() << "fill ghost cell" << std::endl;
   // State with ghost cells, note: here, we only fill in distribution function,
   // but velocity and density fields in ghost cells  will be updated in function
   // "calculate_macro_velo_rho", the function stream does not need velocity
   // field. MultiFab f_new_border(grids[lev], dmap[lev], f_new_fab.nComp(),
   // nghost); FillPatch(lev, time, f_new_border, 0, f_new_border.nComp(),
   //           FillPatchType::fillpatch_class);
-  MultiFab f_old_border(grids[lev], dmap[lev], f_old_fab.nComp(), nghost);
+  MultiFab f_new_border(grids[lev], dmap[lev], f_new_fab.nComp(), nghost);
   // question: why we need to fill using FillPatch?
-  // 
-  amrex::Print() << "Before FillBoundary: " << f_old[lev].max(1) << "\n";
-  // f_old[lev].FillBoundary(geom[lev].periodicity());
-  amrex::Print() <<f_old_border.nComp()<< "\n";
+  //
+  // amrex::Print() << "Before FillBoundary: " << f_old[lev].max(1) << "\n";
+  f_new[lev].FillBoundary(geom[lev].periodicity());
+  // amrex::Print() << "After FillBoundary: " << f_old[lev].max(1)  << "\n";
+  // amrex::Print() <<f_old_border.nComp()<< "\n";
   // amrex::Print() << FillPatchType::fillpatch_class << "\n";
-  FillPatch(lev, time, f_old_border, 0, f_old_border.nComp(),FillPatchType::fillpatch_class);
-  amrex::Print() << "After FillBoundary: " << f_old[lev].max(1) << "\n";
+  FillPatch(lev, time, f_new_border, 0, f_new_border.nComp(),
+            FillPatchType::fillpatch_class);
+  // amrex::Print() << "After FillPatch: " << f_old[lev].max(1)  << "\n";
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
@@ -65,11 +75,13 @@ void AmrCoreLBM::AdvanceAtLevel(int lev, Real time, Real dt_lev,
       amrex::launch(gbx, [=] AMREX_GPU_DEVICE(const Box &tbx) {
         // amrex::Print() << "tbx: " << tbx << std::endl;
         // amrex::Print() << "stream" << std::endl;
-        stream(tbx, f_new_arr, f_old_arr, ndir, nghost, dirx, diry,
+        // amrex::Print()<<f_new_arr.max() << "\t" <<f_old_arr.max()  << std::endl;
+      stream(tbx, f_new_arr, f_old_arr, ndir, nghost, dirx, diry,
 #if (AMREX_SPACEDIM == 3)
                dirz,
 #endif
                wi);
+      //  amrex::Print()<<f_new_arr.max() << "\t" <<f_old_arr.max()  << std::endl;
         // amrex::Print() << "calculate velocity and density" << std::endl;
         calculate_macro_velo_rho(tbx, f_new_arr, rho_arr, ux_arr, uy_arr, ndir,
                                  nghost, dirx, diry,
@@ -84,7 +96,13 @@ void AmrCoreLBM::AdvanceAtLevel(int lev, Real time, Real dt_lev,
                 dirz,
 #endif
                 wi);
+    
       });
+
+
     }
   }
+
+  // amrex::Print() << "After advance: f_old max: " << f_old[lev].max(0)
+  //                << ", f_new max: " << f_new[lev].max(0) << "\n";
 }

@@ -22,7 +22,7 @@ AmrCoreLBM::AmrCoreLBM() {
   ReadParameters();
 
   // Geometry on all levels has been defined already.
-  
+
   // No valid BoxArray and DistributionMapping have been defined.
   // But the arrays for them have been resized.
   // amrex::Print() << "Periodic in x: " << geom[0].isPeriodic(0) << "\n";
@@ -61,6 +61,8 @@ AmrCoreLBM::AmrCoreLBM() {
     // amrex::Print() << lev << "\t" <<nsubsteps[lev]<< std::endl;
     dt[lev] = dt[lev - 1] / nsubsteps[lev];
     tau[lev] = (tau[lev - 1] - 0.5) / nsubsteps[lev] + 0.5;
+    // amrex::Print() <<"lev: " << lev << "\t. tau[lev]:"<< tau[lev] << "\t"  <<
+    // std::endl;
   }
   // amrex::Print() << dt[0] << "\t" << dt[1] << "\t" << std::endl;
   f_new.resize(nlevs_max);
@@ -82,7 +84,7 @@ AmrCoreLBM::AmrCoreLBM() {
      amrex::BCType::foextrap, amrex::BCType::foextrap};
   */
 
-  bcs.resize(1); // Setup 1-component
+  bcs.resize(ndir);
   for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
     // lo-side BCs
     if (bc_lo[idim] == BCType::int_dir ||  // periodic uses "internal Dirichlet"
@@ -275,6 +277,7 @@ void AmrCoreLBM::ClearLevel(int lev) {
   uy[lev].clear();
   rho[lev].clear();
   flux_reg[lev].reset(nullptr);
+  fillpatcher[lev].reset(nullptr);
 }
 
 // Make a new level from scratch using provided BoxArray and
@@ -410,6 +413,8 @@ void AmrCoreLBM::AverageDown() {
 
     amrex::average_down(f_old[lev + 1], f_old[lev], geom[lev + 1], geom[lev], 0,
                         f_old[lev].nComp(), refRatio(lev));
+    amrex::average_down(f_new[lev + 1], f_new[lev], geom[lev + 1], geom[lev], 0,
+                        f_new[lev].nComp(), refRatio(lev));
     amrex::average_down(rho[lev + 1], rho[lev], geom[lev + 1], geom[lev], 0,
                         rho[lev].nComp(), refRatio(lev));
     amrex::average_down(ux[lev + 1], ux[lev], geom[lev + 1], geom[lev], 0,
@@ -425,6 +430,9 @@ void AmrCoreLBM::AverageDownTo(int crse_lev) {
 
   amrex::average_down(f_old[crse_lev + 1], f_old[crse_lev], geom[crse_lev + 1],
                       geom[crse_lev], 0, f_old[crse_lev].nComp(),
+                      refRatio(crse_lev));
+  amrex::average_down(f_new[crse_lev + 1], f_new[crse_lev], geom[crse_lev + 1],
+                      geom[crse_lev], 0, f_new[crse_lev].nComp(),
                       refRatio(crse_lev));
   amrex::average_down(rho[crse_lev + 1], rho[crse_lev], geom[crse_lev + 1],
                       geom[crse_lev], 0, rho[crse_lev].nComp(),
@@ -446,10 +454,10 @@ void AmrCoreLBM::FillPatch(int lev, Real time, MultiFab &mf, int icomp,
 
     Vector<MultiFab *> smf;
     Vector<Real> stime;
-    amrex::Print() << "time = " << time  << std::endl;
+    // amrex::Print() << "time = " << time  << std::endl;
     GetData(0, time, smf, stime);
-    
-    amrex::Print() << "stime = " << stime[0]  << std::endl;
+
+    // amrex::Print() << "stime = " << stime[0]  << std::endl;
     if (Gpu::inLaunchRegion()) {
       GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
       PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> physbc(geom[lev], bcs,
@@ -470,17 +478,25 @@ void AmrCoreLBM::FillPatch(int lev, Real time, MultiFab &mf, int icomp,
     GetData(lev, time, fmf, ftime);
 
     Interpolater *mapper = &cell_cons_interp;
-
+    // amrex::Print() << "finished get data" << std::endl;
+    // amrex::Print() << "time = " << time  << std::endl;
+    // amrex::Print() << "ftime = " << ftime[0]  << std::endl;
     if (fptype == FillPatchType::fillpatch_class) {
+      // amrex::Print() << "fillpatch_class" << std::endl;
       if (fillpatcher[lev] == nullptr) {
+        // amrex::Print() << "fillpatcher[lev] == nullptr \t "<< lev <<
+        // std::endl;
         fillpatcher[lev] = std::make_unique<FillPatcher<MultiFab>>(
             boxArray(lev), DistributionMap(lev), Geom(lev), boxArray(lev - 1),
             DistributionMap(lev - 1), Geom(lev - 1), mf.nGrowVect(), mf.nComp(),
             mapper);
       }
+      // amrex::Print() << "fillpatcher[lev] make unique done "<< lev <<
+      // std::endl;
     }
 
     if (Gpu::inLaunchRegion()) {
+      // amrex::Print() << "Gpu::inLaunchRegion" << std::endl;
       GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
       PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> cphysbc(geom[lev - 1], bcs,
                                                         gpu_bndry_func);
@@ -497,13 +513,25 @@ void AmrCoreLBM::FillPatch(int lev, Real time, MultiFab &mf, int icomp,
                                   0);
       }
     } else {
+      // amrex::Print() << "Gpu::inLaunchRegion, else" << std::endl;
       CpuBndryFuncFab bndry_func(
           nullptr); // Without EXT_DIR, we can pass a nullptr.
       PhysBCFunct<CpuBndryFuncFab> cphysbc(geom[lev - 1], bcs, bndry_func);
       PhysBCFunct<CpuBndryFuncFab> fphysbc(geom[lev], bcs, bndry_func);
-
+      // amrex::Print() << "Gpu::+, phybc" << std::endl;
       if (fptype == FillPatchType::fillpatch_class) {
-        amrex::Print() <<   mf.nGrowVect()  << std::endl;
+        // amrex::Print() << "fillpatch_class" << std::endl;
+        // amrex::Print() << "bcs size: " << bcs.size() << ", accessing
+        // component: " << icomp << "\n"; amrex::Print() << "bcs[0]: " << bcs[0]
+        // << "\n"; amrex::Print() << "Periodic in x: " << geom[0].isPeriodic(0)
+        // << "\n"; amrex::Print() << "Periodic in y: " << geom[0].isPeriodic(1)
+        // << "\n"; if (!fillpatcher[lev])
+        // {
+        //     amrex::Print() << "Error: fillpatcher[" << lev << "] is null even
+        //     after initialization!" << std::endl;
+        //     amrex::Abort("fillpatcher[lev] is nullptr!");
+        // }
+
         fillpatcher[lev]->fill(mf, mf.nGrowVect(), time, cmf, ctime, fmf, ftime,
                                0, icomp, ncomp, cphysbc, 0, fphysbc, 0, bcs, 0);
       } else {
@@ -522,39 +550,34 @@ void AmrCoreLBM::FillCoarsePatch(int lev, Real time, MultiFab &mf, int icomp,
                                  int ncomp) {
   BL_ASSERT(lev > 0);
 
-  Vector<MultiFab*> cmf;
+  Vector<MultiFab *> cmf;
   Vector<Real> ctime;
-  GetData(lev-1, time, cmf, ctime);
-  Interpolater* mapper = &cell_cons_interp;
+  GetData(lev - 1, time, cmf, ctime);
+  Interpolater *mapper = &cell_cons_interp;
 
   if (cmf.size() != 1) {
-      amrex::Abort("FillCoarsePatch: how did this happen?");
+    amrex::Abort("FillCoarsePatch: how did this happen?");
   }
 
-  if(Gpu::inLaunchRegion())
-  {
-      GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
-      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill> >
-      cphysbc(geom[lev-1],bcs,gpu_bndry_func);
-      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill> >
-      fphysbc(geom[lev],bcs,gpu_bndry_func);
+  if (Gpu::inLaunchRegion()) {
+    GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
+    PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> cphysbc(geom[lev - 1], bcs,
+                                                      gpu_bndry_func);
+    PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> fphysbc(geom[lev], bcs,
+                                                      gpu_bndry_func);
 
-      amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
-      geom[lev-1], geom[lev],
-                                   cphysbc, 0, fphysbc, 0, refRatio(lev-1),
-                                   mapper, bcs, 0);
-  }
-  else
-  {
-    CpuBndryFuncFab bndry_func(nullptr);  // Without EXT_DIR, we can pass a nullptr.
-    PhysBCFunct<CpuBndryFuncFab> cphysbc(geom[lev-1],bcs,bndry_func);
-    PhysBCFunct<CpuBndryFuncFab> fphysbc(geom[lev],bcs,bndry_func);
+    amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
+                                 geom[lev - 1], geom[lev], cphysbc, 0, fphysbc,
+                                 0, refRatio(lev - 1), mapper, bcs, 0);
+  } else {
+    CpuBndryFuncFab bndry_func(
+        nullptr); // Without EXT_DIR, we can pass a nullptr.
+    PhysBCFunct<CpuBndryFuncFab> cphysbc(geom[lev - 1], bcs, bndry_func);
+    PhysBCFunct<CpuBndryFuncFab> fphysbc(geom[lev], bcs, bndry_func);
 
-
-      amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
-      geom[lev-1], geom[lev],
-                                   cphysbc, 0, fphysbc, 0, refRatio(lev-1),
-                                   mapper, bcs, 0);
+    amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
+                                 geom[lev - 1], geom[lev], cphysbc, 0, fphysbc,
+                                 0, refRatio(lev - 1), mapper, bcs, 0);
   }
 }
 
@@ -620,14 +643,16 @@ void AmrCoreLBM::timeStepWithSubcycling(int lev, Real time, int iteration) {
   }
 
   // Advance a single level for a single time step, and update flux registers
-
+  // amrex::Print() << " Advance a single level for a single time step, and
+  // update flux registers" << lev  << std::endl;
   t_old[lev] = t_new[lev];
   t_new[lev] += dt[lev];
 
   Real t_nph = t_old[lev] + 0.5 * dt[lev];
-
+  // amrex::Print() << "AdvanceAtLevel" << lev  << ",\t"<< nsubsteps[lev]<<
+  // std::endl;
   AdvanceAtLevel(lev, time, dt[lev], iteration, nsubsteps[lev]);
-
+  amrex::Print() << "++istep[lev]" << lev << ",\t" << istep[lev] << std::endl;
   ++istep[lev];
 
   if (Verbose()) {
@@ -637,6 +662,8 @@ void AmrCoreLBM::timeStepWithSubcycling(int lev, Real time, int iteration) {
 
   if (lev < finest_level) {
     // recursive call for next-finer level
+    amrex::Print() << "Subcycling to next level " << lev + 1 << ",\t"
+                   << nsubsteps[lev + 1] << std::endl;
     for (int i = 1; i <= nsubsteps[lev + 1]; ++i) {
       timeStepWithSubcycling(lev + 1, time + (i - 1) * dt[lev + 1], i);
     }
@@ -647,7 +674,8 @@ void AmrCoreLBM::timeStepWithSubcycling(int lev, Real time, int iteration) {
                                 geom[lev]);
     }
 
-    AverageDownTo(lev); // average lev+1 down to lev
+    AverageDownTo(lev);           // average lev+1 down to lev
+    fillpatcher[lev + 1].reset(); // Because the data on lev have changed.
   }
 }
 
@@ -696,36 +724,60 @@ std::string AmrCoreLBM::PlotFileName(int lev) const {
 }
 
 // put together an array of multifabs for writing
-Vector<const MultiFab *> AmrCoreLBM::PlotFileMF() const {
-  Vector<const MultiFab *> r;
-  for (int i = 0; i <= finest_level; ++i) {
-    // r.push_back(&f_old[i]);
-    r.push_back(&rho[i]);
-    // r.push_back(&ux[i]);
-    // r.push_back(&uy[i]);
+amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
+  amrex::Vector<std::unique_ptr<amrex::MultiFab>> plot_mfs;
+
+  for (int lev = 0; lev <= finest_level; ++lev) {
+    // Allocate MultiFab with 12 components (rho, ux, uy, and f_old[0-8])
+    plot_mfs.push_back(
+        std::make_unique<amrex::MultiFab>(grids[lev], dmap[lev], 12, 0));
+
+    // Copy rho
+    amrex::MultiFab::Copy(*plot_mfs[lev], rho[lev], 0, 0, 1, 0);
+
+    // Copy ux
+    amrex::MultiFab::Copy(*plot_mfs[lev], ux[lev], 0, 1, 1, 0);
+
+    // Copy uy
+    amrex::MultiFab::Copy(*plot_mfs[lev], uy[lev], 0, 2, 1, 0);
+
+    // Copy all 9 components of f_old
+    for (int i = 0; i < 9; ++i) {
+      amrex::MultiFab::Copy(*plot_mfs[lev], f_old[lev], i, 3 + i, 1, 0);
+    }
   }
 
-  return r;
+  return plot_mfs;
 }
 
 // set plotfile variable names
 Vector<std::string> AmrCoreLBM::PlotFileVarNames() const {
-  // return {"f0","f1","f2","f3","f4","f5","f6","f7","f8"};
-  // return {"rho", "ux", "uy"};
-  // return {"f_new", "rho", "ux", "uy"};
-  // return {"f0","f1","f2","f3","f4","f5","f6","f7","f8", "rho", "ux", "uy"};
-  // return {"f_new"};
-  return {"rho"};
+  Vector<std::string> names;
+  names.push_back("rho");
+  names.push_back("ux");
+  names.push_back("uy");
+
+  for (int i = 0; i < ndir; ++i) {
+    names.push_back("f_old_" + std::to_string(i));
+  }
+
+  return names;
 }
 
 // write plotfile to disk
 void AmrCoreLBM::WritePlotFile() const {
+  // Create MultiFabs for output
+  amrex::Vector<std::unique_ptr<amrex::MultiFab>> mf_ptrs = PlotFileMF();
+
+  // Convert unique_ptr to raw pointers for AMReX
+  amrex::Vector<const amrex::MultiFab *> mf;
+  for (const auto &uptr : mf_ptrs) {
+    mf.push_back(uptr.get()); // Extract raw pointer
+  }
   const std::string &plotfilename = PlotFileName(istep[0]);
-  const auto &mf = PlotFileMF();
-  const auto &varnames = PlotFileVarNames();
+  Vector<std::string> varnames = PlotFileVarNames();
 
-  amrex::Print() << "Writing plotfile " << plotfilename << "\n";
-
+  // Write plot file
   amrex::WriteMultiLevelPlotfile(plotfilename, finest_level + 1, mf, varnames,
                                  Geom(), t_new[0], istep, refRatio());
 }
@@ -946,12 +998,12 @@ void AmrCoreLBM::InitEquilibrium() {
 
           // amrex::Print() <<cidotu << "\t" << rho_local(i,j,0) << "\t" <<
           // ux_local(i,j,0) << "\t" << uy_local(i,j,0) << "\n";
-          f_old_array(i, j, k, i_dir) =
+          f_new_array(i, j, k, i_dir) =
               wi[i_dir] * rho_array(i, j, k) *
               (1.0 + 3.0 * cidotu + 4.5 * cidotu * cidotu -
                1.5 * (ux_array(i, j, k) * ux_array(i, j, k) +
                       uy_array(i, j, k) * uy_array(i, j, k)));
-          f_new_array(i, j, k, i_dir) = f_old_array(i, j, k, i_dir);
+          // f_old_array(i, j, k, i_dir) = f_new_array(i, j, k, i_dir);
         }
       });
     }

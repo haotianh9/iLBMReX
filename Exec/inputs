@@ -2,7 +2,7 @@
 # Run until nsteps == max_step or time == stop_time,
 #     whichever comes first
 # *****************************************************************
-max_step  = 2
+max_step  = 1000
 
 
 # *****************************************************************
@@ -20,7 +20,7 @@ geometry.is_periodic =  1    1
 # *****************************************************************
 # VERBOSITY
 # *****************************************************************
-amr.v              = 1       # verbosity in Amr
+amr.v              = 3       # verbosity in Amr
 
 # *****************************************************************
 # Resolution and refinement
@@ -62,13 +62,14 @@ lbm.do_reflux = 0
 #            if abs(vor) > 1.5  at level 2, then refine
 # *****************************************************************
 # lbm.absvor = 1.01  1.1  1.5
-lbm.absvor = 0.00025 0.0005 0.001
+# lbm.absvor = 0.00025 0.0005 0.001
+lbm.absvor = 0.1 0.2 0.3
 
 # *****************************************************************
 # Plotfile name and frequency
 # *****************************************************************
 amr.plot_file  = plt    # root name of plot file
-amr.plot_int   =  1    # number of timesteps between plot files
+amr.plot_int   =  25    # number of timesteps between plot files
                         # if negative then no plot files will be written
 
 # *****************************************************************
@@ -81,4 +82,4 @@ amr.chk_int  = -1       # number of timesteps between checkpoint files
 # *****************************************************************
 # Particles
 # *****************************************************************
-amr.do_tracers = 1      # Turn tracer particles on or off
+amr.do_tracers = 0      # Turn tracer particles on or off
