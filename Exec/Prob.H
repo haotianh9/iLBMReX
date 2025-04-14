@@ -16,7 +16,7 @@ initdata(amrex::Box const& bx, amrex::Array4<amrex::Real> const& rho,amrex::Arra
 {
     using namespace amrex;
     double t=0;
-    double u_max = (double)0.02;	//单位是什么
+    double u_max = (double)0.02;	
     double rho0 = 1.0;
     const auto lo = lbound(bx);
     const auto hi = ubound(bx);
@@ -31,12 +31,11 @@ initdata(amrex::Box const& bx, amrex::Array4<amrex::Real> const& rho,amrex::Arra
             Real Y = prob_lo[1] + (0.5+j) * dx[1];
             
             for (int i = lo.x; i <= hi.x; ++i) {
-            	//宏观量初始化
+            	
                 Real X= prob_lo[0] + (0.5+i) * dx[0];
                 ux(i, j, k) =  -u_max * sqrt(ky / kx) * cos(kx * X) * sin(ky * Y) * exp(-1.0 * t / td);
                 uy(i, j, k) =  u_max * sqrt(kx / ky) * sin(kx * X) * cos(ky * Y) * exp(-1.0 * t / td);
-                //ux(i, j, k) = 0.5;
-                //uy(i, j, k) = 1.0;
+
                 uz(i, j, k) = 0.0;
                 
                 vor(i, j, k)= 0.0;
@@ -45,7 +44,7 @@ initdata(amrex::Box const& bx, amrex::Array4<amrex::Real> const& rho,amrex::Arra
                 double P = -0.25 * rho0 * u_max * u_max *((ky / kx) * cos(2.0 * kx * X) + (kx / ky) * cos(2.0 * ky * Y)) * exp(-2.0 * t / td);
                 rho(i, j, k) = rho0 + 3.0 * P;
             
-                //用平衡分布函数初始化分布函数
+                
             }
         }
     }
