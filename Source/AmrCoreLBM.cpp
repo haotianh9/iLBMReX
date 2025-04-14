@@ -360,7 +360,7 @@ void AmrCoreLBM::MakeNewLevelFromScratch (int lev, Real time, const BoxArray& ba
 
 
 amrex::Print() << "Making new level " << lev << std::endl;
-   //指定MultiFab的部件及虚拟层
+
 	f_new[lev].define(ba,dm,ndir,nghost);
 	f_old[lev].define(ba,dm,ndir,nghost);
 	macro_new[lev].define(ba,dm,nmac,nghost);
