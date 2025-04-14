@@ -18,3 +18,9 @@ Bpack   := ./Make.package
 Blocs   := . 
 
 include Make.LBM
+ 
+format:
+	@echo "Formatting source code..."
+	@find $(foreach dir, $(Bdirs), $(TOP)/$(dir)) -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) \
+		-exec clang-format -i {} +
+	@echo "Formatting complete."
