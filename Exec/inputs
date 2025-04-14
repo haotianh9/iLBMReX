@@ -1,9 +1,10 @@
+
 # *****************************************************************
-# Run until nsteps == max_step or time == stop_time,
+# Run until nsteps == max_step or time == stop_time, 
 #     whichever comes first
 # *****************************************************************
-max_step  = 1000
-
+max_step  = 200
+stop_time = 200
 
 # *****************************************************************
 # Are we restarting from an existing checkpoint file?
@@ -13,23 +14,28 @@ max_step  = 1000
 # *****************************************************************
 # Problem size and geometry
 # *****************************************************************
-geometry.prob_lo     =  0.0  0.0
-geometry.prob_hi     =  64.0  64.0
-geometry.is_periodic =  1    1
+geometry.prob_lo     =   0.0  0.0   0.0 
+geometry.prob_hi     =  64.0  64.0  64.0
+
+# 1 = periodic
+# 0 = walls (homogeneous Neumann, dphi/dn=0)
+
+
+geometry.is_periodic =  1    1    1				
 
 # *****************************************************************
 # VERBOSITY
 # *****************************************************************
-amr.v              = 3       # verbosity in Amr
+amr.v              = 1       # verbosity in Amr
 
 # *****************************************************************
 # Resolution and refinement
 # *****************************************************************
-amr.n_cell          = 64 64
-amr.max_level       = 2       # maximum level number allowed --
+amr.n_cell          = 64 64 8
+amr.max_level       = 2     # maximum level number allowed -- 
                               # number of levels = max_level + 1
 
-amr.ref_ratio       = 2 2 2 2 # refinement ratio between levels: for now, always keep refinement ratio 2
+amr.ref_ratio       = 2 2 2 2 # refinement ratio between levels
 
 # *****************************************************************
 # Control of grid creation
@@ -43,33 +49,24 @@ amr.blocking_factor_z = 8
 
 amr.max_grid_size   = 16
 
-amr.regrid_int      = 5       # how often to regrid
+amr.regrid_int      = 2       # how often to regrid
+
+
 
 # *****************************************************************
-# Time step control
+# Tagging -  if phi > 1.01 at level 0, then refine 
+#            if phi > 1.1  at level 1, then refine 
+#            if phi > 1.5  at level 2, then refine 
 # *****************************************************************
-
-lbm.do_subcycle    = 1       # Do we subcycle in time?
-
-# *****************************************************************
-# Should we reflux at coarse-fine boundaries?
-# *****************************************************************
-lbm.do_reflux = 0
-
-# *****************************************************************
-# Tagging -  if abs(vor) > 1.01 at level 0, then refine
-#            if abs(vor) > 1.1  at level 1, then refine
-#            if abs(vor) > 1.5  at level 2, then refine
-# *****************************************************************
-# lbm.absvor = 1.01  1.1  1.5
-# lbm.absvor = 0.00025 0.0005 0.001
-lbm.absvor = 0.1 0.2 0.3
+adv.thresholdRatio =  0.86  0.95  1.01
+#adv.thresholdRatio = 0.9 0.95 1.0
+#adv.thresholdRatio = 2.0 3.0 4.0
 
 # *****************************************************************
 # Plotfile name and frequency
 # *****************************************************************
 amr.plot_file  = plt    # root name of plot file
-amr.plot_int   =  25    # number of timesteps between plot files
+amr.plot_int   = 1   # number of timesteps between plot files
                         # if negative then no plot files will be written
 
 # *****************************************************************
@@ -78,8 +75,40 @@ amr.plot_int   =  25    # number of timesteps between plot files
 amr.chk_file = chk      # root name of checkpoint file
 amr.chk_int  = -1       # number of timesteps between checkpoint files
                         # if negative then no checkpoint files will be written
+                        
+                        
 
+
+
+                        
 # *****************************************************************
-# Particles
-# *****************************************************************
-amr.do_tracers = 0      # Turn tracer particles on or off
+# This is a specific parameter of LBM
+# *****************************************************************                        
+
+#The viscosity coefficient is case-dependent
+lbmPhysicalParameters.nu   = 0.166666666667
+
+#LBM for isothermal incompressible flow calculates up to four primitive quantities rho-u-v-w-vor-Pressure (vor-Pressure calculation added)
+lbmPhysicalParameters.nmac = 6
+
+
+#2D-Discrete Velocity Space
+lbm2d.ndir   = 9
+lbm2d.wis    = 4.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+lbm2d.wim    = 9.0 9.0 9.0 9.0 9.0 36.0 36.0 36.0 36.0                         
+lbm2d.dirx   = 0.0 1.0 0.0 -1.0  0.0 1.0 -1.0 -1.0  1.0
+lbm2d.diry   = 0.0 0.0 1.0  0.0 -1.0 1.0  1.0 -1.0 -1.0
+lbm2d.dirz  = 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0                     
+
+
+#3D-Discrete Velocity Space                        
+lbm3d.ndir  = 27
+lbm3d.wis   = 8.0 2.0 2.0 2.0 2.0 2.0 2.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+lbm3d.wim   = 27.0 27.0 27.0 27.0 27.0 27.0 27.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 216.0 216.0 216.0 216.0 216.0 216.0 216.0 216.0                         
+lbm3d.dirx  = 0 1 -1 0 0 0 0 1 -1 1 -1 0 0 1 -1 1 -1 0 0 1 -1 1 -1 1 -1 -1 1
+lbm3d.diry  = 0 0 0 1 -1 0 0 1 -1 0 0 1 -1 -1 1 0 0 1 -1 1 -1 1 -1 -1 1 1 -1                     
+lbm3d.dirz  = 0 0 0 0 0 1 -1 0 0 1 -1 1 -1 0 0 -1 1 -1 1 1 -1 -1 1 1 -1 1 -1                   
+                        
+                        
+                        
+                        
