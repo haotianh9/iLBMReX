@@ -11,14 +11,11 @@ state_error (int i, int j, int k,
              amrex::Array4<amrex::Real const> const& state,
              amrex::Real threshold, char tagval)
 {
-    // amrex::Print() << "state_error: " << std::abs(state(i,j,k)-1) << "\t" <<threshold << "\n";
-    if (std::abs(state(i,j,k)-1) > threshold)
-    {
+
+
+
+    if ( std::fabs(state(i,j,k))  > threshold)
         tag(i,j,k) = tagval;
-        // amrex::Print() << "Tagging cell: " << i << " " << j << " " << k << "\n";
-    }
-        
-        
 }
 
 #endif

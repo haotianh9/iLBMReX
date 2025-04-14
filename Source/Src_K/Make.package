@@ -1,2 +1,4 @@
-CEXE_headers += kernel.H
-
+CEXE_headers += collide.H
+CEXE_headers += calculateMacro.H
+CEXE_headers += visPara.H
+CEXE_headers += stream.H
