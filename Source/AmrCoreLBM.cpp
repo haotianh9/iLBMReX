@@ -370,7 +370,7 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
   }
 
   amrex::Real vortMax = macro_new[lev].max(4);
-  
+
   MultiFab &curMacro = macro_new[lev];
 
   //    const int clearval = TagBox::CLEAR;
@@ -1008,11 +1008,12 @@ void AmrCoreLBM::InitEquilibrium() {
 void AmrCoreLBM::FillPatchMacro(int lev, Real time, MultiFab &mf, int icomp,
                                 int ncomp) {
 
-//   for (int d = 0; d < AMREX_SPACEDIM; ++d) {
-//     if (geom[lev].isPeriodic(d)) {
-//         amrex::Print() << "Level " << lev << " is periodic in direction " << d << "\n";
-//     }
-// }
+  //   for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+  //     if (geom[lev].isPeriodic(d)) {
+  //         amrex::Print() << "Level " << lev << " is periodic in direction "
+  //         << d << "\n";
+  //     }
+  // }
   if (lev == 0) {
     Vector<MultiFab *> smf;
     Vector<Real> stime;

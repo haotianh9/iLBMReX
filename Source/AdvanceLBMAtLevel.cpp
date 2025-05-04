@@ -9,8 +9,8 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
                                    int /*iteration*/, int /*ncycle*/) {
   // std::swap(f_old[lev], f_new[lev]);
   // std::swap(macro_old[lev], macro_new[lev]);
-  std::swap( f_new[lev],f_old[lev]);
-  std::swap( macro_new[lev],macro_old[lev]);
+  std::swap(f_new[lev], f_old[lev]);
+  std::swap(macro_new[lev], macro_old[lev]);
 
   MultiFab &sF_new = f_new[lev];
   MultiFab &sM_new = macro_new[lev];
@@ -82,6 +82,40 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
       }
     });
 
+    amrex::ParallelFor(gtbx,
+                       [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                         amrex::Vector<amrex::Real> tempMac(nmac);
+                         tempMac[0] = rho_old(i, j, k);
+                         tempMac[1] = u_old(i, j, k);
+                         tempMac[2] = v_old(i, j, k);
+                         tempMac[3] = w_old(i, j, k);
+
+                         amrex::Vector<amrex::Real> feq(ndir);
+                         for (int i_dir = 0; i_dir < ndir; ++i_dir) {
+                           amrex::Vector<amrex::Real> tempMes(4);
+                           tempMes[0] = wi[i_dir];
+                           tempMes[1] = dirx[i_dir];
+                           tempMes[2] = diry[i_dir];
+                           tempMes[3] = dirz[i_dir];
+                           feq[i_dir] = feqFunction(tempMes, tempMac);
+                         }
+
+                         collide(i, j, k, statein, feq, ndir, temptau);
+                       });
+
+    amrex::ParallelFor(
+        gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+          amrex::Vector<amrex::Real> tempMac(nmac);
+          tempMac[0] = rho_old(i, j, k);
+          tempMac[1] = u_old(i, j, k);
+          tempMac[2] = v_old(i, j, k);
+          tempMac[3] = w_old(i, j, k);
+
+          // Ensure that the calculation area is within the valid range
+          if (vbx.contains(i, j, k)) {
+            stream(i, j, k, stateout, statein, dirx, diry, dirz, ndir);
+          }
+        });
 
     amrex::ParallelFor(gtbx, [=] AMREX_GPU_DEVICE(int i, int j,
                                                   int k) noexcept {
@@ -90,52 +124,6 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
       tempMac[1] = u_old(i, j, k);
       tempMac[2] = v_old(i, j, k);
       tempMac[3] = w_old(i, j, k);
-
-      amrex::Vector<amrex::Real> feq(ndir);
-      for (int i_dir = 0; i_dir < ndir; ++i_dir) {
-        amrex::Vector<amrex::Real> tempMes(4);
-        tempMes[0] = wi[i_dir];
-        tempMes[1] = dirx[i_dir];
-        tempMes[2] = diry[i_dir];
-        tempMes[3] = dirz[i_dir];
-        feq[i_dir] = feqFunction(tempMes, tempMac);
-      }
-
-      collide(i, j, k, statein, feq, ndir, temptau);
-
-      
-     
-    });
-
-
-    amrex::ParallelFor(gtbx, [=] AMREX_GPU_DEVICE(int i, int j,
-                                                  int k) noexcept {
-      amrex::Vector<amrex::Real> tempMac(nmac);
-      tempMac[0] = rho_old(i, j, k);
-      tempMac[1] = u_old(i, j, k);
-      tempMac[2] = v_old(i, j, k);
-      tempMac[3] = w_old(i, j, k);
-
-     
-
-      // Ensure that the calculation area is within the valid range
-      if (vbx.contains(i, j, k)) {
-        stream(i, j, k, stateout, statein, dirx, diry, dirz, ndir);
-
-     
-      }
-    });
-
-
-    amrex::ParallelFor(gtbx, [=] AMREX_GPU_DEVICE(int i, int j,
-                                                  int k) noexcept {
-      amrex::Vector<amrex::Real> tempMac(nmac);
-      tempMac[0] = rho_old(i, j, k);
-      tempMac[1] = u_old(i, j, k);
-      tempMac[2] = v_old(i, j, k);
-      tempMac[3] = w_old(i, j, k);
-
-     
 
       // Ensure that the calculation area is within the valid range
       if (vbx.contains(i, j, k)) {
