@@ -59,7 +59,7 @@ amr.regrid_int      = 2       # how often to regrid
 #            if phi > 1.5  at level 2, then refine 
 # *****************************************************************
 amrvorth.thresholdRatio =  0.86  0.95  1.01
-# amrvorth.thresholdRatio = 10 10 10
+# amrvorth.thresholdRatio = 9 9 9
 #adv.thresholdRatio = 0.9 0.95 1.0
 #adv.thresholdRatio = 2.0 3.0 4.0
 

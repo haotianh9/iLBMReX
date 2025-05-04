@@ -13,7 +13,7 @@ void stream(int i, int j, int k, amrex::Array4<amrex::Real> const &f_out,
             amrex::Vector<amrex::Real> const dirz, int const ndir) {
   int ip, jp, kp;
 
-  amrex::Real temp;
+
 
   for (int i_dir = 0; i_dir < ndir; ++i_dir) {
     ip = i - dirx[i_dir];
