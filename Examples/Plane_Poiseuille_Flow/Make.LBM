@@ -1,7 +1,7 @@
-AMREX_HOME ?= ../amrex
-ADV_DIR    = ../
+AMREX_HOME ?= ../../amrex
+LBM_DIR    = ../../
 
-TOP := $(ADV_DIR)
+TOP := $(LBM_DIR)
 
 EBASE := main
 
