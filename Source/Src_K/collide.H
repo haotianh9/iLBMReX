@@ -15,6 +15,7 @@ void collide(int i,int j,int k,
     
         for ( int i_dir = 0; i_dir < ndir; ++i_dir) 
         {
+            // amrex::Print()<< tau << std::endl;
         f_old(i, j, k, i_dir) = 1.0*f_old(i, j, k, i_dir) - (f_old(i, j, k, i_dir) - feq[i_dir])/tau;
         }
                    
