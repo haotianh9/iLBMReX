@@ -3,8 +3,8 @@
 # Run until nsteps == max_step or time == stop_time, 
 #     whichever comes first
 # *****************************************************************
-max_step  = 900
-stop_time = 900
+max_step  = 10000
+stop_time = 10000
 
 # *****************************************************************
 # Are we restarting from an existing checkpoint file?
@@ -15,13 +15,13 @@ stop_time = 900
 # Problem size and geometry
 # *****************************************************************
 geometry.prob_lo     =   0.0  0.0   0.0 
-geometry.prob_hi     =  64.0  64.0  64.0
+geometry.prob_hi     =  64  64  64.0
 
 # 1 = periodic
 # 0 = walls (homogeneous Neumann, dphi/dn=0)
 
 
-geometry.is_periodic =  1    1    1				
+geometry.is_periodic =  0    0    0				
 
 # *****************************************************************
 # VERBOSITY
@@ -32,7 +32,7 @@ amr.v              = 1       # verbosity in Amr
 # Resolution and refinement
 # *****************************************************************
 amr.n_cell          = 64 64 8
-amr.max_level       = 2     # maximum level number allowed -- 
+amr.max_level       = 0     # maximum level number allowed -- 
                               # number of levels = max_level + 1
 
 amr.ref_ratio       = 2 2 2 2 # refinement ratio between levels
@@ -40,7 +40,7 @@ amr.ref_ratio       = 2 2 2 2 # refinement ratio between levels
 # *****************************************************************
 # Control of grid creation
 # *****************************************************************
-# Blocking factor for grid creation in each dimension --
+# Blocking factor for grweightsmat[Q]={1.0/9.0,1.0/36.0,1.0/36.0,1.0/6.0,1.0/12.0,1.0/6.0,1.0/12.0,1.0/4.0,1.0/4.0};id creation in each dimension --
 #   this ensures that every grid is coarsenable by a factor of 8 --
 #   this is mostly relevant for multigrid performance
 amr.blocking_factor_x = 8
@@ -58,16 +58,17 @@ amr.regrid_int      = 2       # how often to regrid
 #            if phi > 1.1  at level 1, then refine 
 #            if phi > 1.5  at level 2, then refine 
 # *****************************************************************
-amrvorth.thresholdRatio =  0.86  0.95  1.01
-# amrvorth.thresholdRatio = 10 10 10
+adv.thresholdRatio =  0.4 0.6 0.8
+
+
 #adv.thresholdRatio = 0.9 0.95 1.0
 #adv.thresholdRatio = 2.0 3.0 4.0
 
 # *****************************************************************
 # Plotfile name and frequency
 # *****************************************************************
-amr.plot_file  = plt    # root name of plot file
-amr.plot_int   = 50   # number of timesteps between plot files
+amr.plot_file  = out/plt    # root name of plot file
+amr.plot_int   = 100  # number of timesteps between plot files
                         # if negative then no plot files will be written
 
 # *****************************************************************
@@ -77,6 +78,9 @@ amr.chk_file = chk      # root name of checkpoint file
 amr.chk_int  = -1       # number of timesteps between checkpoint files
                         # if negative then no checkpoint files will be written
                         
+                        
+
+
 
                         
 # *****************************************************************
@@ -84,7 +88,8 @@ amr.chk_int  = -1       # number of timesteps between checkpoint files
 # *****************************************************************                        
 
 #The viscosity coefficient is case-dependent
-lbmPhysicalParameters.nu   = 0.166666666667
+lbmPhysicalParameters.nu   = 0.0064
+
 
 #LBM for isothermal incompressible flow calculates up to four primitive quantities rho-u-v-w-vor-Pressure (vor-Pressure calculation added)
 lbmPhysicalParameters.nmac = 6
@@ -92,11 +97,11 @@ lbmPhysicalParameters.nmac = 6
 
 #2D-Discrete Velocity Space
 lbm2d.ndir   = 9
-lbm2d.wis    = 4.0  1.0  1.0  1.0   1.0  1.0  1.0  1.0  1.0
-lbm2d.wim    = 9.0  9.0  9.0  9.0   9.0  36.0 36.0 36.0 36.0                         
-lbm2d.dirx   = 0.0  1.0  0.0  -1.0  0.0  1.0  -1.0 -1.0 1.0
-lbm2d.diry   = 0.0  0.0  1.0  0.0   -1.0 1.0  1.0  -1.0 -1.0
-lbm2d.dirz  =  0.0  0.0  0.0  0.0   0.0  0.0  0.0  0.0  0.0                     
+lbm2d.wis    = 4.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+lbm2d.wim    = 9.0 9.0 9.0 9.0 9.0 36.0 36.0 36.0 36.0                         
+lbm2d.dirx   = 0.0 1.0 0.0 -1.0  0.0 1.0 -1.0 -1.0  1.0
+lbm2d.diry   = 0.0 0.0 1.0  0.0 -1.0 1.0  1.0 -1.0 -1.0
+lbm2d.dirz  = 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0                     
 
 
 #3D-Discrete Velocity Space                        

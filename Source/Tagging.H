@@ -9,7 +9,7 @@ void state_error(int i, int j, int k, amrex::Array4<char> const &tag,
                  amrex::Array4<amrex::Real const> const &state,
                  amrex::Real threshold, char tagval) {
 
-  if (std::fabs(state(i, j, k)) > threshold)
+  if (std::fabs(state(i, j, k)/0.1) > threshold)
     tag(i, j, k) = tagval;
 }
 
