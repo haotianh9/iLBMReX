@@ -82,6 +82,8 @@ amr.chk_int  = -1       # number of timesteps between checkpoint files
 # *****************************************************************
 # This is a specific parameter of LBM
 # *****************************************************************                        
+lbm.Couette =true
+lbm.Taylor  =false
 
 #The viscosity coefficient is case-dependent
 lbmPhysicalParameters.nu   = 0.064
