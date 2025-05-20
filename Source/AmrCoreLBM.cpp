@@ -329,15 +329,10 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
     Array4<Real> vor = cur[mfi].array(4);
     const Box &box = mfi.fabbox();
 
-    amrex::ParallelFor(
-       box , [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept  {
-      //initdata(tbx, rho, u, v, w, vor, problo, probhi, dx, nu);
-      rho(i,j,k) = 1.0;
-        u(i,j,k) = 0.0;
-        v(i,j,k) = 0.0;
-        w(i,j,k) = 0.0;
-      vor(i,j,k) = 0.0;
-      
+        amrex::launch(box,
+        [=] AMREX_GPU_DEVICE (Box const& tbx)
+         {
+      initdata(tbx, rho, u, v, w, vor, problo, probhi, dx, nu);
     });
   }
 
