@@ -7,3 +7,4 @@ CEXE_headers += bc_fill.H
 CEXE_headers += Kernels.H 
 CEXE_headers += Tagging.H
 CEXE_headers += feq.H
+CEXE_headers += Prob.H
