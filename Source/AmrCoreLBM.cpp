@@ -73,10 +73,30 @@ AmrCoreLBM::AmrCoreLBM() {
 
 
 
+bool Couette;
+bool Taylor;
+{
+	  ParmParse pp("lbm");
+	  pp.query("Couette", Couette);
+      pp.query("Taylor", Taylor);
+}
+
+
+if(Couette){
 bc_lo[1]=amrex::BCType::ext_dir;
 bc_lo[0]=amrex::BCType::foextrap;
 bc_hi[1]=amrex::BCType::ext_dir;
 bc_hi[0]=amrex::BCType::foextrap;
+}
+
+if(Taylor){
+    for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
+        if (Geom(0).isPeriodic()[idim] == 1) {
+            bc_lo[idim] = bc_hi[idim] = BCType::int_dir;  
+        }
+    }
+}
+
 
 
   bcsMesoscopic.resize(ndir); // Setup 1-component
