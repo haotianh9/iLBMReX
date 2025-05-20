@@ -71,14 +71,13 @@ AmrCoreLBM::AmrCoreLBM() {
   int bc_lo[AMREX_SPACEDIM];
   int bc_hi[AMREX_SPACEDIM];
 
-  for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
 
-    if (Geom(0).isPeriodic()[idim] == 1) {
-      bc_lo[idim] = bc_hi[idim] = BCType::int_dir;
-    } else {
-      bc_lo[idim] = bc_hi[idim] = BCType::foextrap;
-    }
-  }
+
+bc_lo[1]=amrex::BCType::ext_dir;
+bc_lo[0]=amrex::BCType::foextrap;
+bc_hi[1]=amrex::BCType::ext_dir;
+bc_hi[0]=amrex::BCType::foextrap;
+
 
   bcsMesoscopic.resize(ndir); // Setup 1-component
   for (int idir = 0; idir < ndir; ++idir) {
@@ -141,6 +140,11 @@ void AmrCoreLBM::Evolve() {
   Real cur_time = t_new[0];
   int last_plot_file_step = 0;
 
+	amrex::Real nu = 0.064;
+	amrex::Real H  = 64.0;
+	std::vector<amrex::Real> target_tstar = {0.005, 0.05, 0.5};
+	std::vector<bool> tstar_written(target_tstar.size(), false);
+	
   for (int step = istep[0]; step < max_step && cur_time < stop_time; ++step) {
     amrex::Print() << "\nCoarse STEP " << step + 1 << " starts ..."
                    << std::endl;
@@ -183,6 +187,20 @@ void AmrCoreLBM::Evolve() {
 
     if (cur_time >= stop_time - 1.e-6 * dt[0])
       break;
+      
+      
+    Real t_star = nu * cur_time / (H * H);
+    for (int i = 0; i < target_tstar.size(); ++i)
+    {
+        if (!tstar_written[i] && std::abs(t_star - target_tstar[i]) < 1e-5)
+        {
+            amrex::Print() << ">>> Output at t* = " << t_star << " (t = " << cur_time << ")" << std::endl;
+            std::string tag = "_tstar" + std::to_string(i);
+            WritePlotFile();
+            tstar_written[i] = true;
+        }
+    }
+    
   }
 
   if (plot_int > 0 && istep[0] > last_plot_file_step) {
@@ -311,8 +329,15 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
     Array4<Real> vor = cur[mfi].array(4);
     const Box &box = mfi.fabbox();
 
-    amrex::launch(box, [=] AMREX_GPU_DEVICE(Box const &tbx) {
-      initdata(tbx, rho, u, v, w, vor, problo, probhi, dx, nu);
+    amrex::ParallelFor(
+       box , [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept  {
+      //initdata(tbx, rho, u, v, w, vor, problo, probhi, dx, nu);
+      rho(i,j,k) = 1.0;
+        u(i,j,k) = 0.0;
+        v(i,j,k) = 0.0;
+        w(i,j,k) = 0.0;
+      vor(i,j,k) = 0.0;
+      
     });
   }
 
@@ -489,112 +514,85 @@ void AmrCoreLBM::AverageDown() {
   }
 }
 
-// more flexible version of AverageDown() that lets you average down across
-// multiple levels
-void AmrCoreLBM::AverageDownTo(int crse_lev) {
-  amrex::average_down(f_new[crse_lev + 1], f_new[crse_lev], geom[crse_lev + 1],
-                      geom[crse_lev], 0, f_new[crse_lev].nComp(),
-                      refRatio(crse_lev));
-  amrex::average_down(macro_new[crse_lev + 1], macro_new[crse_lev],
-                      geom[crse_lev + 1], geom[crse_lev], 0,
-                      macro_new[crse_lev].nComp(), refRatio(crse_lev));
+void AmrCoreLBM::AverageDownTo (int crse_lev)
+{
+	amrex::average_down(f_new[crse_lev+1], f_new[crse_lev],geom[crse_lev+1], geom[crse_lev],0, f_new[crse_lev].nComp(), refRatio(crse_lev)); 
+	amrex::average_down(macro_new[crse_lev+1], macro_new[crse_lev],geom[crse_lev+1], geom[crse_lev],0, macro_new[crse_lev].nComp(), refRatio(crse_lev));                                
 }
 
-// compute a new multifab by coping in phi from valid region and filling ghost
-// cells works for single level and 2-level cases (fill fine grid ghost by
-// interpolating from coarse)
-void AmrCoreLBM::FillPatchMesoscopic(int lev, Real time, MultiFab &mf,
-                                     int icomp, int ncomp) {
-  if (lev == 0) {
-    Vector<MultiFab *> smf;
+// more flexible version of AverageDown() that lets you average down across
+// multiple levels
+
+
+
+void AmrCoreLBM::FillPatchMesoscopic(int lev, amrex::Real time, amrex::MultiFab &mf,
+                           int icomp, int ncomp)
+{
+if (lev == 0)
+{
+    Vector<MultiFab*> smf;
     Vector<Real> stime;
     GetDataMesoscopic(0, time, smf, stime);
 
-    if (Gpu::inLaunchRegion()) {
-      GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
-      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> physbc(geom[lev], bcsMesoscopic,
-                                                       gpu_bndry_func);
-      amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
-                                  geom[lev], physbc, 0);
-    } else {
-      CpuBndryFuncFab bndry_func(
-          nullptr); // Without EXT_DIR, we can pass a nullptr.
-      PhysBCFunct<CpuBndryFuncFab> physbc(geom[lev], bcsMesoscopic, bndry_func);
-      amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
-                                  geom[lev], physbc, 0);
-    }
-  } else {
-    Vector<MultiFab *> cmf, fmf;
+    GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(
+        mesoscopicBcFill{});
+    PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> physbc(geom[lev], bcsMesoscopic, gpu_bndry_func);
+
+    amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
+                                geom[lev], physbc, 0);
+}
+else
+{
+    Vector<MultiFab*> cmf, fmf;
     Vector<Real> ctime, ftime;
     GetDataMesoscopic(lev - 1, time, cmf, ctime);
-    GetDataMesoscopic(lev, time, fmf, ftime);
+    GetDataMesoscopic(lev    , time, fmf, ftime);
 
-    Interpolater *mapper = &cell_cons_interp;
+    Interpolater* mapper = &cell_cons_interp;
 
-    if (Gpu::inLaunchRegion()) {
-      GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
-      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> cphysbc(
-          geom[lev - 1], bcsMesoscopic, gpu_bndry_func);
-      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> fphysbc(
-          geom[lev], bcsMesoscopic, gpu_bndry_func);
+    GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(
+        mesoscopicBcFill{});
+    PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> cphysbc(geom[lev - 1], bcsMesoscopic, gpu_bndry_func);
+    PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> fphysbc(geom[lev],     bcsMesoscopic, gpu_bndry_func);
 
-      amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime, 0, icomp,
-                                ncomp, geom[lev - 1], geom[lev], cphysbc, 0,
-                                fphysbc, 0, refRatio(lev - 1), mapper,
-                                bcsMesoscopic, 0);
-    } else {
-      CpuBndryFuncFab bndry_func(
-          nullptr); // Without EXT_DIR, we can pass a nullptr.
-      PhysBCFunct<CpuBndryFuncFab> cphysbc(geom[lev - 1], bcsMesoscopic,
-                                           bndry_func);
-      PhysBCFunct<CpuBndryFuncFab> fphysbc(geom[lev], bcsMesoscopic,
-                                           bndry_func);
-
-      amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime, 0, icomp,
-                                ncomp, geom[lev - 1], geom[lev], cphysbc, 0,
-                                fphysbc, 0, refRatio(lev - 1), mapper,
-                                bcsMesoscopic, 0);
-    }
-  }
+    amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime,
+                              0, icomp, ncomp, geom[lev - 1], geom[lev],
+                              cphysbc, 0, fphysbc, 0,
+                              refRatio(lev - 1),
+                              mapper, bcsMesoscopic, 0);
 }
 
-// fill an entire multifab by interpolating from the coarser level
-// this comes into play when a new level of refinement appears
-void AmrCoreLBM::FillCoarsePatchMesoscopic(int lev, Real time, MultiFab &mf,
-                                           int icomp, int ncomp) {
-  BL_ASSERT(lev > 0);
+    
+}
 
-  Vector<MultiFab *> cmf;
-  Vector<Real> ctime;
-  GetDataMesoscopic(lev - 1, time, cmf, ctime);
-  Interpolater *mapper = &cell_cons_interp;
 
-  if (cmf.size() != 1) {
+
+void AmrCoreLBM::FillCoarsePatchMesoscopic (int lev, amrex::Real time, amrex::MultiFab &mf,
+                                 int icomp, int ncomp)
+{
+BL_ASSERT(lev > 0);
+
+Vector<MultiFab*> cmf;
+Vector<Real> ctime;
+GetDataMesoscopic(lev - 1, time, cmf, ctime);
+Interpolater* mapper = &cell_cons_interp;
+
+if (cmf.size() != 1) {
     amrex::Abort("FillCoarsePatchMesoscopic: how did this happen?");
-  }
-
-  if (Gpu::inLaunchRegion()) {
-    GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
-    PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> cphysbc(
-        geom[lev - 1], bcsMesoscopic, gpu_bndry_func);
-    PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> fphysbc(geom[lev], bcsMesoscopic,
-                                                      gpu_bndry_func);
-
-    amrex::InterpFromCoarseLevel(
-        mf, time, *cmf[0], 0, icomp, ncomp, geom[lev - 1], geom[lev], cphysbc,
-        0, fphysbc, 0, refRatio(lev - 1), mapper, bcsMesoscopic, 0);
-  } else {
-    CpuBndryFuncFab bndry_func(
-        nullptr); // Without EXT_DIR, we can pass a nullptr.
-    PhysBCFunct<CpuBndryFuncFab> cphysbc(geom[lev - 1], bcsMesoscopic,
-                                         bndry_func);
-    PhysBCFunct<CpuBndryFuncFab> fphysbc(geom[lev], bcsMesoscopic, bndry_func);
-
-    amrex::InterpFromCoarseLevel(
-        mf, time, *cmf[0], 0, icomp, ncomp, geom[lev - 1], geom[lev], cphysbc,
-        0, fphysbc, 0, refRatio(lev - 1), mapper, bcsMesoscopic, 0);
-  }
 }
+
+
+GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(mesoscopicBcFill{});
+PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> cphysbc(geom[lev - 1], bcsMesoscopic, gpu_bndry_func);
+PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> fphysbc(geom[lev],     bcsMesoscopic, gpu_bndry_func);
+
+amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp, geom[lev - 1], geom[lev],
+                             cphysbc, 0, fphysbc, 0, refRatio(lev - 1),
+                             mapper, bcsMesoscopic, 0);
+
+
+}
+
 
 // utility to copy in data from phi_old and/or phi_new into another multifab
 void AmrCoreLBM::GetDataMesoscopic(int lev, Real time, Vector<MultiFab *> &data,
@@ -1005,100 +1003,80 @@ void AmrCoreLBM::InitEquilibrium() {
   }
 }
 
-void AmrCoreLBM::FillPatchMacro(int lev, Real time, MultiFab &mf, int icomp,
-                                int ncomp) {
 
-  //   for (int d = 0; d < AMREX_SPACEDIM; ++d) {
-  //     if (geom[lev].isPeriodic(d)) {
-  //         amrex::Print() << "Level " << lev << " is periodic in direction "
-  //         << d << "\n";
-  //     }
-  // }
-  if (lev == 0) {
-    Vector<MultiFab *> smf;
+
+
+
+
+
+void AmrCoreLBM::FillPatchMacro(int lev, amrex::Real time, amrex::MultiFab &mf, int icomp,int ncomp)
+{
+
+if (lev == 0)
+{
+    Vector<MultiFab*> smf;
     Vector<Real> stime;
     GetDataMacro(0, time, smf, stime);
 
-    if (Gpu::inLaunchRegion()) {
-      GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
-      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> physbc(geom[lev], bcsMacro,
-                                                       gpu_bndry_func);
-      amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
-                                  geom[lev], physbc, 0);
-    } else {
-      CpuBndryFuncFab bndry_func(
-          nullptr); // Without EXT_DIR, we can pass a nullptr.
-      PhysBCFunct<CpuBndryFuncFab> physbc(geom[lev], bcsMacro, bndry_func);
-      amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
-                                  geom[lev], physbc, 0);
-    }
-  } else {
-    Vector<MultiFab *> cmf, fmf;
+    GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{});
+    PhysBCFunct<GpuBndryFuncFab<macroBcFill>> physbc(geom[lev], bcsMacro, gpu_bndry_func);
+
+    amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
+                                geom[lev], physbc, 0);
+}
+else
+{
+    Vector<MultiFab*> cmf, fmf;
     Vector<Real> ctime, ftime;
     GetDataMacro(lev - 1, time, cmf, ctime);
-    GetDataMacro(lev, time, fmf, ftime);
+    GetDataMacro(lev    , time, fmf, ftime);
 
-    Interpolater *mapper = &cell_cons_interp;
+    Interpolater* mapper = &cell_cons_interp;
 
-    if (Gpu::inLaunchRegion()) {
-      GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
-      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> cphysbc(geom[lev - 1], bcsMacro,
-                                                        gpu_bndry_func);
-      PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> fphysbc(geom[lev], bcsMacro,
-                                                        gpu_bndry_func);
+    GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{});
+    PhysBCFunct<GpuBndryFuncFab<macroBcFill>> cphysbc(geom[lev - 1], bcsMacro, gpu_bndry_func);
+    PhysBCFunct<GpuBndryFuncFab<macroBcFill>> fphysbc(geom[lev],     bcsMacro, gpu_bndry_func);
 
-      amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime, 0, icomp,
-                                ncomp, geom[lev - 1], geom[lev], cphysbc, 0,
-                                fphysbc, 0, refRatio(lev - 1), mapper, bcsMacro,
-                                0);
-    } else {
-      CpuBndryFuncFab bndry_func(
-          nullptr); // Without EXT_DIR, we can pass a nullptr.
-      PhysBCFunct<CpuBndryFuncFab> cphysbc(geom[lev - 1], bcsMacro, bndry_func);
-      PhysBCFunct<CpuBndryFuncFab> fphysbc(geom[lev], bcsMacro, bndry_func);
+    amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime,
+                              0, icomp, ncomp, geom[lev - 1], geom[lev],
+                              cphysbc, 0, fphysbc, 0, refRatio(lev - 1),
+                              mapper, bcsMacro, 0);
+}
 
-      amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime, 0, icomp,
-                                ncomp, geom[lev - 1], geom[lev], cphysbc, 0,
-                                fphysbc, 0, refRatio(lev - 1), mapper, bcsMacro,
-                                0);
+
+    
+    
+}
+
+void AmrCoreLBM::FillCoarsePatchMacro (int lev, amrex::Real time, amrex::MultiFab &mf,int icomp, int ncomp)
+{
+    BL_ASSERT(lev > 0);
+
+    Vector<MultiFab*> cmf;
+    Vector<Real> ctime;
+    GetDataMacro(lev-1, time, cmf, ctime);
+    Interpolater* mapper = &cell_cons_interp;
+
+    if (cmf.size() != 1) {
+        amrex::Abort("FillCoarsePatchMacro: how did this happen?");
     }
-  }
+
+
+        GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{});
+        PhysBCFunct<GpuBndryFuncFab<macroBcFill> > cphysbc(geom[lev-1],bcsMacro,gpu_bndry_func);
+        PhysBCFunct<GpuBndryFuncFab<macroBcFill> > fphysbc(geom[lev],bcsMacro,gpu_bndry_func);
+
+        amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp, geom[lev-1], geom[lev],
+                                     cphysbc, 0, fphysbc, 0, refRatio(lev-1),
+                                     mapper, bcsMacro, 0);
+
+
 }
 
-void AmrCoreLBM::FillCoarsePatchMacro(int lev, Real time, MultiFab &mf,
-                                      int icomp, int ncomp) {
-  BL_ASSERT(lev > 0);
 
-  Vector<MultiFab *> cmf;
-  Vector<Real> ctime;
-  GetDataMacro(lev - 1, time, cmf, ctime);
-  Interpolater *mapper = &cell_cons_interp;
 
-  if (cmf.size() != 1) {
-    amrex::Abort("FillCoarsePatchMacro: how did this happen?");
-  }
 
-  if (Gpu::inLaunchRegion()) {
-    GpuBndryFuncFab<AmrCoreFill> gpu_bndry_func(AmrCoreFill{});
-    PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> cphysbc(geom[lev - 1], bcsMacro,
-                                                      gpu_bndry_func);
-    PhysBCFunct<GpuBndryFuncFab<AmrCoreFill>> fphysbc(geom[lev], bcsMacro,
-                                                      gpu_bndry_func);
 
-    amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
-                                 geom[lev - 1], geom[lev], cphysbc, 0, fphysbc,
-                                 0, refRatio(lev - 1), mapper, bcsMacro, 0);
-  } else {
-    CpuBndryFuncFab bndry_func(
-        nullptr); // Without EXT_DIR, we can pass a nullptr.
-    PhysBCFunct<CpuBndryFuncFab> cphysbc(geom[lev - 1], bcsMacro, bndry_func);
-    PhysBCFunct<CpuBndryFuncFab> fphysbc(geom[lev], bcsMacro, bndry_func);
-
-    amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
-                                 geom[lev - 1], geom[lev], cphysbc, 0, fphysbc,
-                                 0, refRatio(lev - 1), mapper, bcsMacro, 0);
-  }
-}
 
 void AmrCoreLBM::GetDataMacro(int lev, Real time, Vector<MultiFab *> &data,
                               Vector<Real> &datatime) {
