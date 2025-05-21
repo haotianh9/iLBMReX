@@ -72,30 +72,41 @@ AmrCoreLBM::AmrCoreLBM() {
   int bc_hi[AMREX_SPACEDIM];
 
 
-
-bool Couette;
-bool Taylor;
-{
-	  ParmParse pp("lbm");
-	  pp.query("Couette", Couette);
-      pp.query("Taylor", Taylor);
-}
-
-
-if(Couette){
-bc_lo[1]=amrex::BCType::ext_dir;
-bc_lo[0]=amrex::BCType::foextrap;
-bc_hi[1]=amrex::BCType::ext_dir;
-bc_hi[0]=amrex::BCType::foextrap;
-}
-
-if(Taylor){
-    for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
+// read bc
+for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
         if (Geom(0).isPeriodic()[idim] == 1) {
             bc_lo[idim] = bc_hi[idim] = BCType::int_dir;  
+        }else{
+          ParmParse pp("amrbc");
+          int type;
+          std::string temp1 = "bc_lo_" + std::to_string(idim);
+          const char* key1 = temp1.c_str();
+          std::string temp2 = "bc_hi_" + std::to_string(idim);
+          const char* key2 = temp2.c_str();
+          pp.query(key1, type);
+          if (type == 1) {
+            bc_lo[idim] = BCType::ext_dir;
+          } else if (type == 2) {
+            bc_lo[idim] = BCType::int_dir;
+          } else if (type == 3) {
+            bc_lo[idim] = BCType::foextrap;
+          } else {
+            amrex::Abort("Not implemented yet");
+          }
+          pp.query(key2, type);
+          if (type == 1) {
+            bc_hi[idim] = BCType::ext_dir;
+          } else if (type == 2) {
+            bc_hi[idim] = BCType::int_dir;
+          } else if (type == 3) {
+            bc_hi[idim] = BCType::foextrap;
+          } else {
+            amrex::Abort("Not implemented yet");
+          }
+            
         }
     }
-}
+
 
 
 
