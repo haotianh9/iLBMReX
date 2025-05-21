@@ -52,29 +52,26 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
 
     Array4<Real> stateout = sF_new[mfi].array();
 
-    amrex::ParallelFor(gtbx, [=] AMREX_GPU_DEVICE(int i, int j,
-                                                  int k) noexcept {
-      amrex::Vector<amrex::Real> tempMac(nmac);
-      tempMac[0] = rho_old(i, j, k);
-      tempMac[1] = u_old(i, j, k);
-      tempMac[2] = v_old(i, j, k);
-      tempMac[3] = w_old(i, j, k);
+    amrex::ParallelFor(gtbx,
+                       [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                         amrex::Vector<amrex::Real> tempMac(nmac);
+                         tempMac[0] = rho_old(i, j, k);
+                         tempMac[1] = u_old(i, j, k);
+                         tempMac[2] = v_old(i, j, k);
+                         tempMac[3] = w_old(i, j, k);
 
-      amrex::Vector<amrex::Real> feq(ndir);
-      for (int i_dir = 0; i_dir < ndir; ++i_dir) {
-        amrex::Vector<amrex::Real> tempMes(4);
-        tempMes[0] = wi[i_dir];
-        tempMes[1] = dirx[i_dir];
-        tempMes[2] = diry[i_dir];
-        tempMes[3] = dirz[i_dir];
-        feq[i_dir] = feqFunction(tempMes, tempMac);
-      }
+                         amrex::Vector<amrex::Real> feq(ndir);
+                         for (int i_dir = 0; i_dir < ndir; ++i_dir) {
+                           amrex::Vector<amrex::Real> tempMes(4);
+                           tempMes[0] = wi[i_dir];
+                           tempMes[1] = dirx[i_dir];
+                           tempMes[2] = diry[i_dir];
+                           tempMes[3] = dirz[i_dir];
+                           feq[i_dir] = feqFunction(tempMes, tempMac);
+                         }
 
-      collide(i, j, k, statein, feq, ndir, temptau);
-
-
-    });
-
+                         collide(i, j, k, statein, feq, ndir, temptau);
+                       });
 
     amrex::ParallelFor(
         gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
