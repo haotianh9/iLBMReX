@@ -94,6 +94,12 @@ amrbc.bc_hi_0 = 3
 amrbc.bc_lo_1 =   1
 amrbc.bc_hi_1 = 1
 
+amrbc.bc_lo_1_rho_val = 1.0
+amrbc.bc_lo_1_ux_val  = 0.0
+amrbc.bc_lo_1_uy_val  = 0.0
+amrbc.bc_hi_1_rho_val = 1.0
+amrbc.bc_hi_1_ux_val  = 0.1
+amrbc.bc_hi_1_uy_val  = 0.0
 
 #The viscosity coefficient is case-dependent
 lbmPhysicalParameters.nu   = 0.064

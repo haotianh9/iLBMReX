@@ -4,7 +4,7 @@
 #include <AMReX_FArrayBox.H>
 #include <AMReX_Geometry.H>
 #include <AMReX_PhysBCFunct.H>
-
+#include <bc_val.H>
 #include <cstdio>
 
 #define AMREX_USE_GPU_PRINTF
@@ -51,19 +51,34 @@ struct macroBcFill {
     }
 
     if (is_bc) {
+      // if (is_left) {
+      //   data(iv, dcomp + 0) = BCVals::bc_lo_rho_val[0];
+      //   data(iv, dcomp + 1) = BCVals::bc_lo_ux_val[0];
+      //   data(iv, dcomp + 2) = BCVals::bc_lo_uy_val[0];
+      // }
+
+      // if (is_right) {
+      //   data(iv, dcomp + 0) = BCVals::bc_hi_rho_val[0];
+      //   data(iv, dcomp + 1) = BCVals::bc_hi_ux_val[0];
+      //   data(iv, dcomp + 2) = BCVals::bc_hi_uy_val[0];
+      // }
 
       if (is_down) {
-        data(iv, dcomp + 0) = 1.0;
-
-        data(iv, dcomp + 1) = 0.0;
-        data(iv, dcomp + 2) = 0.0;
+        data(iv, dcomp + 0) = BCVals::bc_lo_rho_val[1];
+        data(iv, dcomp + 1) = BCVals::bc_lo_ux_val[1];
+        data(iv, dcomp + 2) = BCVals::bc_lo_uy_val[1];
+        // data(iv, dcomp + 0) = 1.0;
+        // data(iv, dcomp + 1) = 0.0;
+        // data(iv, dcomp + 2) = 0.0;
       }
 
       if (is_top) {
-        data(iv, dcomp + 0) = 1.0;
-
-        data(iv, dcomp + 1) = 0.1;
-        data(iv, dcomp + 2) = 0.0;
+        data(iv, dcomp + 0) = BCVals::bc_hi_rho_val[1];
+        data(iv, dcomp + 1) = BCVals::bc_hi_ux_val[1];
+        data(iv, dcomp + 2) = BCVals::bc_hi_uy_val[1];
+        // data(iv, dcomp + 0) = 1.0;
+        // data(iv, dcomp + 1) = 0.1;
+        // data(iv, dcomp + 2) = 0.0;
       }
     }
   }
@@ -134,15 +149,15 @@ struct mesoscopicBcFill {
         }
 
         for (int n = 0; n < ndir; ++n) {
-
-          amrex::Real u_boundary = 0.0;
-          amrex::Real v_boundary = 0.0;
+          amrex::Real rho_boundary = BCVals::bc_lo_rho_val[1];
+          amrex::Real u_boundary = BCVals::bc_lo_ux_val[1];
+          amrex::Real v_boundary = BCVals::bc_lo_uy_val[1];
 
           amrex::Real eu_boundary = ex[n] * u_boundary + ey[n] * v_boundary;
           amrex::Real uv_boundary =
               u_boundary * u_boundary + v_boundary * v_boundary;
 
-          feq[n] = wi[n] * 1.0 *
+          feq[n] = wi[n] * rho_boundary *
                    (1.0 + 3.0 * eu_boundary + 4.5 * eu_boundary * eu_boundary -
                     1.5 * uv_boundary);
 
@@ -181,15 +196,15 @@ struct mesoscopicBcFill {
 
           feqnp[n] = wi[n] * rhonp *
                      (1.0 + 3.0 * eu_np + 4.5 * eu_np * eu_np - 1.5 * uv_np);
-
-          amrex::Real u_boundary = 0.1;
-          amrex::Real v_boundary = 0.0;
+          amrex::Real rho_boundary = BCVals::bc_hi_rho_val[1];
+          amrex::Real u_boundary = BCVals::bc_hi_ux_val[1];
+          amrex::Real v_boundary = BCVals::bc_hi_uy_val[1];
 
           amrex::Real eu_boundary = ex[n] * u_boundary + ey[n] * v_boundary;
           amrex::Real uv_boundary =
               u_boundary * u_boundary + v_boundary * v_boundary;
 
-          feq[n] = wi[n] * 1.0 *
+          feq[n] = wi[n] * rho_boundary *
                    (1.0 + 3.0 * eu_boundary + 4.5 * eu_boundary * eu_boundary -
                     1.5 * uv_boundary);
 

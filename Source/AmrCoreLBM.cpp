@@ -18,6 +18,17 @@
 
 using namespace amrex;
 
+
+namespace BCVals {
+extern amrex::Vector<amrex::Real> bc_lo_rho_val = {0.0, 0.0, 0.0};
+extern amrex::Vector<amrex::Real> bc_lo_ux_val = {0.0, 0.0, 0.0};
+extern amrex::Vector<amrex::Real> bc_lo_uy_val = {0.0, 0.0, 0.0};
+
+extern amrex::Vector<amrex::Real> bc_hi_rho_val = {0.0, 0.0, 0.0};
+extern amrex::Vector<amrex::Real> bc_hi_ux_val = {0.0, 0.0, 0.0};
+extern amrex::Vector<amrex::Real> bc_hi_uy_val = {0.0, 0.0, 0.0};
+} // namespace BCVals
+
 // constructor - reads in parameters from inputs file
 //             - sizes multilevel arrays and data structures
 //             - initializes BCRec boundary condition object
@@ -85,6 +96,16 @@ AmrCoreLBM::AmrCoreLBM() {
       pp.query(key1, type);
       if (type == 1) {
         bc_lo[idim] = BCType::ext_dir;
+        std::string temp3 = "bc_lo_" + std::to_string(idim) + "_rho_val";
+        const char *key3 = temp3.c_str();
+        std::string temp4 = "bc_lo_" + std::to_string(idim) + "_ux_val";
+        const char *key4 = temp4.c_str();
+        std::string temp5 = "bc_lo_" + std::to_string(idim) + "_uy_val";
+        const char *key5 = temp5.c_str();
+        pp.query(key3, BCVals::bc_lo_rho_val[idim]);
+        pp.query(key4, BCVals::bc_lo_ux_val[idim]);
+        pp.query(key5, BCVals::bc_lo_uy_val[idim]);
+
       } else if (type == 2) {
         bc_lo[idim] = BCType::int_dir;
       } else if (type == 3) {
@@ -95,6 +116,15 @@ AmrCoreLBM::AmrCoreLBM() {
       pp.query(key2, type);
       if (type == 1) {
         bc_hi[idim] = BCType::ext_dir;
+        std::string temp3 = "bc_hi_" + std::to_string(idim) + "_rho_val";
+        const char *key3 = temp3.c_str();
+        std::string temp4 = "bc_hi_" + std::to_string(idim) + "_ux_val";
+        const char *key4 = temp4.c_str();
+        std::string temp5 = "bc_hi_" + std::to_string(idim) + "_uy_val";
+        const char *key5 = temp5.c_str();
+        pp.query(key3, BCVals::bc_hi_rho_val[idim]);
+        pp.query(key4, BCVals::bc_hi_ux_val[idim]);
+        pp.query(key5, BCVals::bc_hi_uy_val[idim]);
       } else if (type == 2) {
         bc_hi[idim] = BCType::int_dir;
       } else if (type == 3) {
