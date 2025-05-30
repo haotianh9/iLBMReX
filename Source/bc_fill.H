@@ -18,64 +18,52 @@ struct macroBcFill {
                   const amrex::Real /*time*/, const amrex::BCRec *bcr,
                   const int bcomp, const int /*orig_comp*/) const {
     // do something for external Dirichlet (BCType::ext_dir)
-    const int i = iv[0];
-    const int j = iv[1];
+    // const int i = iv[0];
+    // const int j = iv[1];
     const auto &domain = geom.Domain();
 
-    const int ilo = domain.smallEnd(0);
-    const int ihi = domain.bigEnd(0);
-    const int jlo = domain.smallEnd(1);
-    const int jhi = domain.bigEnd(1);
+    // const int ilo = domain.smallEnd(0);
+    // const int ihi = domain.bigEnd(0);
+    // const int jlo = domain.smallEnd(1);
+    // const int jhi = domain.bigEnd(1);
 
-    bool is_bc = false;
-    bool is_left = false;
-    bool is_down = false;
-    bool is_right = false;
-    bool is_top = false;
+    bool is_dirichlet_bc = false;
+    int bc_dir = 0;
+    bool is_lo = false;
+    bool is_hi = false;
 
-    if (i < ilo && bcr[bcomp].lo(0) == amrex::BCType::ext_dir) {
-      is_bc = true;
-      is_left = true;
+    for (int dim_idx = 0; dim_idx < AMREX_SPACEDIM; ++dim_idx) {
+      if (iv[dim_idx] < domain.smallEnd(dim_idx) &&
+          bcr[bcomp].lo(dim_idx) == amrex::BCType::ext_dir) {
+        is_dirichlet_bc = true;
+        bc_dir = dim_idx;
+        is_lo = true;
+      }
+      if (iv[dim_idx] > domain.bigEnd(dim_idx) &&
+          bcr[bcomp].hi(dim_idx) == amrex::BCType::ext_dir) {
+        is_dirichlet_bc = true;
+        bc_dir = dim_idx;
+        is_hi = true;
+      }
     }
-    if (i > ihi && bcr[bcomp].hi(0) == amrex::BCType::ext_dir) {
-      is_bc = true;
-      is_right = true;
-    }
-    if (j < jlo && bcr[bcomp].lo(1) == amrex::BCType::ext_dir) {
-      is_bc = true;
-      is_down = true;
-    }
-    if (j > jhi && bcr[bcomp].hi(1) == amrex::BCType::ext_dir) {
-      is_bc = true;
-      is_top = true;
-    }
+    // printf("iv: %d %d, is_dirichlet_bc: %d, is_lo: %d, is_hi: %d, bc_dir:
+    // %d\n", i, j,
+    //         is_dirichlet_bc, is_lo, is_hi, bc_dir);
+    if (is_dirichlet_bc) {
 
-    if (is_bc) {
-      // if (is_left) {
-      //   data(iv, dcomp + 0) = BCVals::bc_lo_rho_val[0];
-      //   data(iv, dcomp + 1) = BCVals::bc_lo_ux_val[0];
-      //   data(iv, dcomp + 2) = BCVals::bc_lo_uy_val[0];
-      // }
-
-      // if (is_right) {
-      //   data(iv, dcomp + 0) = BCVals::bc_hi_rho_val[0];
-      //   data(iv, dcomp + 1) = BCVals::bc_hi_ux_val[0];
-      //   data(iv, dcomp + 2) = BCVals::bc_hi_uy_val[0];
-      // }
-
-      if (is_down) {
-        data(iv, dcomp + 0) = BCVals::bc_lo_rho_val[1];
-        data(iv, dcomp + 1) = BCVals::bc_lo_ux_val[1];
-        data(iv, dcomp + 2) = BCVals::bc_lo_uy_val[1];
+      if (is_lo) {
+        data(iv, dcomp + 0) = BCVals::bc_lo_rho_val[bc_dir];
+        data(iv, dcomp + 1) = BCVals::bc_lo_ux_val[bc_dir];
+        data(iv, dcomp + 2) = BCVals::bc_lo_uy_val[bc_dir];
         // data(iv, dcomp + 0) = 1.0;
         // data(iv, dcomp + 1) = 0.0;
         // data(iv, dcomp + 2) = 0.0;
       }
 
-      if (is_top) {
-        data(iv, dcomp + 0) = BCVals::bc_hi_rho_val[1];
-        data(iv, dcomp + 1) = BCVals::bc_hi_ux_val[1];
-        data(iv, dcomp + 2) = BCVals::bc_hi_uy_val[1];
+      if (is_hi) {
+        data(iv, dcomp + 0) = BCVals::bc_hi_rho_val[bc_dir];
+        data(iv, dcomp + 1) = BCVals::bc_hi_ux_val[bc_dir];
+        data(iv, dcomp + 2) = BCVals::bc_hi_uy_val[bc_dir];
         // data(iv, dcomp + 0) = 1.0;
         // data(iv, dcomp + 1) = 0.1;
         // data(iv, dcomp + 2) = 0.0;
@@ -102,12 +90,6 @@ struct mesoscopicBcFill {
     const int jlo = domain.smallEnd(1);
     const int jhi = domain.bigEnd(1);
 
-    bool is_bc = false;
-    bool is_left = false;
-    bool is_down = false;
-    bool is_right = false;
-    bool is_top = false;
-
     constexpr int ndir = 9;
     static constexpr int ex[ndir] = {0, 1, 0, -1, 0, 1, -1, -1, 1};
     static constexpr int ey[ndir] = {0, 0, 1, 0, -1, 1, 1, -1, -1};
@@ -115,26 +97,29 @@ struct mesoscopicBcFill {
         4.0 / 9.0,  1.0 / 9.0,  1.0 / 9.0,  1.0 / 9.0, 1.0 / 9.0,
         1.0 / 36.0, 1.0 / 36.0, 1.0 / 36.0, 1.0 / 36.0};
 
-    if (i < ilo && bcr[bcomp].lo(0) == amrex::BCType::ext_dir) {
-      is_bc = true;
-      is_left = true;
-    }
-    if (i > ihi && bcr[bcomp].hi(0) == amrex::BCType::ext_dir) {
-      is_bc = true;
-      is_right = true;
-    }
-    if (j < jlo && bcr[bcomp].lo(1) == amrex::BCType::ext_dir) {
-      is_bc = true;
-      is_down = true;
-    }
-    if (j > jhi && bcr[bcomp].hi(1) == amrex::BCType::ext_dir) {
-      is_bc = true;
-      is_top = true;
+    bool is_dirichlet_bc = false;
+    int bc_dir = 0;
+    bool is_lo = false;
+    bool is_hi = false;
+
+    for (int dim_idx = 0; dim_idx < AMREX_SPACEDIM; ++dim_idx) {
+      if (iv[dim_idx] < domain.smallEnd(dim_idx) &&
+          bcr[bcomp].lo(dim_idx) == amrex::BCType::ext_dir) {
+        is_dirichlet_bc = true;
+        bc_dir = dim_idx;
+        is_lo = true;
+      }
+      if (iv[dim_idx] > domain.bigEnd(dim_idx) &&
+          bcr[bcomp].hi(dim_idx) == amrex::BCType::ext_dir) {
+        is_dirichlet_bc = true;
+        bc_dir = dim_idx;
+        is_hi = true;
+      }
     }
 
-    if (is_bc) {
+    if (is_dirichlet_bc) {
 
-      if (is_down) {
+      if (is_lo) {
 
         amrex::Real rhonp, feq[ndir], fnp[ndir];
         for (int n = 0; n < ndir; ++n) {
@@ -149,9 +134,9 @@ struct mesoscopicBcFill {
         }
 
         for (int n = 0; n < ndir; ++n) {
-          amrex::Real rho_boundary = BCVals::bc_lo_rho_val[1];
-          amrex::Real u_boundary = BCVals::bc_lo_ux_val[1];
-          amrex::Real v_boundary = BCVals::bc_lo_uy_val[1];
+          amrex::Real rho_boundary = BCVals::bc_lo_rho_val[bc_dir];
+          amrex::Real u_boundary = BCVals::bc_lo_ux_val[bc_dir];
+          amrex::Real v_boundary = BCVals::bc_lo_uy_val[bc_dir];
 
           amrex::Real eu_boundary = ex[n] * u_boundary + ey[n] * v_boundary;
           amrex::Real uv_boundary =
@@ -169,7 +154,7 @@ struct mesoscopicBcFill {
         f(iv, fcomp + 6) = f(iv, fcomp + 8);
       }
 
-      if (is_top) {
+      if (is_hi) {
         amrex::Real fnp[ndir], feqnp[ndir], feq[ndir];
         amrex::Real rhonp, unp, vnp;
 
@@ -196,9 +181,9 @@ struct mesoscopicBcFill {
 
           feqnp[n] = wi[n] * rhonp *
                      (1.0 + 3.0 * eu_np + 4.5 * eu_np * eu_np - 1.5 * uv_np);
-          amrex::Real rho_boundary = BCVals::bc_hi_rho_val[1];
-          amrex::Real u_boundary = BCVals::bc_hi_ux_val[1];
-          amrex::Real v_boundary = BCVals::bc_hi_uy_val[1];
+          amrex::Real rho_boundary = BCVals::bc_hi_rho_val[bc_dir];
+          amrex::Real u_boundary = BCVals::bc_hi_ux_val[bc_dir];
+          amrex::Real v_boundary = BCVals::bc_hi_uy_val[bc_dir];
 
           amrex::Real eu_boundary = ex[n] * u_boundary + ey[n] * v_boundary;
           amrex::Real uv_boundary =

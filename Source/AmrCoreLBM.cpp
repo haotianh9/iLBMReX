@@ -18,7 +18,6 @@
 
 using namespace amrex;
 
-
 namespace BCVals {
 extern amrex::Vector<amrex::Real> bc_lo_rho_val = {0.0, 0.0, 0.0};
 extern amrex::Vector<amrex::Real> bc_lo_ux_val = {0.0, 0.0, 0.0};
