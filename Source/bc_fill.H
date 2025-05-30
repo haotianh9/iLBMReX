@@ -46,11 +46,9 @@ struct macroBcFill {
         is_hi = true;
       }
     }
-    // printf("iv: %d %d, is_dirichlet_bc: %d, is_lo: %d, is_hi: %d, bc_dir:
-    // %d\n", i, j,
-    //         is_dirichlet_bc, is_lo, is_hi, bc_dir);
+    
     if (is_dirichlet_bc) {
-
+// printf("iv: %d %d, is_dirichlet_bc: %d, is_lo: %d, is_hi: %d, bc_dir: %d\n", iv[0],iv[1],   is_dirichlet_bc, is_lo, is_hi, bc_dir);
       if (is_lo) {
         data(iv, dcomp + 0) = BCVals::bc_lo_rho_val[bc_dir];
         data(iv, dcomp + 1) = BCVals::bc_lo_ux_val[bc_dir];
