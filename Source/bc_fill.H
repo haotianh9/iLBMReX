@@ -46,9 +46,10 @@ struct macroBcFill {
         is_hi = true;
       }
     }
-    
+
     if (is_dirichlet_bc) {
-// printf("iv: %d %d, is_dirichlet_bc: %d, is_lo: %d, is_hi: %d, bc_dir: %d\n", iv[0],iv[1],   is_dirichlet_bc, is_lo, is_hi, bc_dir);
+      // printf("iv: %d %d, is_dirichlet_bc: %d, is_lo: %d, is_hi: %d, bc_dir:
+      // %d\n", iv[0],iv[1],   is_dirichlet_bc, is_lo, is_hi, bc_dir);
       if (is_lo) {
         data(iv, dcomp + 0) = BCVals::bc_lo_rho_val[bc_dir];
         data(iv, dcomp + 1) = BCVals::bc_lo_ux_val[bc_dir];
@@ -118,47 +119,21 @@ struct mesoscopicBcFill {
     if (is_dirichlet_bc) {
 
       if (is_lo) {
-
-        amrex::Real rhonp, feq[ndir], fnp[ndir];
-        for (int n = 0; n < ndir; ++n) {
-          int mirror_i = amrex::min(amrex::max(i, ilo), ihi);
-          int mirror_j = amrex::min(amrex::max(j + 1, jlo), jhi);
-          fnp[n] = f(amrex::IntVect(mirror_i, mirror_j), fcomp + n);
-        }
-
-        rhonp = 0.0;
-        for (int n = 0; n < ndir; ++n) {
-          rhonp += fnp[n];
-        }
-
-        for (int n = 0; n < ndir; ++n) {
-          amrex::Real rho_boundary = BCVals::bc_lo_rho_val[bc_dir];
-          amrex::Real u_boundary = BCVals::bc_lo_ux_val[bc_dir];
-          amrex::Real v_boundary = BCVals::bc_lo_uy_val[bc_dir];
-
-          amrex::Real eu_boundary = ex[n] * u_boundary + ey[n] * v_boundary;
-          amrex::Real uv_boundary =
-              u_boundary * u_boundary + v_boundary * v_boundary;
-
-          feq[n] = wi[n] * rho_boundary *
-                   (1.0 + 3.0 * eu_boundary + 4.5 * eu_boundary * eu_boundary -
-                    1.5 * uv_boundary);
-
-          f(iv, fcomp + n) = feq[n];
-        }
-
-        f(iv, fcomp + 2) = f(iv, fcomp + 4);
-        f(iv, fcomp + 5) = f(iv, fcomp + 7);
-        f(iv, fcomp + 6) = f(iv, fcomp + 8);
-      }
-
-      if (is_hi) {
         amrex::Real fnp[ndir], feqnp[ndir], feq[ndir];
         amrex::Real rhonp, unp, vnp;
 
         for (int n = 0; n < ndir; ++n) {
-          int mirror_i = amrex::min(amrex::max(i, ilo), ihi);
-          int mirror_j = amrex::min(amrex::max(j - 1, jlo), jhi);
+          int mirror_i = 0, mirror_j = 0;
+          if (bc_dir == 0) {
+            mirror_i = amrex::min(amrex::max(i + 1, ilo), ihi);
+            mirror_j = amrex::min(amrex::max(j, jlo), jhi);
+          }
+
+          else if (bc_dir == 1) {
+            mirror_i = amrex::min(amrex::max(i, ilo), ihi);
+            mirror_j = amrex::min(amrex::max(j + 1, jlo), jhi);
+          }
+
           fnp[n] = f(amrex::IntVect(mirror_i, mirror_j), fcomp + n);
         }
 
@@ -172,6 +147,65 @@ struct mesoscopicBcFill {
         }
         unp = unp / rhonp;
         vnp = vnp / rhonp;
+        amrex::Real rho_boundary = BCVals::bc_lo_rho_val[bc_dir];
+        amrex::Real u_boundary = BCVals::bc_lo_ux_val[bc_dir];
+        amrex::Real v_boundary = BCVals::bc_lo_uy_val[bc_dir];
+        for (int n = 0; n < ndir; ++n) {
+
+          amrex::Real eu_np = ex[n] * unp + ey[n] * vnp;
+          amrex::Real uv_np = unp * unp + vnp * vnp;
+
+          feqnp[n] = wi[n] * rhonp *
+                     (1.0 + 3.0 * eu_np + 4.5 * eu_np * eu_np - 1.5 * uv_np);
+
+          amrex::Real eu_boundary = ex[n] * u_boundary + ey[n] * v_boundary;
+          amrex::Real uv_boundary =
+              u_boundary * u_boundary + v_boundary * v_boundary;
+
+          feq[n] = wi[n] * rho_boundary *
+                   (1.0 + 3.0 * eu_boundary + 4.5 * eu_boundary * eu_boundary -
+                    1.5 * uv_boundary);
+
+          f(iv, fcomp + n) = feq[n] + (fnp[n] - feqnp[n]);
+        }
+
+        // f(iv, fcomp + 2) = f(iv, fcomp + 4);
+        // f(iv, fcomp + 5) = f(iv, fcomp + 7);
+        // f(iv, fcomp + 6) = f(iv, fcomp + 8);
+      }
+
+      if (is_hi) {
+        amrex::Real fnp[ndir], feqnp[ndir], feq[ndir];
+        amrex::Real rhonp, unp, vnp;
+
+        for (int n = 0; n < ndir; ++n) {
+          int mirror_i = 0, mirror_j = 0;
+          if (bc_dir == 0) {
+            mirror_i = amrex::min(amrex::max(i - 1, ilo), ihi);
+            mirror_j = amrex::min(amrex::max(j, jlo), jhi);
+          }
+
+          else if (bc_dir == 1) {
+            mirror_i = amrex::min(amrex::max(i, ilo), ihi);
+            mirror_j = amrex::min(amrex::max(j - 1, jlo), jhi);
+          }
+
+          fnp[n] = f(amrex::IntVect(mirror_i, mirror_j), fcomp + n);
+        }
+
+        rhonp = 0.0;
+        unp = 0.0;
+        vnp = 0.0;
+        for (int n = 0; n < ndir; ++n) {
+          rhonp += fnp[n];
+          unp += ex[n] * fnp[n];
+          vnp += ey[n] * fnp[n];
+        }
+        unp = unp / rhonp;
+        vnp = vnp / rhonp;
+        amrex::Real rho_boundary = BCVals::bc_hi_rho_val[bc_dir];
+        amrex::Real u_boundary = BCVals::bc_hi_ux_val[bc_dir];
+        amrex::Real v_boundary = BCVals::bc_hi_uy_val[bc_dir];
 
         for (int n = 0; n < ndir; ++n) {
           amrex::Real eu_np = ex[n] * unp + ey[n] * vnp;
@@ -179,9 +213,6 @@ struct mesoscopicBcFill {
 
           feqnp[n] = wi[n] * rhonp *
                      (1.0 + 3.0 * eu_np + 4.5 * eu_np * eu_np - 1.5 * uv_np);
-          amrex::Real rho_boundary = BCVals::bc_hi_rho_val[bc_dir];
-          amrex::Real u_boundary = BCVals::bc_hi_ux_val[bc_dir];
-          amrex::Real v_boundary = BCVals::bc_hi_uy_val[bc_dir];
 
           amrex::Real eu_boundary = ex[n] * u_boundary + ey[n] * v_boundary;
           amrex::Real uv_boundary =
