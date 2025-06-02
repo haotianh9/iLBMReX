@@ -106,11 +106,11 @@ amrbc.bc_lo_1_rho_val = 1.0
 amrbc.bc_lo_1_ux_val  = 0.0
 amrbc.bc_lo_1_uy_val  = 0.0
 amrbc.bc_hi_1_rho_val = 1.0
-amrbc.bc_hi_1_ux_val  = 0.01
+amrbc.bc_hi_1_ux_val  = 0.1
 amrbc.bc_hi_1_uy_val  = 0.0
 
 #The viscosity coefficient is case-dependent
-lbmPhysicalParameters.nu   = 0.01
+lbmPhysicalParameters.nu   = 0.064
 
 #LBM for isothermal incompressible flow calculates up to four primitive quantities rho-u-v-w-vor-Pressure (vor-Pressure calculation added)
 lbmPhysicalParameters.nmac = 6
