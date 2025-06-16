@@ -1,6 +1,7 @@
 CEXE_sources += AdvanceLBMAtLevel.cpp
 CEXE_sources += AmrCoreLBM.cpp 
 CEXE_sources += main.cpp 
+CEXE_sources += Diffusion.cpp
 
 CEXE_headers += AmrCoreLBM.H 
 CEXE_headers += bc_fill.H
@@ -9,3 +10,5 @@ CEXE_headers += Kernels.H
 CEXE_headers += Tagging.H
 CEXE_headers += feq.H
 CEXE_headers += Prob.H
+CEXE_headers += Diffusion.H
+CEXE_headers += iamr_constants.H

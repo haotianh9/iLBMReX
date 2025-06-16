@@ -268,11 +268,14 @@ void AmrCoreLBM::InitData() {
     InitFromScratch(time);
 
     {
-    amrex::Vector<amrex::BoxArray> ba(finest_level+1);
-	for (int lev = 0; lev <= finest_level; ++lev) {ba[lev] = boxArray(lev);}	
-	inparticles(geom,dmap,ba);                   
-    }	
-    	
+      amrex::Vector<amrex::BoxArray> ba(finest_level + 1);
+      for (int lev = 0; lev <= finest_level; ++lev) {
+        ba[lev] = boxArray(lev);
+      }
+      inparticles(geom, dmap, ba);
+      // initParticleData();
+    }
+
     AverageDown();
 
     /*
@@ -1126,70 +1129,63 @@ void AmrCoreLBM::GetDataMacro(int lev, Real time, Vector<MultiFab *> &data,
   }
 }
 
-                    
-void AmrCoreLBM::inparticles(const amrex::Vector<amrex::Geometry>& geom,
-                        const amrex::Vector<amrex::DistributionMapping>& dmap,
-                        const amrex::Vector<amrex::BoxArray>& ba)
-{
+void AmrCoreLBM::inparticles(
+    const amrex::Vector<amrex::Geometry> &geom,
+    const amrex::Vector<amrex::DistributionMapping> &dmap,
+    const amrex::Vector<amrex::BoxArray> &ba) {
 
-double R,ds_target;
+  double R, ds_target;
 
-{
-amrex::ParmParse pp("cylinder");
+  {
+    amrex::ParmParse pp("cylinder");
 
-pp.query("R" , R);	
-pp.query("ds", ds_target);
-}
-  
-   	const double x0 = 0.5;
-    const double y0 = 0.0;
-	const double rm_x=32.0;
-	const double rm_y=32.0;
+    pp.query("R", R);
+    pp.query("ds", ds_target);
+  }
 
-    int N = static_cast<int>(std::round(2 * M_PI * R / ds_target));
+  const double x0 = 0.5;
+  const double y0 = 0.0;
+  const double rm_x = 32.0;
+  const double rm_y = 32.0;
 
-    double theta0 = M_PI;
+  int N = static_cast<int>(std::round(2 * M_PI * R / ds_target));
 
-amrex::Vector<amrex::Real> Cylinder_x;
-amrex::Vector<amrex::Real> Cylinder_y;
+  double theta0 = M_PI;
 
-Cylinder_x.resize(N);
-Cylinder_y.resize(N);
+  amrex::Vector<amrex::Real> Cylinder_x;
+  amrex::Vector<amrex::Real> Cylinder_y;
 
-   
-    for (int i = 0; i < N; ++i) {
-        double theta = theta0 - (2 * M_PI * i) / N;
-        Cylinder_x[i] = x0 + R * std::cos(theta) + rm_x;
-        Cylinder_y[i] = y0 + R * std::sin(theta) + rm_y;
-    }
-     
+  Cylinder_x.resize(N);
+  Cylinder_y.resize(N);
 
-	ibmParticles = std::make_unique<GDI>(geom[finest_level], dmap[finest_level], ba[finest_level]);
+  for (int i = 0; i < N; ++i) {
+    double theta = theta0 - (2 * M_PI * i) / N;
+    Cylinder_x[i] = x0 + R * std::cos(theta) + rm_x;
+    Cylinder_y[i] = y0 + R * std::sin(theta) + rm_y;
+  }
 
-    std::pair<int, int> key{0,0};
-    auto& particleTileTemp = ibmParticles->GetParticles(0)[key];
-    int number = Cylinder_x.size();
-   
-    if ( ParallelDescriptor::MyProc() == ParallelDescriptor::IOProcessorNumber() ) {
+  ibmParticles = std::make_unique<GDI>(geom[finest_level], dmap[finest_level],
+                                       ba[finest_level]);
+
+  std::pair<int, int> key{0, 0};
+  auto &particleTileTemp = ibmParticles->GetParticles(0)[key];
+  int number = Cylinder_x.size();
+
+  if (ParallelDescriptor::MyProc() == ParallelDescriptor::IOProcessorNumber()) {
     for (int i = 0; i < number; ++i) {
-        GDI::ParticleType p;
-        p.id()   = i;
-        p.cpu()  = ParallelDescriptor::MyProc();
-        p.pos(0) = Cylinder_x[i];
-        p.pos(1) = Cylinder_y[i];
+      GDI::ParticleType p;
+      p.id() = i;
+      p.cpu() = ParallelDescriptor::MyProc();
+      p.pos(0) = Cylinder_x[i];
+      p.pos(1) = Cylinder_y[i];
 
-		std::array<amrex::Real, 2> rdata;
+      std::array<amrex::Real, 2> rdata;
 
-		rdata[0]  = 0.0;
-		rdata[1]  = 0.0;
+      rdata[0] = 0.0;
+      rdata[1] = 0.0;
 
-        particleTileTemp.push_back(p);
-        particleTileTemp.push_back_real(rdata);
+      particleTileTemp.push_back(p);
+      particleTileTemp.push_back_real(rdata);
     }
+  }
 }
-		
-	
-	
-}
-
-

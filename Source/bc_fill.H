@@ -79,7 +79,7 @@ struct mesoscopicBcFill {
                   amrex::GeometryData const &geom, const amrex::Real /*time*/,
                   const amrex::BCRec *bcr, const int bcomp,
                   const int /*orig_comp*/) const {
-
+    // Inamuro et al. Velocity BC Method (2002)
     const int i = iv[0];
     const int j = iv[1];
     const auto &domain = geom.Domain();
