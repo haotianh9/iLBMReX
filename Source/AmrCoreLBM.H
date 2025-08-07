@@ -8,15 +8,14 @@
 #ifdef AMREX_USE_OMP
 #include <omp.h>
 #endif
+
 #include <AMReX_AmrCore.H>
 #include <AMReX_BCRec.H>
 #include <AMReX_FillPatcher.H>
 #include <AMReX_FluxRegister.H>
-#include <AMReX_Particles.H>
 #include <AMReX_TableData.H>
-
-using GDI = amrex::ParticleContainer<0, 0, 2>;
-
+#include "bc_val.H"
+  
 class AmrCoreLBM : public amrex::AmrCore {
 public:
   ////////////////
@@ -24,8 +23,6 @@ public:
 
   // constructor - reads in parameters from inputs file
   //             - sizes multilevel arrays and data structures
-  std::unique_ptr<GDI> ibmParticles;
-
   AmrCoreLBM();
   virtual ~AmrCoreLBM();
 
@@ -239,10 +236,8 @@ private:
   void GetDataMacro(int lev, amrex::Real time,
                     amrex::Vector<amrex::MultiFab *> &data,
                     amrex::Vector<amrex::Real> &datatime);
-
-  void inparticles(const amrex::Vector<amrex::Geometry> &geom,
-                   const amrex::Vector<amrex::DistributionMapping> &dmap,
-                   const amrex::Vector<amrex::BoxArray> &ba);
+                    
+                    BCBuf bcval;
 };
 
 #endif
