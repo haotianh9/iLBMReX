@@ -1,6 +1,6 @@
 #ifndef BCFILL_H
 #define BCFILL_H
-
+#include "bc_val.H"
 #include <AMReX_FArrayBox.H>
 #include <AMReX_Geometry.H>
 #include <AMReX_PhysBCFunct.H>
@@ -12,6 +12,7 @@
 
 struct macroBcFill
 {
+	BCBuf bcval;
 	
     AMREX_GPU_DEVICE
     void operator() (const amrex::IntVect& iv, amrex::Array4<amrex::Real> const& data,
@@ -20,59 +21,34 @@ struct macroBcFill
                      const amrex::BCRec* bcr, const int bcomp,
                      const int /*orig_comp*/) const
         {
-            // do something for external Dirichlet (BCType::ext_dir)
-            const int i = iv[0];
-            const int j = iv[1];
-            const auto &domain = geom.Domain();
-            
-            const int ilo = domain.smallEnd(0);
-            const int ihi =   domain.bigEnd(0);
-            const int jlo = domain.smallEnd(1);
-            const int jhi =   domain.bigEnd(1);            
-            
-			bool is_bc    =  false;
-			bool is_left =  false;
-			bool is_down  =  false;
-			bool is_right =  false;
-			bool is_top   =  false;
-            
+        
+        const auto& domain = geom.Domain();
 
+        for (int dim = 0; dim < AMREX_SPACEDIM; ++dim)
+        {
+            int coord = iv[dim];
+            int lo = domain.smallEnd(dim);
+            int hi = domain.bigEnd(dim);
 
-            if(i<ilo && bcr[bcomp].lo(0)== amrex::BCType::ext_dir){is_bc=true;  is_left=true;}
-            if(i>ihi && bcr[bcomp].hi(0)== amrex::BCType::ext_dir){is_bc=true; is_right=true;}  
-            if(j<jlo && bcr[bcomp].lo(1)== amrex::BCType::ext_dir){is_bc=true;  is_down=true;}
-            if(j>jhi && bcr[bcomp].hi(1)== amrex::BCType::ext_dir){is_bc=true;   is_top=true;}
-			
-
-			if(is_bc)
-            {
-            
-
-                     
-                if(is_down)
-            	{
-        		data(iv, dcomp+0) = 1.0;
-        		
-            	data(iv,dcomp+1) = 0.0;
-                data(iv,dcomp+2) = 0.0;
-                }
- 
- 
-            		 if(is_top)
-            	{            	
-            	data(iv, dcomp+0) = 1.0;
-            	
-            	data(iv,dcomp+1) = 0.1;
-            	data(iv,dcomp+2) = 0.0;
-           		}                      
-                       
-                
+            if (coord < lo && bcr[bcomp].lo(dim) == amrex::BCType::ext_dir)
+            {            	
+                data(iv, dcomp+0) = bcval.lo_rho[dim];
+                data(iv, dcomp+1) = bcval.lo_ux[dim];
+                data(iv, dcomp+2) = bcval.lo_uy[dim];
+                return;  
             }
-            
-            
-            
-		}
 
+
+            if (coord > hi && bcr[bcomp].hi(dim) == amrex::BCType::ext_dir)
+            {						
+                data(iv, dcomp+0) = bcval.hi_rho[dim];
+                data(iv, dcomp+1) = bcval.hi_ux[dim];
+                data(iv, dcomp+2) = bcval.hi_uy[dim];
+                return;
+            }
+        }
+    }
+    
 
 
 
@@ -82,8 +58,8 @@ struct macroBcFill
 
 struct mesoscopicBcFill
 {
+	BCBuf bcval;
 
-	
     AMREX_GPU_DEVICE
     void operator() (const amrex::IntVect& iv, amrex::Array4<amrex::Real> const& f,
                      const int fcomp, const int /*numcomp*/,
@@ -91,128 +67,105 @@ struct mesoscopicBcFill
                      const amrex::BCRec* bcr, const int bcomp,
                      const int /*orig_comp*/) const
         {
-            
-            const int i = iv[0];
-            const int j = iv[1];
-            const auto &domain = geom.Domain();
-            
-            
-            
-            const int ilo = domain.smallEnd(0);
-            const int ihi =   domain.bigEnd(0);
-            const int jlo = domain.smallEnd(1);
-            const int jhi =   domain.bigEnd(1);            
-            
-			bool is_bc    =  false;
-			bool is_left =  false;
-			bool is_down  =  false;
-			bool is_right =  false;
-			bool is_top   =  false;
-            
-            constexpr int ndir = 9;
-    		static constexpr int ex[ndir] = {0, 1, 0, -1, 0, 1, -1, -1, 1};
-   				static constexpr int ey[ndir] = {0, 0, 1, 0, -1, 1, 1, -1, -1};
-    			static constexpr amrex::Real wi[ndir] = { 4.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/9.0,1.0/36.0,1.0/36.0,1.0/36.0,1.0/36.0};
+        
 
-    			
+     const auto& domain = geom.Domain();
 
+    constexpr int ndir = 9;
+    static constexpr int ex[ndir] = {0, 1, 0, -1, 0, 1, -1, -1, 1};
+    static constexpr int ey[ndir] = {0, 0, 1, 0, -1, 1, 1, -1, -1};
+    static constexpr amrex::Real wi[ndir] = {
+        4.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/9.0,
+        1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0};
 
-            if(i<ilo && bcr[bcomp].lo(0)== amrex::BCType::ext_dir){is_bc=true;  is_left=true;}
-            if(i>ihi && bcr[bcomp].hi(0)== amrex::BCType::ext_dir){is_bc=true; is_right=true;}  
-            if(j<jlo && bcr[bcomp].lo(1)== amrex::BCType::ext_dir){is_bc=true;  is_down=true;}
-            if(j>jhi && bcr[bcomp].hi(1)== amrex::BCType::ext_dir){is_bc=true;   is_top=true;}
-			     
-             	    
-			if(is_bc)
-            {    
-      		            
-           	           			
+	for (int dim = 0; dim < AMREX_SPACEDIM; ++dim)
+	{
+    int coord = iv[dim];
+    int lo = domain.smallEnd(dim);
+    int hi = domain.bigEnd(dim);
 
-           		
-           		
-           		if(is_down)
-           		{         
-           		 
-    			amrex::Real rhonp,feq[ndir],fnp[ndir];
-    			for (int n = 0; n < ndir; ++n)
-				{
-				int mirror_i = amrex::min(amrex::max(i, ilo), ihi);
-    			int mirror_j = amrex::min(amrex::max(j+1, jlo), jhi); 
-				fnp[n] = f(amrex::IntVect(mirror_i, mirror_j), fcomp+n);			
-				}
-    			
-    			rhonp = 0.0;	
-    			for (int n = 0; n < ndir; ++n){rhonp+=fnp[n];}
+    if (coord < lo && bcr[bcomp].lo(dim) == amrex::BCType::ext_dir)
+    {
 
-    			
-    			for (int n = 0; n < ndir; ++n)
-    			{
-    			
-    			 amrex::Real u_boundary = 0.0;   
-        		 amrex::Real v_boundary = 0.0;   
-
-       			 amrex::Real eu_boundary = ex[n] * u_boundary + ey[n] * v_boundary;
-        		 amrex::Real uv_boundary  = u_boundary * u_boundary + v_boundary * v_boundary;
-        		 
-        		 feq[n] = wi[n] * 1.0 * (1.0 + 3.0 * eu_boundary + 4.5 * eu_boundary * eu_boundary - 1.5 * uv_boundary);
-        		 
-        		 f(iv, fcomp+n) = feq[n]  ;
-    			}
-        			
-           			 f(iv,fcomp + 2) = f(iv,fcomp + 4);	
-           			 f(iv,fcomp + 5) = f(iv,fcomp + 7);	
-           			 f(iv,fcomp + 6) = f(iv,fcomp + 8);
-           		}
-
-
-
-
-           		 if(is_top)
-            	{
-            	amrex::Real fnp[ndir],feqnp[ndir],feq[ndir];
-    			amrex::Real rhonp,unp,vnp;
-    			
-    			for (int n = 0; n < ndir; ++n)
-				{
-				int mirror_i = amrex::min(amrex::max(i, ilo), ihi);
-    			int mirror_j = amrex::min(amrex::max(j-1, jlo), jhi); 
-				fnp[n] = f(amrex::IntVect(mirror_i, mirror_j), fcomp+n);			
-				}
-    			
-    			rhonp = 0.0;
-    			unp   = 0.0;
-    			vnp   = 0.0;	
-    			for (int n = 0; n < ndir; ++n){rhonp+=fnp[n]; unp+=ex[n]*fnp[n]; vnp+=ey[n]*fnp[n];}
-    			unp = unp/rhonp;	vnp = vnp/rhonp;
-
-    			   			
-    			for (int n = 0; n < ndir; ++n)
-    			{
-    			 amrex::Real eu_np = ex[n]*unp + ey[n]*vnp;
-    			 amrex::Real uv_np = unp*unp + vnp*vnp;
-    			
-    			 feqnp[n] = wi[n] * rhonp *(1.0 + 3.0 * eu_np + 4.5 * eu_np * eu_np - 1.5 * uv_np);
-    			
-    			 amrex::Real u_boundary = 0.1;   
-        		 amrex::Real v_boundary = 0.0;   
-
-       			 amrex::Real eu_boundary = ex[n] * u_boundary + ey[n] * v_boundary;
-        		 amrex::Real uv_boundary  = u_boundary * u_boundary + v_boundary * v_boundary;
-        		 
-
-        		 feq[n] = wi[n] * 1.0 * (1.0 + 3.0 * eu_boundary + 4.5 * eu_boundary * eu_boundary - 1.5 * uv_boundary);
-        		 
-        		 f(iv, fcomp+n) = feq[n] + (fnp[n] -  feqnp[n]) ;
-
-    			}
-    			
-           		}
-           		
-           		             
-            }
-            
+        amrex::IntVect iv_mirror = iv;
+        iv_mirror[dim] = iv[dim] + 1;
+        iv_mirror[dim] = amrex::min(amrex::max(iv_mirror[dim], lo), hi);
 		
-		}
+        amrex::Real fnp[ndir], feqnp[ndir], feq[ndir];
+        amrex::Real rhonp = 0.0, unp = 0.0, vnp = 0.0;
+		
+        for (int n = 0; n < ndir; ++n)
+        {
+            fnp[n] = f(iv_mirror, fcomp + n);
+            rhonp += fnp[n];
+            unp += ex[n] * fnp[n];
+            vnp += ey[n] * fnp[n];
+        }
 
+        unp /= rhonp;
+        vnp /= rhonp;
+
+        for (int n = 0; n < ndir; ++n)
+        {
+            amrex::Real eu_np = ex[n] * unp + ey[n] * vnp;
+            amrex::Real uv_np = unp * unp + vnp * vnp;
+            feqnp[n] = wi[n] * rhonp * (1.0 + 3.0 * eu_np + 4.5 * eu_np * eu_np - 1.5 * uv_np);
+
+            amrex::Real u_b = bcval.lo_ux[dim];
+            amrex::Real v_b = bcval.lo_uy[dim];
+            amrex::Real eu_b = ex[n] * u_b + ey[n] * v_b;
+            amrex::Real uv_b = u_b * u_b + v_b * v_b;
+            feq[n] = wi[n] * bcval.lo_rho[dim] * (1.0 + 3.0 * eu_b + 4.5 * eu_b * eu_b - 1.5 * uv_b);
+
+            f(iv, fcomp + n) = feq[n] + (fnp[n] - feqnp[n]);
+            
+        }
+        return;
+    }
+
+    if (coord > hi && bcr[bcomp].hi(dim) == amrex::BCType::ext_dir)
+    {
+
+        amrex::IntVect iv_mirror = iv;
+        iv_mirror[dim] = iv[dim] - 1;
+        iv_mirror[dim] = amrex::min(amrex::max(iv_mirror[dim], lo), hi);
+
+        amrex::Real fnp[ndir], feqnp[ndir], feq[ndir];
+        amrex::Real rhonp = 0.0, unp = 0.0, vnp = 0.0;
+
+        for (int n = 0; n < ndir; ++n)
+        {
+            fnp[n] = f(iv_mirror, fcomp + n);
+            rhonp += fnp[n];
+            unp += ex[n] * fnp[n];
+            vnp += ey[n] * fnp[n];
+        }
+
+        unp /= rhonp;
+        vnp /= rhonp;
+
+        for (int n = 0; n < ndir; ++n)
+        {
+            amrex::Real eu_np = ex[n] * unp + ey[n] * vnp;
+            amrex::Real uv_np = unp * unp + vnp * vnp;
+            feqnp[n] = wi[n] * rhonp * (1.0 + 3.0 * eu_np + 4.5 * eu_np * eu_np - 1.5 * uv_np);
+
+            amrex::Real u_b = bcval.hi_ux[dim];
+            amrex::Real v_b = bcval.hi_uy[dim];
+            amrex::Real eu_b = ex[n] * u_b + ey[n] * v_b;
+            amrex::Real uv_b = u_b * u_b + v_b * v_b;
+            feq[n] = wi[n] * bcval.hi_rho[dim] * (1.0 + 3.0 * eu_b + 4.5 * eu_b * eu_b - 1.5 * uv_b);
+
+            f(iv, fcomp + n) = feq[n] + (fnp[n] - feqnp[n]);
+        }
+        return;
+    }
+	}
+
+
+
+
+
+	}
 };
 #endif

@@ -72,11 +72,55 @@ AmrCoreLBM::AmrCoreLBM() {
   int bc_hi[AMREX_SPACEDIM];
 
 
+  using namespace BCVals;
 
-bc_lo[1]=amrex::BCType::ext_dir;
-bc_lo[0]=amrex::BCType::foextrap;
-bc_hi[1]=amrex::BCType::ext_dir;
-bc_hi[0]=amrex::BCType::foextrap;
+
+  {
+  	 amrex::Vector<int> temp0,temp1;
+     ParmParse pp("amrbc"); 
+
+	 pp.getarr("bc_lo", temp0);
+	 pp.getarr("bc_hi", temp1);	
+	 
+	 for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) 
+	 {
+	 bc_lo[idim] = temp0[idim];
+	 bc_hi[idim] = temp1[idim];
+	 
+	 
+	    if (bc_lo[idim] == amrex::BCType::ext_dir)
+        {
+            std::string dir = std::to_string(idim);
+			pp.query(("bc_lo_" + dir + "_rho_val").c_str(), BCVals::bc_lo_rho_val[idim]);
+			pp.query(("bc_lo_" + dir + "_ux_val").c_str(),  BCVals::bc_lo_ux_val[idim]);
+			pp.query(("bc_lo_" + dir + "_uy_val").c_str(),  BCVals::bc_lo_uy_val[idim]);
+        }
+
+        if (bc_hi[idim] == amrex::BCType::ext_dir)
+        {
+            std::string dir = std::to_string(idim);
+			pp.query(("bc_hi_" + dir + "_rho_val").c_str(), BCVals::bc_hi_rho_val[idim]);
+			pp.query(("bc_hi_" + dir + "_ux_val").c_str(),  BCVals::bc_hi_ux_val[idim]);
+			pp.query(("bc_hi_" + dir + "_uy_val").c_str(),  BCVals::bc_hi_uy_val[idim]);
+        }
+        
+	 }
+	 
+
+	for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) 
+	{
+    bcval.lo_rho[idim] = BCVals::bc_lo_rho_val[idim];
+    bcval.lo_ux[idim]  = BCVals::bc_lo_ux_val[idim];
+    bcval.lo_uy[idim]  = BCVals::bc_lo_uy_val[idim];
+    bcval.hi_rho[idim] = BCVals::bc_hi_rho_val[idim];
+    bcval.hi_ux[idim]  = BCVals::bc_hi_ux_val[idim];
+    bcval.hi_uy[idim]  = BCVals::bc_hi_uy_val[idim];
+	}
+
+	
+  }	
+
+
 
 
   bcsMesoscopic.resize(ndir); // Setup 1-component
@@ -535,7 +579,7 @@ if (lev == 0)
     GetDataMesoscopic(0, time, smf, stime);
 
     GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(
-        mesoscopicBcFill{});
+        mesoscopicBcFill{bcval});
     PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> physbc(geom[lev], bcsMesoscopic, gpu_bndry_func);
 
     amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
@@ -551,7 +595,7 @@ else
     Interpolater* mapper = &cell_cons_interp;
 
     GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(
-        mesoscopicBcFill{});
+        mesoscopicBcFill{bcval});
     PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> cphysbc(geom[lev - 1], bcsMesoscopic, gpu_bndry_func);
     PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> fphysbc(geom[lev],     bcsMesoscopic, gpu_bndry_func);
 
@@ -582,7 +626,7 @@ if (cmf.size() != 1) {
 }
 
 
-GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(mesoscopicBcFill{});
+GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(mesoscopicBcFill{bcval});
 PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> cphysbc(geom[lev - 1], bcsMesoscopic, gpu_bndry_func);
 PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> fphysbc(geom[lev],     bcsMesoscopic, gpu_bndry_func);
 
@@ -1018,7 +1062,7 @@ if (lev == 0)
     Vector<Real> stime;
     GetDataMacro(0, time, smf, stime);
 
-    GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{});
+    GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{bcval});
     PhysBCFunct<GpuBndryFuncFab<macroBcFill>> physbc(geom[lev], bcsMacro, gpu_bndry_func);
 
     amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
@@ -1033,7 +1077,7 @@ else
 
     Interpolater* mapper = &cell_cons_interp;
 
-    GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{});
+    GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{bcval});
     PhysBCFunct<GpuBndryFuncFab<macroBcFill>> cphysbc(geom[lev - 1], bcsMacro, gpu_bndry_func);
     PhysBCFunct<GpuBndryFuncFab<macroBcFill>> fphysbc(geom[lev],     bcsMacro, gpu_bndry_func);
 
@@ -1062,7 +1106,7 @@ void AmrCoreLBM::FillCoarsePatchMacro (int lev, amrex::Real time, amrex::MultiFa
     }
 
 
-        GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{});
+        GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{bcval});
         PhysBCFunct<GpuBndryFuncFab<macroBcFill> > cphysbc(geom[lev-1],bcsMacro,gpu_bndry_func);
         PhysBCFunct<GpuBndryFuncFab<macroBcFill> > fphysbc(geom[lev],bcsMacro,gpu_bndry_func);
 

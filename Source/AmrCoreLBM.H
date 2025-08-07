@@ -14,7 +14,8 @@
 #include <AMReX_FillPatcher.H>
 #include <AMReX_FluxRegister.H>
 #include <AMReX_TableData.H>
-
+#include "bc_val.H"
+  
 class AmrCoreLBM : public amrex::AmrCore {
 public:
   ////////////////
@@ -235,6 +236,8 @@ private:
   void GetDataMacro(int lev, amrex::Real time,
                     amrex::Vector<amrex::MultiFab *> &data,
                     amrex::Vector<amrex::Real> &datatime);
+                    
+                    BCBuf bcval;
 };
 
 #endif
