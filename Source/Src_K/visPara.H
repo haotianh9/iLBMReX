@@ -18,7 +18,10 @@ void visPara(int i, int j, int k, amrex::Array4<amrex::Real const> const &rho,
   Pressure(i, j, k) = (rho(i, j, k) - 1.0) / (3.0 * 0.5 * 0.02 * 0.02);
 
   // This is just a test based on the flow rate
-  vorticity(i, j, k) = u(i, j, k);
+  Real dv_dx = (v(i + 1, j, k) - v(i - 1, j, k)) / (2.0 * dx);
+  Real du_dy = (u(i, j + 1, k) - u(i, j - 1, k)) / (2.0 * dy);
+
+  vorticity(i, j, k) = dv_dx - du_dy;
 }
 
 #endif

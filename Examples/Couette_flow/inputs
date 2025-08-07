@@ -78,10 +78,28 @@ amr.chk_int  = -1       # number of timesteps between checkpoint files
                         # if negative then no checkpoint files will be written
                         
 
-                        
-# *****************************************************************
-# This is a specific parameter of LBM
-# *****************************************************************                        
+
+# enum BCTYPE {
+#     ext_dir       =1 ,   // External Dirichlet: Value specified outside domain
+#     int_dir       =2,   // Internal Dirichlet: Value inside domain
+#     foextrap      =3,  // First-order extrapolation
+#     hoextrap      =4,  // Higher-order extrapolation
+#     reflect_even  =5, // Reflective BC for even functions
+#     reflect_odd   =6,  // Reflective BC for odd functions
+#     periodic      =0    // Periodic boundary
+# };
+
+amrbc.bc_lo_0 = 3
+amrbc.bc_hi_0 = 3
+amrbc.bc_lo_1 =   1
+amrbc.bc_hi_1 = 1
+
+amrbc.bc_lo_1_rho_val = 1.0
+amrbc.bc_lo_1_ux_val  = 0.0
+amrbc.bc_lo_1_uy_val  = 0.0
+amrbc.bc_hi_1_rho_val = 1.0
+amrbc.bc_hi_1_ux_val  = 0.1
+amrbc.bc_hi_1_uy_val  = 0.0
 
 #The viscosity coefficient is case-dependent
 lbmPhysicalParameters.nu   = 0.064
