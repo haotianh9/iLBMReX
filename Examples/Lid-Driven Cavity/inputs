@@ -108,7 +108,7 @@ lbm3d.diry  = 0 0 0 1 -1 0 0 1 -1 0 0 1 -1 -1 1 0 0 1 -1 1 -1 1 -1 -1 1 1 -1
 lbm3d.dirz  = 0 0 0 0 0 1 -1 0 0 1 -1 1 -1 0 0 -1 1 -1 1 1 -1 -1 1 1 -1 1 -1                   
 
                         
-Definition from the AMReX source code                        
+#Definition from the AMReX source code                        
 #namespace BCType {
 #enum mathematicalBndryTypes : int {
 #    bogus               = -666,
