@@ -221,7 +221,7 @@ private:
   amrex::Vector<amrex::Real> xCellSize, yCellSize, zCellSize;
 
   int nmac;
-  const int nghost = 1;
+  const int nghost = 3;
 
   void InitEquilibrium();
 
