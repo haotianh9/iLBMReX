@@ -1,11 +1,10 @@
 
-
 # *****************************************************************
 # Run until nsteps == max_step or time == stop_time, 
 #     whichever comes first
 # *****************************************************************
-max_step  = 1
-stop_time = 1
+max_step  = 10000
+stop_time = 10000
 
 # *****************************************************************
 # Are we restarting from an existing checkpoint file?
@@ -68,7 +67,7 @@ amrvorth.thresholdRatio =  0.86  0.95  1.01
 # Plotfile name and frequency
 # *****************************************************************
 amr.plot_file  = out/plt    # root name of plot file
-amr.plot_int   = 100   # number of timesteps between plot files
+amr.plot_int   = 1000   # number of timesteps between plot files
                         # if negative then no plot files will be written
 
 # *****************************************************************
@@ -79,39 +78,13 @@ amr.chk_int  = -1       # number of timesteps between checkpoint files
                         # if negative then no checkpoint files will be written
                         
 
-
-# enum BCTYPE {
-#     ext_dir       =1 ,   // External Dirichlet: Value specified outside domain
-#     int_dir       =2,   // Internal Dirichlet: Value inside domain
-#     foextrap      =3,  // First-order extrapolation
-#     hoextrap      =4,  // Higher-order extrapolation
-#     reflect_even  =5, // Reflective BC for even functions
-#     reflect_odd   =6,  // Reflective BC for odd functions
-#     periodic      =0    // Periodic boundary
-# };
-
-amrbc.bc_lo_0 = 1
-amrbc.bc_hi_0 = 1
-amrbc.bc_lo_1 = 1
-amrbc.bc_hi_1 = 1
-
-
-amrbc.bc_lo_0_rho_val = 1.0
-amrbc.bc_lo_0_ux_val  = 0.0
-amrbc.bc_lo_0_uy_val  = 0.0
-amrbc.bc_hi_0_rho_val = 1.0
-amrbc.bc_hi_0_ux_val  = 0.0
-amrbc.bc_hi_0_uy_val  = 0.0
-
-amrbc.bc_lo_1_rho_val = 1.0
-amrbc.bc_lo_1_ux_val  = 0.0
-amrbc.bc_lo_1_uy_val  = 0.0
-amrbc.bc_hi_1_rho_val = 1.0
-amrbc.bc_hi_1_ux_val  = 0.1
-amrbc.bc_hi_1_uy_val  = 0.0
+                        
+# *****************************************************************
+# This is a specific parameter of LBM
+# *****************************************************************                        
 
 #The viscosity coefficient is case-dependent
-lbmPhysicalParameters.nu   = 0.064
+lbmPhysicalParameters.nu   = 0.0064
 
 #LBM for isothermal incompressible flow calculates up to four primitive quantities rho-u-v-w-vor-Pressure (vor-Pressure calculation added)
 lbmPhysicalParameters.nmac = 6
@@ -133,8 +106,31 @@ lbm3d.wim   = 27.0 27.0 27.0 27.0 27.0 27.0 27.0 54.0 54.0 54.0 54.0 54.0 54.0 5
 lbm3d.dirx  = 0 1 -1 0 0 0 0 1 -1 1 -1 0 0 1 -1 1 -1 0 0 1 -1 1 -1 1 -1 -1 1
 lbm3d.diry  = 0 0 0 1 -1 0 0 1 -1 0 0 1 -1 -1 1 0 0 1 -1 1 -1 1 -1 -1 1 1 -1                     
 lbm3d.dirz  = 0 0 0 0 0 1 -1 0 0 1 -1 1 -1 0 0 -1 1 -1 1 1 -1 -1 1 1 -1 1 -1                   
+
                         
-#cylinder
-cylinder.R =0.5                      
-cylinder.ds=0.005                       
-                        
+#Definition from the AMReX source code                        
+#namespace BCType {
+#enum mathematicalBndryTypes : int {
+#    bogus               = -666,
+#    reflect_odd         = -1,
+#    int_dir             =  0,
+#    reflect_even        =  1,
+#    foextrap            =  2,
+#    ext_dir             =  3,
+#    hoextrap            =  4,
+#    hoextrapcc          =  5,
+#    ext_dir_cc          =  6,
+#    direction_dependent =  7,
+#    user_1              = 1001,
+#    user_2              = 1002,
+#    user_3              = 1003
+#};
+#}  
+             
+#Defined to be the same as AMREX_SPACEDIM             
+amrbc.bc_lo = 3 2
+amrbc.bc_hi = 2 2
+
+amrbc.bc_lo_0_rho_val = 1.0
+amrbc.bc_lo_0_ux_val  = 01
+amrbc.bc_lo_0_uy_val  = 0.0

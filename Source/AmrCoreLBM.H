@@ -9,13 +9,13 @@
 #include <omp.h>
 #endif
 
+#include "bc_val.H"
 #include <AMReX_AmrCore.H>
 #include <AMReX_BCRec.H>
 #include <AMReX_FillPatcher.H>
 #include <AMReX_FluxRegister.H>
 #include <AMReX_TableData.H>
-#include "bc_val.H"
-  
+
 class AmrCoreLBM : public amrex::AmrCore {
 public:
   ////////////////
@@ -236,8 +236,8 @@ private:
   void GetDataMacro(int lev, amrex::Real time,
                     amrex::Vector<amrex::MultiFab *> &data,
                     amrex::Vector<amrex::Real> &datatime);
-                    
-                    BCBuf bcval;
+
+  BCBuf bcval;
 };
 
 #endif

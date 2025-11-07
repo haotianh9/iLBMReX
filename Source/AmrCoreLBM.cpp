@@ -68,109 +68,104 @@ AmrCoreLBM::AmrCoreLBM() {
   macro_new.resize(nlevs_max);
   macro_old.resize(nlevs_max);
 
+  using namespace BCVals;
+
   int bc_lo[AMREX_SPACEDIM];
   int bc_hi[AMREX_SPACEDIM];
 
+  if (!(geom[0].isAllPeriodic())) {
 
-  using namespace BCVals;
+    {
+      amrex::Vector<int> temp0, temp1;
+      ParmParse pp("amrbc");
 
+      pp.getarr("bc_lo", temp0);
+      pp.getarr("bc_hi", temp1);
 
-  {
-  	 amrex::Vector<int> temp0,temp1;
-     ParmParse pp("amrbc"); 
+      for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+        bc_lo[idim] = temp0[idim];
+        bc_hi[idim] = temp1[idim];
 
-	 pp.getarr("bc_lo", temp0);
-	 pp.getarr("bc_hi", temp1);	
-	 
-	 for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) 
-	 {
-	 bc_lo[idim] = temp0[idim];
-	 bc_hi[idim] = temp1[idim];
-	 
-	 
-	    if (bc_lo[idim] == amrex::BCType::ext_dir)
-        {
-            std::string dir = std::to_string(idim);
-			pp.query(("bc_lo_" + dir + "_rho_val").c_str(), BCVals::bc_lo_rho_val[idim]);
-			pp.query(("bc_lo_" + dir + "_ux_val").c_str(),  BCVals::bc_lo_ux_val[idim]);
-			pp.query(("bc_lo_" + dir + "_uy_val").c_str(),  BCVals::bc_lo_uy_val[idim]);
+        if (bc_lo[idim] == amrex::BCType::ext_dir) {
+          std::string dir = std::to_string(idim);
+          pp.query(("bc_lo_" + dir + "_rho_val").c_str(),
+                   BCVals::bc_lo_rho_val[idim]);
+          pp.query(("bc_lo_" + dir + "_ux_val").c_str(),
+                   BCVals::bc_lo_ux_val[idim]);
+          pp.query(("bc_lo_" + dir + "_uy_val").c_str(),
+                   BCVals::bc_lo_uy_val[idim]);
         }
 
-        if (bc_hi[idim] == amrex::BCType::ext_dir)
-        {
-            std::string dir = std::to_string(idim);
-			pp.query(("bc_hi_" + dir + "_rho_val").c_str(), BCVals::bc_hi_rho_val[idim]);
-			pp.query(("bc_hi_" + dir + "_ux_val").c_str(),  BCVals::bc_hi_ux_val[idim]);
-			pp.query(("bc_hi_" + dir + "_uy_val").c_str(),  BCVals::bc_hi_uy_val[idim]);
+        if (bc_hi[idim] == amrex::BCType::ext_dir) {
+          std::string dir = std::to_string(idim);
+          pp.query(("bc_hi_" + dir + "_rho_val").c_str(),
+                   BCVals::bc_hi_rho_val[idim]);
+          pp.query(("bc_hi_" + dir + "_ux_val").c_str(),
+                   BCVals::bc_hi_ux_val[idim]);
+          pp.query(("bc_hi_" + dir + "_uy_val").c_str(),
+                   BCVals::bc_hi_uy_val[idim]);
         }
-        
-	 }
-	 
-
-	for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) 
-	{
-    bcval.lo_rho[idim] = BCVals::bc_lo_rho_val[idim];
-    bcval.lo_ux[idim]  = BCVals::bc_lo_ux_val[idim];
-    bcval.lo_uy[idim]  = BCVals::bc_lo_uy_val[idim];
-    bcval.hi_rho[idim] = BCVals::bc_hi_rho_val[idim];
-    bcval.hi_ux[idim]  = BCVals::bc_hi_ux_val[idim];
-    bcval.hi_uy[idim]  = BCVals::bc_hi_uy_val[idim];
-	}
-
-	
-  }	
-
-
-
-
-  bcsMesoscopic.resize(ndir); // Setup 1-component
-  for (int idir = 0; idir < ndir; ++idir) {
-
-    for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
-      // lo-side BCs
-      if (bc_lo[idim] ==
-              BCType::int_dir || // periodic uses "internal Dirichlet"
-          bc_lo[idim] == BCType::foextrap || // first-order extrapolation
-          bc_lo[idim] == BCType::ext_dir) {  // external Dirichlet
-        bcsMesoscopic[idir].setLo(idim, bc_lo[idim]);
-      } else {
-        amrex::Abort("Invalid bc_lo");
       }
 
-      // hi-side BCSs
-      if (bc_hi[idim] ==
-              BCType::int_dir || // periodic uses "internal Dirichlet"
-          bc_hi[idim] == BCType::foextrap || // first-order extrapolation
-          bc_hi[idim] == BCType::ext_dir) {  // external Dirichlet
-        bcsMesoscopic[idir].setHi(idim, bc_hi[idim]);
-      } else {
-        amrex::Abort("Invalid bc_hi");
+      for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+        bcval.lo_rho[idim] = BCVals::bc_lo_rho_val[idim];
+        bcval.lo_ux[idim] = BCVals::bc_lo_ux_val[idim];
+        bcval.lo_uy[idim] = BCVals::bc_lo_uy_val[idim];
+        bcval.hi_rho[idim] = BCVals::bc_hi_rho_val[idim];
+        bcval.hi_ux[idim] = BCVals::bc_hi_ux_val[idim];
+        bcval.hi_uy[idim] = BCVals::bc_hi_uy_val[idim];
       }
     }
-  }
 
-  bcsMacro.resize(nmac); // Setup 1-component
-  for (int idir = 0; idir < nmac; ++idir) {
+    bcsMesoscopic.resize(ndir); // Setup 1-component
+    for (int idir = 0; idir < ndir; ++idir) {
 
-    for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
-      // lo-side BCs
-      if (bc_lo[idim] ==
-              BCType::int_dir || // periodic uses "internal Dirichlet"
-          bc_lo[idim] == BCType::foextrap || // first-order extrapolation
-          bc_lo[idim] == BCType::ext_dir) {  // external Dirichlet
-        bcsMacro[idir].setLo(idim, bc_lo[idim]);
-      } else {
-        amrex::Abort("Invalid bc_lo");
+      for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+        // lo-side BCs
+        if (bc_lo[idim] ==
+                BCType::int_dir || // periodic uses "internal Dirichlet"
+            bc_lo[idim] == BCType::foextrap || // first-order extrapolation
+            bc_lo[idim] == BCType::ext_dir) {  // external Dirichlet
+          bcsMesoscopic[idir].setLo(idim, bc_lo[idim]);
+        } else {
+          amrex::Abort("Invalid bc_lo");
+        }
+
+        // hi-side BCSs
+        if (bc_hi[idim] ==
+                BCType::int_dir || // periodic uses "internal Dirichlet"
+            bc_hi[idim] == BCType::foextrap || // first-order extrapolation
+            bc_hi[idim] == BCType::ext_dir) {  // external Dirichlet
+          bcsMesoscopic[idir].setHi(idim, bc_hi[idim]);
+        } else {
+          amrex::Abort("Invalid bc_hi");
+        }
       }
+    }
 
-      // hi-side BCSs
-      if (bc_hi[idim] ==
-              BCType::int_dir || // periodic uses "internal Dirichlet"
-          bc_hi[idim] == BCType::foextrap || // first-order extrapolation
-          bc_hi[idim] == BCType::ext_dir) {  // external Dirichlet
-        bcsMacro[idir].setHi(idim, bc_hi[idim]);
-      } else {
-        amrex::Abort("Invalid bc_hi");
+    bcsMacro.resize(nmac); // Setup 1-component
+    for (int idir = 0; idir < nmac; ++idir) {
+
+      for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+        // lo-side BCs
+        if (bc_lo[idim] ==
+                BCType::int_dir || // periodic uses "internal Dirichlet"
+            bc_lo[idim] == BCType::foextrap || // first-order extrapolation
+            bc_lo[idim] == BCType::ext_dir) {  // external Dirichlet
+          bcsMacro[idir].setLo(idim, bc_lo[idim]);
+        } else {
+          amrex::Abort("Invalid bc_lo");
+        }
+
+        // hi-side BCSs
+        if (bc_hi[idim] ==
+                BCType::int_dir || // periodic uses "internal Dirichlet"
+            bc_hi[idim] == BCType::foextrap || // first-order extrapolation
+            bc_hi[idim] == BCType::ext_dir) {  // external Dirichlet
+          bcsMacro[idir].setHi(idim, bc_hi[idim]);
+        } else {
+          amrex::Abort("Invalid bc_hi");
+        }
       }
     }
   }
@@ -184,11 +179,11 @@ void AmrCoreLBM::Evolve() {
   Real cur_time = t_new[0];
   int last_plot_file_step = 0;
 
-	amrex::Real nu = 0.064;
-	amrex::Real H  = 64.0;
-	std::vector<amrex::Real> target_tstar = {0.005, 0.05, 0.5};
-	std::vector<bool> tstar_written(target_tstar.size(), false);
-	
+  amrex::Real nu = 0.064;
+  amrex::Real H = 64.0;
+  std::vector<amrex::Real> target_tstar = {0.005, 0.05, 0.5};
+  std::vector<bool> tstar_written(target_tstar.size(), false);
+
   for (int step = istep[0]; step < max_step && cur_time < stop_time; ++step) {
     amrex::Print() << "\nCoarse STEP " << step + 1 << " starts ..."
                    << std::endl;
@@ -231,20 +226,17 @@ void AmrCoreLBM::Evolve() {
 
     if (cur_time >= stop_time - 1.e-6 * dt[0])
       break;
-      
-      
+
     Real t_star = nu * cur_time / (H * H);
-    for (int i = 0; i < target_tstar.size(); ++i)
-    {
-        if (!tstar_written[i] && std::abs(t_star - target_tstar[i]) < 1e-5)
-        {
-            amrex::Print() << ">>> Output at t* = " << t_star << " (t = " << cur_time << ")" << std::endl;
-            std::string tag = "_tstar" + std::to_string(i);
-            WritePlotFile();
-            tstar_written[i] = true;
-        }
+    for (int i = 0; i < target_tstar.size(); ++i) {
+      if (!tstar_written[i] && std::abs(t_star - target_tstar[i]) < 1e-5) {
+        amrex::Print() << ">>> Output at t* = " << t_star
+                       << " (t = " << cur_time << ")" << std::endl;
+        std::string tag = "_tstar" + std::to_string(i);
+        WritePlotFile();
+        tstar_written[i] = true;
+      }
     }
-    
   }
 
   if (plot_int > 0 && istep[0] > last_plot_file_step) {
@@ -373,15 +365,13 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
     Array4<Real> vor = cur[mfi].array(4);
     const Box &box = mfi.fabbox();
 
-    amrex::ParallelFor(
-       box , [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept  {
-      //initdata(tbx, rho, u, v, w, vor, problo, probhi, dx, nu);
-      rho(i,j,k) = 1.0;
-        u(i,j,k) = 0.0;
-        v(i,j,k) = 0.0;
-        w(i,j,k) = 0.0;
-      vor(i,j,k) = 0.0;
-      
+    amrex::ParallelFor(box, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+      // initdata(tbx, rho, u, v, w, vor, problo, probhi, dx, nu);
+      rho(i, j, k) = 1.0;
+      u(i, j, k) = 0.0;
+      v(i, j, k) = 0.0;
+      w(i, j, k) = 0.0;
+      vor(i, j, k) = 0.0;
     });
   }
 
@@ -558,85 +548,76 @@ void AmrCoreLBM::AverageDown() {
   }
 }
 
-void AmrCoreLBM::AverageDownTo (int crse_lev)
-{
-	amrex::average_down(f_new[crse_lev+1], f_new[crse_lev],geom[crse_lev+1], geom[crse_lev],0, f_new[crse_lev].nComp(), refRatio(crse_lev)); 
-	amrex::average_down(macro_new[crse_lev+1], macro_new[crse_lev],geom[crse_lev+1], geom[crse_lev],0, macro_new[crse_lev].nComp(), refRatio(crse_lev));                                
+void AmrCoreLBM::AverageDownTo(int crse_lev) {
+  amrex::average_down(f_new[crse_lev + 1], f_new[crse_lev], geom[crse_lev + 1],
+                      geom[crse_lev], 0, f_new[crse_lev].nComp(),
+                      refRatio(crse_lev));
+  amrex::average_down(macro_new[crse_lev + 1], macro_new[crse_lev],
+                      geom[crse_lev + 1], geom[crse_lev], 0,
+                      macro_new[crse_lev].nComp(), refRatio(crse_lev));
 }
 
 // more flexible version of AverageDown() that lets you average down across
 // multiple levels
 
-
-
-void AmrCoreLBM::FillPatchMesoscopic(int lev, amrex::Real time, amrex::MultiFab &mf,
-                           int icomp, int ncomp)
-{
-if (lev == 0)
-{
-    Vector<MultiFab*> smf;
+void AmrCoreLBM::FillPatchMesoscopic(int lev, amrex::Real time,
+                                     amrex::MultiFab &mf, int icomp,
+                                     int ncomp) {
+  if (lev == 0) {
+    Vector<MultiFab *> smf;
     Vector<Real> stime;
     GetDataMesoscopic(0, time, smf, stime);
 
-    GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(
-        mesoscopicBcFill{bcval});
-    PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> physbc(geom[lev], bcsMesoscopic, gpu_bndry_func);
+    GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(mesoscopicBcFill{bcval});
+    PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> physbc(
+        geom[lev], bcsMesoscopic, gpu_bndry_func);
 
     amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
                                 geom[lev], physbc, 0);
-}
-else
-{
-    Vector<MultiFab*> cmf, fmf;
+  } else {
+    Vector<MultiFab *> cmf, fmf;
     Vector<Real> ctime, ftime;
     GetDataMesoscopic(lev - 1, time, cmf, ctime);
-    GetDataMesoscopic(lev    , time, fmf, ftime);
+    GetDataMesoscopic(lev, time, fmf, ftime);
 
-    Interpolater* mapper = &cell_cons_interp;
+    Interpolater *mapper = &cell_cons_interp;
 
-    GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(
-        mesoscopicBcFill{bcval});
-    PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> cphysbc(geom[lev - 1], bcsMesoscopic, gpu_bndry_func);
-    PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> fphysbc(geom[lev],     bcsMesoscopic, gpu_bndry_func);
+    GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(mesoscopicBcFill{bcval});
+    PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> cphysbc(
+        geom[lev - 1], bcsMesoscopic, gpu_bndry_func);
+    PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> fphysbc(
+        geom[lev], bcsMesoscopic, gpu_bndry_func);
 
-    amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime,
-                              0, icomp, ncomp, geom[lev - 1], geom[lev],
-                              cphysbc, 0, fphysbc, 0,
-                              refRatio(lev - 1),
-                              mapper, bcsMesoscopic, 0);
+    amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime, 0, icomp, ncomp,
+                              geom[lev - 1], geom[lev], cphysbc, 0, fphysbc, 0,
+                              refRatio(lev - 1), mapper, bcsMesoscopic, 0);
+  }
 }
 
-    
-}
+void AmrCoreLBM::FillCoarsePatchMesoscopic(int lev, amrex::Real time,
+                                           amrex::MultiFab &mf, int icomp,
+                                           int ncomp) {
+  BL_ASSERT(lev > 0);
 
+  Vector<MultiFab *> cmf;
+  Vector<Real> ctime;
+  GetDataMesoscopic(lev - 1, time, cmf, ctime);
+  Interpolater *mapper = &cell_cons_interp;
 
-
-void AmrCoreLBM::FillCoarsePatchMesoscopic (int lev, amrex::Real time, amrex::MultiFab &mf,
-                                 int icomp, int ncomp)
-{
-BL_ASSERT(lev > 0);
-
-Vector<MultiFab*> cmf;
-Vector<Real> ctime;
-GetDataMesoscopic(lev - 1, time, cmf, ctime);
-Interpolater* mapper = &cell_cons_interp;
-
-if (cmf.size() != 1) {
+  if (cmf.size() != 1) {
     amrex::Abort("FillCoarsePatchMesoscopic: how did this happen?");
+  }
+
+  GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(mesoscopicBcFill{bcval});
+  PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> cphysbc(
+      geom[lev - 1], bcsMesoscopic, gpu_bndry_func);
+  PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> fphysbc(
+      geom[lev], bcsMesoscopic, gpu_bndry_func);
+
+  amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
+                               geom[lev - 1], geom[lev], cphysbc, 0, fphysbc, 0,
+                               refRatio(lev - 1), mapper, bcsMesoscopic, 0);
 }
-
-
-GpuBndryFuncFab<mesoscopicBcFill> gpu_bndry_func(mesoscopicBcFill{bcval});
-PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> cphysbc(geom[lev - 1], bcsMesoscopic, gpu_bndry_func);
-PhysBCFunct<GpuBndryFuncFab<mesoscopicBcFill>> fphysbc(geom[lev],     bcsMesoscopic, gpu_bndry_func);
-
-amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp, geom[lev - 1], geom[lev],
-                             cphysbc, 0, fphysbc, 0, refRatio(lev - 1),
-                             mapper, bcsMesoscopic, 0);
-
-
-}
-
 
 // utility to copy in data from phi_old and/or phi_new into another multifab
 void AmrCoreLBM::GetDataMesoscopic(int lev, Real time, Vector<MultiFab *> &data,
@@ -1047,80 +1028,64 @@ void AmrCoreLBM::InitEquilibrium() {
   }
 }
 
+void AmrCoreLBM::FillPatchMacro(int lev, amrex::Real time, amrex::MultiFab &mf,
+                                int icomp, int ncomp) {
 
-
-
-
-
-
-void AmrCoreLBM::FillPatchMacro(int lev, amrex::Real time, amrex::MultiFab &mf, int icomp,int ncomp)
-{
-
-if (lev == 0)
-{
-    Vector<MultiFab*> smf;
+  if (lev == 0) {
+    Vector<MultiFab *> smf;
     Vector<Real> stime;
     GetDataMacro(0, time, smf, stime);
 
     GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{bcval});
-    PhysBCFunct<GpuBndryFuncFab<macroBcFill>> physbc(geom[lev], bcsMacro, gpu_bndry_func);
+    PhysBCFunct<GpuBndryFuncFab<macroBcFill>> physbc(geom[lev], bcsMacro,
+                                                     gpu_bndry_func);
 
     amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp,
                                 geom[lev], physbc, 0);
-}
-else
-{
-    Vector<MultiFab*> cmf, fmf;
+  } else {
+    Vector<MultiFab *> cmf, fmf;
     Vector<Real> ctime, ftime;
     GetDataMacro(lev - 1, time, cmf, ctime);
-    GetDataMacro(lev    , time, fmf, ftime);
+    GetDataMacro(lev, time, fmf, ftime);
 
-    Interpolater* mapper = &cell_cons_interp;
+    Interpolater *mapper = &cell_cons_interp;
 
     GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{bcval});
-    PhysBCFunct<GpuBndryFuncFab<macroBcFill>> cphysbc(geom[lev - 1], bcsMacro, gpu_bndry_func);
-    PhysBCFunct<GpuBndryFuncFab<macroBcFill>> fphysbc(geom[lev],     bcsMacro, gpu_bndry_func);
+    PhysBCFunct<GpuBndryFuncFab<macroBcFill>> cphysbc(geom[lev - 1], bcsMacro,
+                                                      gpu_bndry_func);
+    PhysBCFunct<GpuBndryFuncFab<macroBcFill>> fphysbc(geom[lev], bcsMacro,
+                                                      gpu_bndry_func);
 
-    amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime,
-                              0, icomp, ncomp, geom[lev - 1], geom[lev],
-                              cphysbc, 0, fphysbc, 0, refRatio(lev - 1),
-                              mapper, bcsMacro, 0);
+    amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime, 0, icomp, ncomp,
+                              geom[lev - 1], geom[lev], cphysbc, 0, fphysbc, 0,
+                              refRatio(lev - 1), mapper, bcsMacro, 0);
+  }
 }
 
+void AmrCoreLBM::FillCoarsePatchMacro(int lev, amrex::Real time,
+                                      amrex::MultiFab &mf, int icomp,
+                                      int ncomp) {
+  BL_ASSERT(lev > 0);
 
-    
-    
+  Vector<MultiFab *> cmf;
+  Vector<Real> ctime;
+  GetDataMacro(lev - 1, time, cmf, ctime);
+  Interpolater *mapper = &cell_cons_interp;
+
+  if (cmf.size() != 1) {
+    amrex::Abort("FillCoarsePatchMacro: how did this happen?");
+  }
+
+  GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{bcval});
+  PhysBCFunct<GpuBndryFuncFab<macroBcFill>> cphysbc(geom[lev - 1], bcsMacro,
+                                                    gpu_bndry_func);
+  PhysBCFunct<GpuBndryFuncFab<macroBcFill>> fphysbc(geom[lev], bcsMacro,
+                                                    gpu_bndry_func);
+
+  amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp,
+                               geom[lev - 1], geom[lev], cphysbc, 0, fphysbc, 0,
+                               refRatio(lev - 1), mapper, bcsMacro, 0);
 }
-
-void AmrCoreLBM::FillCoarsePatchMacro (int lev, amrex::Real time, amrex::MultiFab &mf,int icomp, int ncomp)
-{
-    BL_ASSERT(lev > 0);
-
-    Vector<MultiFab*> cmf;
-    Vector<Real> ctime;
-    GetDataMacro(lev-1, time, cmf, ctime);
-    Interpolater* mapper = &cell_cons_interp;
-
-    if (cmf.size() != 1) {
-        amrex::Abort("FillCoarsePatchMacro: how did this happen?");
-    }
-
-
-        GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{bcval});
-        PhysBCFunct<GpuBndryFuncFab<macroBcFill> > cphysbc(geom[lev-1],bcsMacro,gpu_bndry_func);
-        PhysBCFunct<GpuBndryFuncFab<macroBcFill> > fphysbc(geom[lev],bcsMacro,gpu_bndry_func);
-
-        amrex::InterpFromCoarseLevel(mf, time, *cmf[0], 0, icomp, ncomp, geom[lev-1], geom[lev],
-                                     cphysbc, 0, fphysbc, 0, refRatio(lev-1),
-                                     mapper, bcsMacro, 0);
-
-
-}
-
-
-
-
-
 
 void AmrCoreLBM::GetDataMacro(int lev, Real time, Vector<MultiFab *> &data,
                               Vector<Real> &datatime) {
