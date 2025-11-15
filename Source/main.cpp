@@ -1,47 +1,54 @@
-
 #include <iostream>
 
 #include <AMReX.H>
 #include <AMReX_BLProfiler.H>
 #include <AMReX_ParallelDescriptor.H>
-
 #include <AmrCoreLBM.H>
+
+// -------- FPE (CPU) helper: use AMReX if present; otherwise fallback -----
+#if __has_include(<AMReX_FPE.H>)
+  #include <AMReX_FPE.H>
+  #define HAVE_AMREX_FPE 1
+#else
+  #define HAVE_AMREX_FPE 0
+#endif
+
+#if !HAVE_AMREX_FPE
+  #if defined(__linux__)
+    #include <fenv.h>
+    inline void enable_fpe_traps_fallback() {
+      // Trap invalid, divide-by-zero, overflow (ignore underflow/inexact).
+      feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
+    }
+  #else
+    inline void enable_fpe_traps_fallback() {}
+  #endif
+#endif
+// ------------------------------------------------------------------------
 
 using namespace amrex;
 
-int main(int argc, char *argv[]) {
+int main (int argc, char* argv[])
+{
   amrex::Initialize(argc, argv);
 
+#if HAVE_AMREX_FPE
+  amrex::InitializeFPE();     // if your AMReX provides it
+#else
+  enable_fpe_traps_fallback(); // otherwise use glibc fallback on Linux
+#endif
+
   {
-    // timer for profiling
     BL_PROFILE("main()");
 
-    // wallclock time
-    // const auto strt_total = amrex::second();
-
-    // constructor - reads in parameters from inputs file
-    //             - sizes multilevel arrays and data structures
     AmrCoreLBM amr_core_lbm;
-
-    // initialize AMR data
     amr_core_lbm.InitData();
-
-    // advance solution to final time
-
     amr_core_lbm.Evolve();
-
-    /*
-            // wallclock time
-            auto end_total = amrex::second() - strt_total;
-
-            if (amr_core_adv.Verbose()) {
-                // print wallclock time
-                ParallelDescriptor::ReduceRealMax(end_total
-       ,ParallelDescriptor::IOProcessorNumber()); amrex::Print() << "\nTotal
-       Time: " << end_total << '\n';
-            }
-    */
   }
 
+#if HAVE_AMREX_FPE
+  amrex::FinalizeFPE();
+#endif
   amrex::Finalize();
+  return 0;
 }

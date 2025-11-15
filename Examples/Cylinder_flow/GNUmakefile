@@ -1,9 +1,7 @@
-
 PRECISION  = DOUBLE
 PROFILE    = FALSE
 
-DEBUG      = True
-
+DEBUG      = TRUE
 
 DIM        = 2
 #DIM       = 3
