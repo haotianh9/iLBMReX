@@ -31,7 +31,7 @@ initdata(amrex::Box const& bx, amrex::Array4<amrex::Real> const& rho,amrex::Arra
             for (int i = lo.x; i <= hi.x; ++i) {
 
             
-                rho(i, j, k)  =1.0;
+                 rho(i, j, k)  =1.0;
                  ux(i, j, k)  =0.1;
                  uy(i, j, k)  =0.0;
                  uz(i, j, k)  =0.0;

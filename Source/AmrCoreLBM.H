@@ -15,6 +15,10 @@
 #include <AMReX_FillPatcher.H>
 #include <AMReX_FluxRegister.H>
 #include <AMReX_TableData.H>
+#include <memory> // for std::unique_ptr
+namespace amrex {
+class IBMomentum;
+}
 
 class AmrCoreLBM : public amrex::AmrCore {
 public:
@@ -199,6 +203,17 @@ private:
   std::string chk_file{"chk"};
   int chk_int = -1;
 
+  // IBM (cylinder) runtime knobs — default values and OFF by default
+  int m_use_cylinder{0}; // 0 = off (default), 1 = on
+  amrex::Real m_ibm_x0{32.0};
+  amrex::Real m_ibm_y0{32.0};
+  amrex::Real m_ibm_z0{0.0}; // unused in 2D
+  amrex::Real m_ibm_R{6.0};
+  amrex::Real m_ibm_ds{0.7};
+  amrex::Real m_ibm_alpha{2.0};
+
+  // one IBM object per AMR level (constructed once and reused)
+  amrex::Vector<std::unique_ptr<amrex::IBMomentum>> m_ibm;
   // LBM specific parameter
 
   int ndir;

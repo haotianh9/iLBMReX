@@ -14,8 +14,9 @@
 #include <AmrCoreLBM.H>
 #include <Kernels.H>
 
+#include "DebugNaN.H"
+#include "IBMomentum.H" // bring the full definition here
 #include <AMReX_GpuContainers.H>
-
 using namespace amrex;
 
 // constructor - reads in parameters from inputs file
@@ -67,6 +68,20 @@ AmrCoreLBM::AmrCoreLBM() {
   f_old.resize(nlevs_max);
   macro_new.resize(nlevs_max);
   macro_old.resize(nlevs_max);
+
+  // set up boundary conditions
+
+  {
+    amrex::ParmParse pp_ibm("ibm");
+    // Optional flag and parameters; absent keys leave defaults unchanged.
+    (void)pp_ibm.query("use_cylinder", m_use_cylinder);
+    (void)pp_ibm.query("x0", m_ibm_x0);
+    (void)pp_ibm.query("y0", m_ibm_y0);
+    (void)pp_ibm.query("z0", m_ibm_z0);
+    (void)pp_ibm.query("radius", m_ibm_R);
+    (void)pp_ibm.query("ds", m_ibm_ds);
+    (void)pp_ibm.query("alpha", m_ibm_alpha);
+  }
 
   using namespace BCVals;
 
@@ -295,6 +310,20 @@ void AmrCoreLBM::MakeNewLevelFromCoarse(int lev, Real time, const BoxArray &ba,
 
   FillCoarsePatchMacro(lev, time, macro_new[lev], 0, m_ncomp);
   MultiFab::Copy(macro_old[lev], macro_new[lev], 0, 0, m_ncomp, m_nghost);
+
+  // Ensure container fits
+  if ((int)m_ibm.size() <= lev)
+    m_ibm.resize(lev + 1);
+
+  // Only attach an IB object on the *current* finest level
+  const int finest = finestLevel(); // or compute after you know max level
+  if (m_use_cylinder && lev == finest) {
+    m_ibm[lev] = std::make_unique<amrex::IBMomentum>(
+        geom[lev], m_ibm_x0, m_ibm_y0, m_ibm_z0, m_ibm_R, m_ibm_ds,
+        m_ibm_alpha);
+  } else {
+    m_ibm[lev].reset();
+  }
 }
 
 // Remake an existing level using provided BoxArray and DistributionMapping and
@@ -323,6 +352,20 @@ void AmrCoreLBM::RemakeLevel(int lev, Real time, const BoxArray &ba,
   std::swap(oldF_state, f_old[lev]);
   std::swap(newM_state, macro_new[lev]);
   std::swap(oldM_state, macro_old[lev]);
+
+  // Ensure container fits
+  if ((int)m_ibm.size() <= lev)
+    m_ibm.resize(lev + 1);
+
+  // Only attach an IB object on the *current* finest level
+  const int finest = finestLevel(); // or compute after you know max level
+  if (m_use_cylinder && lev == finest) {
+    m_ibm[lev] = std::make_unique<amrex::IBMomentum>(
+        geom[lev], m_ibm_x0, m_ibm_y0, m_ibm_z0, m_ibm_R, m_ibm_ds,
+        m_ibm_alpha);
+  } else {
+    m_ibm[lev].reset();
+  }
 }
 
 // Delete level data
@@ -332,6 +375,8 @@ void AmrCoreLBM::ClearLevel(int lev) {
   f_old[lev].clear();
   macro_new[lev].clear();
   macro_old[lev].clear();
+  if ((int)m_ibm.size() > lev)
+    m_ibm[lev].reset();
 }
 
 // Make a new level from scratch using provided BoxArray and
@@ -401,6 +446,19 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
   }
 
   MultiFab::Copy(macro_old[lev], macro_new[lev], 0, 0, nmac, nghost);
+  // Ensure container fits
+  if ((int)m_ibm.size() <= lev)
+    m_ibm.resize(lev + 1);
+
+  // Only attach an IB object on the *current* finest level
+  const int finest = finestLevel(); // or compute after you know max level
+  if (m_use_cylinder && lev == finest) {
+    m_ibm[lev] = std::make_unique<amrex::IBMomentum>(
+        geom[lev], m_ibm_x0, m_ibm_y0, m_ibm_z0, m_ibm_R, m_ibm_ds,
+        m_ibm_alpha);
+  } else {
+    m_ibm[lev].reset();
+  }
 
   InitEquilibrium();
 }

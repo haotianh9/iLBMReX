@@ -11,5 +11,8 @@
 #include <visPara.H>
 
 #include <bc_val.H>
+#include <calculateMacroForcing.H>
+#include <collide_forced.H>
 #include <stream.H>
+
 #endif

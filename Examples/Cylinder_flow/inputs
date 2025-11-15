@@ -15,7 +15,7 @@ stop_time = 10000
 # Problem size and geometry
 # *****************************************************************
 geometry.prob_lo     =   0.0  0.0   0.0 
-geometry.prob_hi     =  64.0  64.0  64.0
+geometry.prob_hi     =  400.0  400.0  64.0
 
 # 1 = periodic
 # 0 = walls (homogeneous Neumann, dphi/dn=0)
@@ -31,7 +31,7 @@ amr.v              = 1       # verbosity in Amr
 # *****************************************************************
 # Resolution and refinement
 # *****************************************************************
-amr.n_cell          = 64 64 8
+amr.n_cell          = 400 400 8
 amr.max_level       = 0     # maximum level number allowed -- 
                               # number of levels = max_level + 1
 
@@ -67,7 +67,7 @@ amrvorth.thresholdRatio =  0.86  0.95  1.01
 # Plotfile name and frequency
 # *****************************************************************
 amr.plot_file  = out/plt    # root name of plot file
-amr.plot_int   = 1000   # number of timesteps between plot files
+amr.plot_int   = 1   # number of timesteps between plot files
                         # if negative then no plot files will be written
 
 # *****************************************************************
@@ -84,10 +84,12 @@ amr.chk_int  = -1       # number of timesteps between checkpoint files
 # *****************************************************************                        
 
 #The viscosity coefficient is case-dependent
-lbmPhysicalParameters.nu   = 0.0064
+lbmPhysicalParameters.nu   = 0.005
 
 #LBM for isothermal incompressible flow calculates up to four primitive quantities rho-u-v-w-vor-Pressure (vor-Pressure calculation added)
 lbmPhysicalParameters.nmac = 6
+
+
 
 
 #2D-Discrete Velocity Space
@@ -132,5 +134,18 @@ amrbc.bc_lo = 3 2
 amrbc.bc_hi = 2 2
 
 amrbc.bc_lo_0_rho_val = 1.0
-amrbc.bc_lo_0_ux_val  = 01
+amrbc.bc_lo_0_ux_val  = 0.1
 amrbc.bc_lo_0_uy_val  = 0.0
+
+
+# default (no cylinder)
+# ibm.use_cylinder = 0
+
+# turn cylinder on for cylinder_flow runs:
+ibm.use_cylinder = 0
+ibm.m_ibm_x0= 80.0
+ibm.m_ibm_y0= 50.0
+ibm.m_ibm_z0= 0.0
+ibm.m_ibm_R = 5.0
+ibm.m_ibm_ds= 0.7
+ibm.m_ibm_alpha= 2.0

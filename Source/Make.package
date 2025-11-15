@@ -9,3 +9,5 @@ CEXE_headers += Kernels.H
 CEXE_headers += Tagging.H
 CEXE_headers += feq.H
 CEXE_headers += bc_val.H
+CEXE_headers += IBMomentum.H
+CEXE_headers += DebugNaN.H
