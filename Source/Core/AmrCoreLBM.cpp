@@ -207,6 +207,8 @@ AmrCoreLBM::AmrCoreLBM() {
       }
     }
   }
+
+  amrex::Print() << "AmrCoreLBM::AmrCoreLBM() finished." << std::endl;
 }
 
 AmrCoreLBM::~AmrCoreLBM() {}
@@ -300,11 +302,7 @@ WriteCheckpointFile();
     // restart from a checkpoint
     // ReadCheckpointFile();
   }
-  for (int lev = 0; lev <= finestLevel(); ++lev) {
-    // Make darn sure distributions are finite (if your InitEquilibrium didn’t
-    // touch ghosts):
-    f_new[lev].setVal(0.0, f_new[lev].nGrow());
-  }
+
   if (plot_int > 0) {
 
     WritePlotFile();
@@ -459,12 +457,7 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
     const Box &box = mfi.fabbox();
 
     amrex::ParallelFor(box, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-      // initdata(tbx, rho, u, v, w, vor, problo, probhi, dx, nu);
-      rho(i, j, k) = 1.0;
-      u(i, j, k) = 0.0;
-      v(i, j, k) = 0.0;
-      w(i, j, k) = 0.0;
-      vor(i, j, k) = 0.0;
+      initdata(box, rho, u, v, w, vor, problo, probhi, dx, nu);
     });
   }
 
@@ -555,7 +548,8 @@ void AmrCoreLBM::ReadParameters() {
     pp.query("max_step", max_step);
     pp.query("stop_time", stop_time);
   }
-
+  amrex::Print() << " max_step = " << max_step << std::endl;
+  amrex::Print() << " stop_time = " << stop_time << std::endl;
   {
     ParmParse pp("amr"); // Traditionally, these have prefix, amr.
 
@@ -851,13 +845,14 @@ amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
       amrex::MultiFab::Copy(*plot_mfs[lev], f_new[lev], i, f_comp + i, 1, 0);
     }
 
-    // after filling your usual plot_mfs comps:
-    if (m_use_cylinder && m_ls && m_ls->has_level(lev)) {
-      // write phi into the last component
-      const int dest_comp = plot_mfs[lev]->nComp() - 1;
-      amrex::MultiFab::Copy(*plot_mfs[lev], m_ls->phi_at(lev), 0, dest_comp, 1,
-                            0);
-    }
+    // // after filling your usual plot_mfs comps:
+    // if (m_use_cylinder && m_ls && m_ls->has_level(lev)) {
+    //   // write phi into the last component
+    //   const int dest_comp = plot_mfs[lev]->nComp() - 1;
+    //   amrex::MultiFab::Copy(*plot_mfs[lev], m_ls->phi_at(lev), 0, dest_comp,
+    //   1,
+    //                         0);
+    // }
   }
 
   return plot_mfs;
@@ -876,7 +871,7 @@ Vector<std::string> AmrCoreLBM::PlotFileVarNames() const {
   for (int i = 0; i < ndir; ++i) {
     names.push_back("f_new_" + std::to_string(i));
   }
-  names.push_back("phi");
+  // names.push_back("phi");
 
   return names;
 }

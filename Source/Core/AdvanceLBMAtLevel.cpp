@@ -8,9 +8,6 @@
 #include "IBM/IBSharpLS.H"
 #include "LevelSet/LevelSet.H"
 
-// If you have a forcing-aware macro kernel, include it:
-#include "Src_K/calculateMacroForcing.H"
-
 using namespace amrex;
 
 void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
@@ -22,14 +19,12 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
   MultiFab &sF_new = f_new[lev];
   MultiFab &sM_new = macro_new[lev];
 
-  // Ghosted staging copies (FillPatch)
   MultiFab sfSborder(grids[lev], dmap[lev], sF_new.nComp(), sF_new.nGrow());
   MultiFab smSborder(grids[lev], dmap[lev], sM_new.nComp(), sM_new.nGrow());
 
   FillPatchMesoscopic(lev, time, sfSborder, 0, sfSborder.nComp());
   FillPatchMacro(lev, time, smSborder, 0, smSborder.nComp());
 
-  // (Optional) metrics
   const Real tempdx = xCellSize[lev];
   const Real tempdy = yCellSize[lev];
 #if (AMREX_SPACEDIM == 3)
@@ -103,30 +98,33 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
     auto dirz_loc = dirz;
     auto wi_loc = wi;
     // -------- Collide (BGK) --------
-    amrex::ParallelFor(gtbx,
-                       [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-                         // local macros from last stage
-                         amrex::Vector<amrex::Real> mac(4);
-                         mac[0] = rho_old(i, j, k);
-                         mac[1] = u_old(i, j, k);
-                         mac[2] = v_old(i, j, k);
-                         mac[3] = w_old(i, j, k);
-                         // build feq
+    amrex::ParallelFor(
+        gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+          // local macros from last stage
+          amrex::Vector<amrex::Real> mac(4);
+          mac[0] = rho_old(i, j, k);
+          mac[1] = u_old(i, j, k);
+          mac[2] = v_old(i, j, k);
+          mac[3] = w_old(i, j, k);
+          // build feq
 
-                         amrex::Vector<amrex::Real> tempMes(4);
-                         amrex::Vector<amrex::Real> feq_loc(ndir);
+          amrex::Vector<amrex::Real> tempMes(4);
+          amrex::Vector<amrex::Real> feq_loc(ndir);
 
-                         for (int q = 0; q < ndir; ++q) {
-                           tempMes[0] = wi[q];
-                           tempMes[1] = dirx[q];
-                           tempMes[2] = diry[q];
-                           tempMes[3] = dirz[q];
-                           feq_loc[q] = feqFunction(tempMes, mac);
-                         }
-                         collide(i, j, k, statein, feq_loc, ndir, temptau);
-                       });
+          for (int q = 0; q < ndir; ++q) {
+            tempMes[0] = wi[q];
+            tempMes[1] = dirx[q];
+            tempMes[2] = diry[q];
+            tempMes[3] = dirz[q];
+            feq_loc[q] = feqFunction(tempMes, mac);
+          }
+           collide(i, j, k, statein, feq_loc, ndir, temptau);
+          // collide_forced(i, j, k, statein, feq_loc, ndir, temptau, wi_loc,
+          //                dirx_loc, diry_loc, dirz_loc, mac[0], mac[1], mac[2],
+          //                mac[3], fx(i,j,k), fy(i,j,k), fz(i,j,k));
+        });
 
-    // -------- Stream --------
+    // // -------- Stream --------
     amrex::ParallelFor(
         gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
           if (vbx.contains(i, j, k)) {
@@ -137,12 +135,13 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
     // -------- Macros w/ forcing + diagnostics --------
     amrex::ParallelFor(
         gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+          // Ensure that the calculation area is within the valid range
           if (vbx.contains(i, j, k)) {
-            // Prefer forcing-aware macro rebuild if available
             calculateMacroForcing(i, j, k, stateout, rho, u, v, w, fx, fy, fz,
                                   ndir, dirx, diry, dirz);
-            // diagnostics unchanged
-            visPara(i, j, k, rho, u, v, vor, P, tempdx, tempdy, T0);
+            // calculateMacro(i, j, k, stateout, rho, u, v, w, ndir, dirx, diry,
+            // dirz);
+            // visPara(i, j, k, rho, u, v, vor, P, tempdx, tempdy, T0);
           }
         });
   }

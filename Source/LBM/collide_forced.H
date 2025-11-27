@@ -23,8 +23,15 @@ void collide_forced(int i, int j, int k,
     amrex::Real eiu = dirx[q] * ux + diry[q] * uy + dirz[q] * uz;
     amrex::Real termx = (dirx[q] - ux) / cs2 + (eiu / (cs2 * cs2)) * dirx[q];
     amrex::Real termy = (diry[q] - uy) / cs2 + (eiu / (cs2 * cs2)) * diry[q];
+#if (AMREX_SPACEDIM == 3)
     amrex::Real termz = (dirz[q] - uz) / cs2 + (eiu / (cs2 * cs2)) * dirz[q];
-    amrex::Real Si = wi[q] * fac * (termx * fx + termy * fy + termz * fz);
+#endif
+    amrex::Real Si = wi[q] * fac *
+                     (termx * fx + termy * fy
+#if (AMREX_SPACEDIM == 3)
+                      + termz * fz
+#endif
+                     );
 
     f_old(i, j, k, q) =
         f_old(i, j, k, q) - (f_old(i, j, k, q) - feq_i[q]) / tau + Si;

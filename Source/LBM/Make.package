@@ -1,1 +1,8 @@
 CEXE_headers += Kernels.H
+CEXE_headers += feq.H
+CEXE_headers += collide.H
+CEXE_headers += calculateMacro.H
+CEXE_headers += visPara.H
+CEXE_headers += stream.H
+CEXE_headers += calculateMacroForcing.H
+CEXE_headers += collide_forced.H

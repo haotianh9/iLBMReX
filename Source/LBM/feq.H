@@ -22,8 +22,16 @@ amrex::Real feqFunction(amrex::Vector<amrex::Real> mesoscopic,
   v = macro[2];
   w = macro[3];
 
-  eu = (dirx * u + diry * v + dirz * w);
-  uv = (u * u + v * v + w * w);
+  eu = dirx * u + diry * v
+#if (AMREX_SPACEDIM == 3)
+       + dirz * w
+#endif
+      ;
+  uv = u * u + v * v
+#if (AMREX_SPACEDIM == 3)
+       + w * w
+#endif
+      ;
 
   result = wi * rho * (1.0 + 3.0 * eu + 4.5 * eu * eu - 1.5 * uv);
 

@@ -2,7 +2,7 @@
 PRECISION  = DOUBLE
 PROFILE    = FALSE
 
-DEBUG      = True
+DEBUG      = TRUE
 
 
 DIM        = 2
@@ -10,8 +10,8 @@ DIM        = 2
 
 COMP	   = gcc
 
-USE_MPI    = TRUE
-USE_OMP    = FALSE 
+USE_MPI    = FALSE
+USE_OMP    = TRUE 
 USE_CUDA   = FALSE
 
 Bpack   := ./Make.package 

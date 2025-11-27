@@ -11,11 +11,16 @@ void collide(int i, int j, int k,
              amrex::Array4<amrex::Real> const &f_old,
              amrex::Vector<amrex::Real> const feq, int const ndir,
              amrex::Real const tau) {
+  // amrex::Print() << tau << std::endl;
+  // amrex::Print() << "Collide at (" << i << "," << j << "," << k << ")\n";
 
   for (int i_dir = 0; i_dir < ndir; ++i_dir) {
-    // amrex::Print()<< tau << std::endl;
+
+    // amrex::Print() << "f_old before: " << f_old(i, j, k, i_dir) << std::endl;
+    // amrex::Print() << "feq: " << feq[i_dir] << std::endl;
     f_old(i, j, k, i_dir) = 1.0 * f_old(i, j, k, i_dir) -
                             (f_old(i, j, k, i_dir) - feq[i_dir]) / tau;
+    // amrex::Print() << "f_old after: " << f_old(i, j, k, i_dir) << std::endl;
   }
 }
 
