@@ -1,0 +1,4 @@
+CEXE_sources += IBDiffuseLS.cpp
+CEXE_sources += IBSharpLS.cpp
+CEXE_headers += IBDiffuseLS.H
+CEXE_headers += IBSharpLS.H

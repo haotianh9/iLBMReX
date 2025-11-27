@@ -138,14 +138,14 @@ amrbc.bc_lo_0_ux_val  = 0.1
 amrbc.bc_lo_0_uy_val  = 0.0
 
 
-# default (no cylinder)
-# ibm.use_cylinder = 0
 
-# turn cylinder on for cylinder_flow runs:
-ibm.use_cylinder = 0
-ibm.m_ibm_x0= 80.0
-ibm.m_ibm_y0= 50.0
-ibm.m_ibm_z0= 0.0
-ibm.m_ibm_R = 5.0
-ibm.m_ibm_ds= 0.7
-ibm.m_ibm_alpha= 2.0
+
+# Level-set geometry (defaults = your cylinder)
+ib.method      = none      # none | diffuse | sharp
+ib.eps_factor  = 1.5       # ε = eps_factor * min(dx)
+ib.alpha       = 2.0       # penalization strength (diffuse)
+ib.only_finest = 1         # 1: IB active only on finest level (IAMR style)
+
+geom.cylinder  = 1         # 1: build cylinder φ
+geom.x0 = 120.0  geom.y0 = 60.0  geom.z0 = 0.0
+geom.R  = 12.0

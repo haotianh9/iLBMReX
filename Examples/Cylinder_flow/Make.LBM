@@ -9,7 +9,7 @@ BL_NO_FORT = TRUE
 
 include $(AMREX_HOME)/Tools/GNUMake/Make.defs
 
-Bdirs 	:= Source Source/Src_K
+Bdirs 	:= Source Source/Src_K Source/BC Source/Core Source/IBM Source/LBM Source/LevelSet Source/Utils
 Bpack	+= $(foreach dir, $(Bdirs), $(TOP)/$(dir)/Make.package)
 Blocs   += $(foreach dir, $(Bdirs), $(TOP)/$(dir))
 
