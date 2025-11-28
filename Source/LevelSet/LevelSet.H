@@ -4,7 +4,7 @@
 #include <AMReX_MultiFab.H>
 
 struct LSParams {
-  amrex::Real x0{120.0}, y0{60.0}, z0{0.0}, R{12.0}, eps{2.0};
+  amrex::Real x0{120.0}, y0{60.0}, z0{0.0}, R{12.0}, eps{1.5}, alpha{2.0};
   int reinit_niter{0}; // reserved for future
 };
 

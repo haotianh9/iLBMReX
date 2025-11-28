@@ -118,10 +118,10 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
             tempMes[3] = dirz[q];
             feq_loc[q] = feqFunction(tempMes, mac);
           }
-           collide(i, j, k, statein, feq_loc, ndir, temptau);
-          // collide_forced(i, j, k, statein, feq_loc, ndir, temptau, wi_loc,
-          //                dirx_loc, diry_loc, dirz_loc, mac[0], mac[1], mac[2],
-          //                mac[3], fx(i,j,k), fy(i,j,k), fz(i,j,k));
+          //  collide(i, j, k, statein, feq_loc, ndir, temptau);
+          collide_forced(i, j, k, statein, feq_loc, ndir, temptau, wi_loc,
+                         dirx_loc, diry_loc, dirz_loc, mac[0], mac[1], mac[2],
+                         mac[3], fx(i,j,k), fy(i,j,k), fz(i,j,k));
         });
 
     // // -------- Stream --------

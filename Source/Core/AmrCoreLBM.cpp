@@ -91,14 +91,11 @@ AmrCoreLBM::AmrCoreLBM() {
 
     // geometry: tie to your existing cylinder knobs (x0,y0,z0,R)
     pp_ibm.query("eps", m_ls_par.eps);
-    m_ls_par.x0 = m_ibm_x0;
-    m_ls_par.y0 = m_ibm_y0;
-    m_ls_par.z0 = m_ibm_z0;
-    m_ls_par.R = m_ibm_R;
-
-    // strengths
-    m_diff_par.alpha = m_ibm_alpha; // for diffuse
-    m_sharp_par.ds = m_ibm_ds;      // currently unused
+    pp_ibm.query("alpha", m_ls_par.alpha);
+    pp_ibm.query("x0", m_ls_par.x0);
+    pp_ibm.query("y0", m_ls_par.y0);
+    pp_ibm.query("z0", m_ls_par.z0);
+    pp_ibm.query("R", m_ls_par.R);
 
     // create managers
     m_ls = std::make_unique<LevelSetManager>();
@@ -235,12 +232,12 @@ void AmrCoreLBM::Evolve() {
 
     cur_time += dt[0];
 
-    // sum phi to check conservation
-    Real sum_phi = macro_new[0].sum(0);
+    // sum rho to check conservation
+    Real sum_rho = macro_new[0].sum(0);
 
     amrex::Print() << "Coarse STEP " << step + 1 << " ends."
                    << " TIME = " << cur_time << " DT = " << dt[0]
-                   << " Sum(Phi) = " << sum_phi << std::endl;
+                   << " Sum(Rho) = " << sum_rho << std::endl;
 
     // sync up time
     for (lev = 0; lev <= finest_level; ++lev) {
@@ -810,7 +807,8 @@ amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
   constexpr int P_comp = 4;
   constexpr int f_comp = 5;
   for (int lev = 0; lev <= finest_level; ++lev) {
-
+    amrex::Print() << "Preparing plotfile data at level " << lev
+                   << std::endl;
     AMREX_ALWAYS_ASSERT(macro_new[lev].nComp() >= uz_comp);
     AMREX_ALWAYS_ASSERT(f_new[lev].nComp() >= ndir);
     // Allocate MultiFab with 12 components (rho, ux, uy, and f_old[0-8])
@@ -844,15 +842,16 @@ amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
     for (int i = 0; i < ndir; ++i) {
       amrex::MultiFab::Copy(*plot_mfs[lev], f_new[lev], i, f_comp + i, 1, 0);
     }
-
-    // // after filling your usual plot_mfs comps:
-    // if (m_use_cylinder && m_ls && m_ls->has_level(lev)) {
-    //   // write phi into the last component
-    //   const int dest_comp = plot_mfs[lev]->nComp() - 1;
-    //   amrex::MultiFab::Copy(*plot_mfs[lev], m_ls->phi_at(lev), 0, dest_comp,
-    //   1,
-    //                         0);
-    // }
+    amrex::Print() << "m_use_cylinder = " << m_use_cylinder << ", m_ls = "
+                   << (m_ls ? "not null" : "null") << std::endl;
+    // Copy level-set phi if applicable
+    if (m_use_cylinder && m_ls && m_ls->has_level(lev)) {
+      // write phi into the last component
+      const int dest_comp = plot_mfs[lev]->nComp() - 1;
+      amrex::MultiFab::Copy(*plot_mfs[lev], m_ls->phi_at(lev), 0, dest_comp,
+      1,
+                            0);
+    }
   }
 
   return plot_mfs;
@@ -867,12 +866,15 @@ Vector<std::string> AmrCoreLBM::PlotFileVarNames() const {
   names.push_back("uz");
   names.push_back("vor");
   names.push_back("Pressure");
-
+  
   for (int i = 0; i < ndir; ++i) {
     names.push_back("f_new_" + std::to_string(i));
   }
-  // names.push_back("phi");
-
+  amrex::Print() << "m_use_cylinder = " << m_use_cylinder << ", m_ls = "
+                 << (m_ls ? "not null" : "null") << std::endl;
+  if (m_use_cylinder && m_ls ) {
+    names.push_back("phi");
+  }
   return names;
 }
 

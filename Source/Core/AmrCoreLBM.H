@@ -259,8 +259,7 @@ private:
   // IBM (cylinder) runtime knobs — default values and OFF by default
   int m_use_cylinder{0}; // 0 = off (default), 1 = on
   int m_ib_method{0};    // 0: none, 1: diffuse, 2: sharp
-  amrex::Real m_ibm_x0{120.0}, m_ibm_y0{60.0}, m_ibm_z0{0.0};
-  amrex::Real m_ibm_R{12.0}, m_ibm_ds{0.7}, m_ibm_alpha{2.0};
+  
   // Parameter bundles
   LSParams m_ls_par{};
   DiffuseIBParams m_diff_par{};
