@@ -8,7 +8,7 @@ DIM        = 2
 
 COMP	   = gcc
 
-USE_MPI    = FALSE
+USE_MPI    = TRUE
 USE_OMP    = TRUE 
 USE_CUDA   = FALSE
 

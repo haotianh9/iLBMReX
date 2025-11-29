@@ -20,7 +20,8 @@ amrex::Real Hsmooth(amrex::Real s, amrex::Real eps) noexcept
 
 
 struct DiffuseIBParams {
-  amrex::Real alpha{2.0};
+  amrex::Real alpha{0.1};
+  amrex::Real eps{2.0};
 };
 
 class IBDiffuseLS {
@@ -31,7 +32,7 @@ public:
   void update_forcing(int lev, LevelSetManager &ls, amrex::MultiFab const &ucc,
                       amrex::MultiFab const &vcc, amrex::MultiFab const &wcc,
                       amrex::MultiFab &Fx, amrex::MultiFab &Fy,
-                      amrex::MultiFab &Fz, amrex::Real alpha) const;
+                      amrex::MultiFab &Fz, amrex::Real alpha, amrex::Real eps_ratio) const;
 
 private:
   amrex::Geometry m_geom;

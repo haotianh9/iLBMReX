@@ -605,7 +605,7 @@ void AmrCoreLBM::ReadParameters() {
         m_ib_method = 0;
 
       // geometry: tie to your existing cylinder knobs (x0,y0,z0,R)
-      pp_ibm.query("eps", m_ls_par.eps);
+      pp_ibm.query("eps", m_diff_par.eps);
       // pp_ibm.query("alpha", m_ls_par.alpha);
       pp_ibm.query("alpha", m_diff_par.alpha); // <-- use diffuse params here
       pp_ibm.query("x0", m_ls_par.x0);

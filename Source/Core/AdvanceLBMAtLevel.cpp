@@ -52,7 +52,7 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
     if (m_ib_method == 1 && m_ibd) {
       // Diffuse: Brinkman penalization in smoothed solid mask
       m_ibd->update_forcing(lev, *m_ls, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc,
-                            m_diff_par.alpha);
+                            m_diff_par.alpha,m_diff_par.eps);
     } else if (m_ib_method == 2 && m_ibs) {
       // Sharp: direct forcing in |phi|<=eps band
       m_ibs->update_forcing(lev, *m_ls, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc,
