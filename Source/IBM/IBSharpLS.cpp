@@ -11,12 +11,13 @@ void IBSharpLS::update_forcing(int lev, LevelSetManager &ls,
                                MultiFab &Fz, Real dt) const {
   auto const &phi = ls.phi_at(lev);
   const Real eps = Real(2.0) * m_geom.CellSize(0); // thin |phi|<=eps band
-
+  amrex::Print() << "IBSharpLS::update_forcing at lev=" << lev << " eps=" << eps
+                 << "\n";
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
   for (MFIter mfi(Fx, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
-    const Box &bx = mfi.fabbox();
+    const Box &bx = mfi.tilebox();
 
     auto ph = phi[mfi].const_array();
     auto ux = ucc[mfi].const_array();
@@ -30,9 +31,20 @@ void IBSharpLS::update_forcing(int lev, LevelSetManager &ls,
     ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
       Real band = (std::abs(ph(i, j, k)) <= eps) ? Real(1.0) : Real(0.0);
       // direct forcing: f ≈ (u_target - u)/dt with u_target = 0
-      fxw(i, j, k) += band * (-ux(i, j, k) / dt);
-      fyw(i, j, k) += band * (-uy(i, j, k) / dt);
-      fzw(i, j, k) += band * (-uz(i, j, k) / dt);
+      fxw(i, j, k) = band * (-ux(i, j, k) / dt);
+      fyw(i, j, k) = band * (-uy(i, j, k) / dt);
+      fzw(i, j, k) = band * (-uz(i, j, k) / dt);
+      // const amrex::Real eps = 1e-14;
+
+      // if ((amrex::Math::abs(fxw(i, j, k)) > eps) ||
+      //     (amrex::Math::abs(fyw(i, j, k)) > eps) ||
+      //     (amrex::Math::abs(fzw(i, j, k)) > eps)) {
+
+      //   amrex::Print() << "Forcing at i,j,k: " << i << "," << j << "," << k
+      //                  << " band=" << band << " fx=" << fxw(i, j, k)
+      //                  << " fy=" << fyw(i, j, k) << " fz=" << fzw(i, j, k)
+      //                  << "\n";
+      // }
     });
   }
 

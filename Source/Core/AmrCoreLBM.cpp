@@ -72,36 +72,12 @@ AmrCoreLBM::AmrCoreLBM() {
   macro_new.resize(nlevs_max);
   macro_old.resize(nlevs_max);
 
-  // set up boundary conditions
-
-  {
-    amrex::ParmParse pp_ibm("ibm");
-
-    // optional toggle (defaults are OK if missing)
-    pp_ibm.query("use_cylinder", m_use_cylinder);
-
-    std::string method = "none";
-    pp_ibm.query("method", method);
-    if (method == "diffuse")
-      m_ib_method = 1;
-    else if (method == "sharp")
-      m_ib_method = 2;
-    else
-      m_ib_method = 0;
-
-    // geometry: tie to your existing cylinder knobs (x0,y0,z0,R)
-    pp_ibm.query("eps", m_ls_par.eps);
-    pp_ibm.query("alpha", m_ls_par.alpha);
-    pp_ibm.query("x0", m_ls_par.x0);
-    pp_ibm.query("y0", m_ls_par.y0);
-    pp_ibm.query("z0", m_ls_par.z0);
-    pp_ibm.query("R", m_ls_par.R);
-
-    // create managers
-    m_ls = std::make_unique<LevelSetManager>();
-    m_ibd.reset();
-    m_ibs.reset();
+  if (m_use_cylinder) {
+    amrex::Print() << "Using IBM with method = " << m_ib_method << std::endl;
+    // just one forcing
+    forcing.resize(nlevs_max);
   }
+  // set up boundary conditions
 
   using namespace BCVals;
 
@@ -289,6 +265,11 @@ void AmrCoreLBM::InitData() {
     InitFromScratch(time);
 
     AverageDown();
+    if (m_use_cylinder && m_ls) {
+      for (int lev = 0; lev <= finest_level; ++lev) {
+        BuildLevelSetOnLevel(lev);
+      }
+    }
 
     /*
 if (chk_int > 0) {
@@ -334,12 +315,15 @@ void AmrCoreLBM::MakeNewLevelFromCoarse(int lev, Real time, const BoxArray &ba,
   MultiFab::Copy(macro_old[lev], macro_new[lev], 0, 0, m_ncomp, m_nghost);
   // --- Level-set φ on this level ---
   if (m_use_cylinder) {
-    m_ls->define_level(lev, grids[lev], dmap[lev], /*ng=*/1);
-    m_ls->build_from_cylinder(lev, geom[lev], m_ls_par);
+    // --- Level-set φ on this level ---
+    BuildLevelSetOnLevel(lev);
   }
 
   // --- IBM object only for current finest (optional) ---
   if (m_use_cylinder && lev == finestLevel()) {
+    const int nforce = 3;
+    forcing[lev].define(ba, dm, nforce, m_nghost);
+    forcing[lev].setVal(0.0);
     if (m_ib_method == 1)
       m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
     else if (m_ib_method == 2)
@@ -379,12 +363,15 @@ void AmrCoreLBM::RemakeLevel(int lev, Real time, const BoxArray &ba,
   std::swap(oldM_state, macro_old[lev]);
   // --- Level-set φ on this level ---
   if (m_use_cylinder) {
-    m_ls->define_level(lev, grids[lev], dmap[lev], /*ng=*/1);
-    m_ls->build_from_cylinder(lev, geom[lev], m_ls_par);
+    // --- Level-set φ on this level ---
+    BuildLevelSetOnLevel(lev);
   }
 
   // --- IBM object only for current finest (optional) ---
   if (m_use_cylinder && lev == finestLevel()) {
+    const int nforce = 3;
+    forcing[lev].define(ba, dm, nforce, m_nghost);
+    forcing[lev].setVal(0.0);
     if (m_ib_method == 1)
       m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
     else if (m_ib_method == 2)
@@ -403,6 +390,7 @@ void AmrCoreLBM::ClearLevel(int lev) {
   f_old[lev].clear();
   macro_new[lev].clear();
   macro_old[lev].clear();
+  forcing[lev].clear();
 }
 
 // Make a new level from scratch using provided BoxArray and
@@ -417,14 +405,20 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
   f_old[lev].define(ba, dm, ndir, nghost);
   macro_new[lev].define(ba, dm, nmac, nghost);
   macro_old[lev].define(ba, dm, nmac, nghost);
-  // --- Level-set φ on this level ---
+
   if (m_use_cylinder) {
-    m_ls->define_level(lev, grids[lev], dmap[lev], /*ng=*/1);
-    m_ls->build_from_cylinder(lev, geom[lev], m_ls_par);
+    // --- Level-set φ on this level ---
+    BuildLevelSetOnLevel(lev);
+    const int nforce = 3;
+    forcing[lev].define(ba, dm, nforce, nghost);
+    forcing[lev].setVal(0.0);
   }
 
   // --- IBM object only for current finest (optional) ---
   if (m_use_cylinder && lev == finestLevel()) {
+    const int nforce = 3;
+    forcing[lev].define(ba, dm, nforce, nghost);
+    forcing[lev].setVal(0.0);
     if (m_ib_method == 1)
       m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
     else if (m_ib_method == 2)
@@ -595,9 +589,46 @@ void AmrCoreLBM::ReadParameters() {
       pp.query("nu", nu);
       pp.query("nmac", nmac);
     }
+    {
+      amrex::ParmParse pp_ibm("ibm");
 
-    totalNumberVar = ndir + nmac;
+      // optional toggle (defaults are OK if missing)
+      pp_ibm.query("use_cylinder", m_use_cylinder);
 
+      std::string method = "none";
+      pp_ibm.query("method", method);
+      if (method == "diffuse")
+        m_ib_method = 1;
+      else if (method == "sharp")
+        m_ib_method = 2;
+      else
+        m_ib_method = 0;
+
+      // geometry: tie to your existing cylinder knobs (x0,y0,z0,R)
+      pp_ibm.query("eps", m_ls_par.eps);
+      pp_ibm.query("alpha", m_ls_par.alpha);
+      pp_ibm.query("x0", m_ls_par.x0);
+      pp_ibm.query("y0", m_ls_par.y0);
+      pp_ibm.query("z0", m_ls_par.z0);
+      pp_ibm.query("R", m_ls_par.R);
+      amrex::Print() << "IBM parameters: use_cylinder = " << m_use_cylinder
+                     << ", method = " << method << std::endl;
+      amrex::Print() << "               x0 = " << m_ls_par.x0
+                     << ", y0 = " << m_ls_par.y0 << ", z0 = " << m_ls_par.z0
+                     << ", R = " << m_ls_par.R << std::endl;
+
+      // create managers
+      m_ls = std::make_unique<LevelSetManager>();
+      m_ibd.reset();
+      m_ibs.reset();
+    }
+
+    int n_phi = (m_use_cylinder ? 1 : 0);
+    amrex::Print() << "Number signed distance functions = " << n_phi
+                   << std::endl;
+    totalNumberVar = nmac + ndir + n_phi;
+    amrex::Print() << "Total number of variables = " << totalNumberVar
+                   << std::endl;
     wi_dev.resize(ndir);
     dirx_dev.resize(ndir);
     diry_dev.resize(ndir);
@@ -795,63 +826,71 @@ std::string AmrCoreLBM::PlotFileName(int lev) const {
   return amrex::Concatenate(plot_file, lev, 5);
 }
 
-// put together an array of multifabs for writing
 amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
   amrex::Vector<std::unique_ptr<amrex::MultiFab>> plot_mfs;
 
+  // Component indices in macro_new
   constexpr int rho_comp = 0;
   constexpr int ux_comp = 1;
   constexpr int uy_comp = 2;
   constexpr int uz_comp = 3;
   constexpr int vor_comp = 4;
-  constexpr int P_comp = 4;
-  constexpr int f_comp = 5;
+  constexpr int P_comp = 5;
+
+  const int n_macro_out = 6; // rho, ux, uy, uz, vor, Pressure
+  const int f_first_comp = n_macro_out;
+
+  const bool want_phi = (m_use_cylinder && m_ls);
+
   for (int lev = 0; lev <= finest_level; ++lev) {
-    amrex::Print() << "Preparing plotfile data at level " << lev
-                   << std::endl;
-    AMREX_ALWAYS_ASSERT(macro_new[lev].nComp() >= uz_comp);
+    amrex::Print() << "Preparing plotfile data at level " << lev << "\n";
+
+    AMREX_ALWAYS_ASSERT(macro_new[lev].nComp() > P_comp);
     AMREX_ALWAYS_ASSERT(f_new[lev].nComp() >= ndir);
-    // Allocate MultiFab with 12 components (rho, ux, uy, and f_old[0-8])
-    plot_mfs.push_back(std::make_unique<amrex::MultiFab>(grids[lev], dmap[lev],
-                                                         totalNumberVar, 0));
 
-    // Copy rho
-    amrex::MultiFab::Copy(*plot_mfs[lev], macro_new[lev], rho_comp, rho_comp, 1,
-                          0);
+    // Do we have phi on this level?
+    bool have_phi_on_lev = (want_phi && m_ls->has_level(lev));
 
-    // Copy ux
-    amrex::MultiFab::Copy(*plot_mfs[lev], macro_new[lev], ux_comp, ux_comp, 1,
-                          0);
+    int n_phi = have_phi_on_lev ? 1 : 0;
+    int ncomp_out = n_macro_out + ndir + n_phi;
 
-    // Copy uy
-    amrex::MultiFab::Copy(*plot_mfs[lev], macro_new[lev], uy_comp, uy_comp, 1,
-                          0);
+    // Allocate output MultiFab with desired layout
+    plot_mfs.push_back(
+        std::make_unique<amrex::MultiFab>(grids[lev], dmap[lev], ncomp_out, 0));
+    amrex::MultiFab &out = *plot_mfs.back();
 
-    // Copy uz
-    amrex::MultiFab::Copy(*plot_mfs[lev], macro_new[lev], uz_comp, uz_comp, 1,
-                          0);
+    // ---- Copy macroscopic fields ----
+    amrex::MultiFab::Copy(out, macro_new[lev], rho_comp, rho_comp, 1, 0);
+    amrex::MultiFab::Copy(out, macro_new[lev], ux_comp, ux_comp, 1, 0);
+    amrex::MultiFab::Copy(out, macro_new[lev], uy_comp, uy_comp, 1, 0);
+    amrex::MultiFab::Copy(out, macro_new[lev], uz_comp, uz_comp, 1, 0);
+    amrex::MultiFab::Copy(out, macro_new[lev], vor_comp, vor_comp, 1, 0);
+    amrex::MultiFab::Copy(out, macro_new[lev], P_comp, P_comp, 1, 0);
 
-    // Copy vor
-    amrex::MultiFab::Copy(*plot_mfs[lev], macro_new[lev], vor_comp, vor_comp, 1,
-                          0);
-
-    // Copy pressure
-    amrex::MultiFab::Copy(*plot_mfs[lev], macro_new[lev], P_comp, P_comp, 1, 0);
-
-    // Copy all 9 components of f_old
+    // ---- Copy all ndir distribution functions ----
     for (int i = 0; i < ndir; ++i) {
-      amrex::MultiFab::Copy(*plot_mfs[lev], f_new[lev], i, f_comp + i, 1, 0);
+      amrex::MultiFab::Copy(out, f_new[lev], i, f_first_comp + i, 1, 0);
     }
-    amrex::Print() << "m_use_cylinder = " << m_use_cylinder << ", m_ls = "
-                   << (m_ls ? "not null" : "null") << std::endl;
-    // Copy level-set phi if applicable
-    if (m_use_cylinder && m_ls && m_ls->has_level(lev)) {
-      // write phi into the last component
-      const int dest_comp = plot_mfs[lev]->nComp() - 1;
-      amrex::MultiFab::Copy(*plot_mfs[lev], m_ls->phi_at(lev), 0, dest_comp,
-      1,
-                            0);
+
+    // ---- Copy level-set phi, if present, using ParallelCopy ----
+    if (have_phi_on_lev) {
+      const amrex::MultiFab &phi_src = m_ls->phi_at(lev);
+      const int phi_dest_comp = out.nComp() - 1;
+
+      // Scratch MF with the *same* BA & DM as out
+      amrex::MultiFab phi_cc(out.boxArray(), out.DistributionMap(), 1, 0);
+      phi_cc.setVal(0.0);
+
+      // This handles different BoxArray / DistributionMapping internally
+      phi_cc.ParallelCopy(phi_src, 0, 0, 1, 0, 0, Geom(lev).periodicity());
+
+      amrex::MultiFab::Copy(out, phi_cc, 0, phi_dest_comp, 1, 0);
     }
+
+    amrex::Print() << "m_use_cylinder = " << m_use_cylinder
+                   << ", m_ls = " << (m_ls ? "not null" : "null")
+                   << ", phi_written = " << (have_phi_on_lev ? "yes" : "no")
+                   << std::endl;
   }
 
   return plot_mfs;
@@ -860,21 +899,50 @@ amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
 // set plotfile variable names
 Vector<std::string> AmrCoreLBM::PlotFileVarNames() const {
   Vector<std::string> names;
-  names.push_back("rho");
-  names.push_back("ux");
-  names.push_back("uy");
-  names.push_back("uz");
-  names.push_back("vor");
-  names.push_back("Pressure");
-  
-  for (int i = 0; i < ndir; ++i) {
+
+  // Use level 0 as reference (all levels have the same nComp layout)
+  const int nmacro = macro_new[0].nComp();
+  const int nmeso = f_new[0].nComp();
+  const bool have_phi = (m_use_cylinder && m_ls && m_ls->has_level(0));
+  const int nphi = have_phi ? 1 : 0;
+
+  // --- Macroscopic variables ---
+  if (nmacro > 0)
+    names.push_back("rho");
+  if (nmacro > 1)
+    names.push_back("ux");
+  if (nmacro > 2)
+    names.push_back("uy");
+  if (nmacro > 3)
+    names.push_back("uz");
+  if (nmacro > 4)
+    names.push_back("vor");
+  if (nmacro > 5)
+    names.push_back("Pressure");
+
+  // Any extra macro components beyond the first 6 get generic names
+  for (int m = 6; m < nmacro; ++m) {
+    names.push_back("macro_" + std::to_string(m));
+  }
+
+  // --- Mesoscopic distribution functions f_i ---
+  for (int i = 0; i < nmeso; ++i) {
     names.push_back("f_new_" + std::to_string(i));
   }
-  amrex::Print() << "m_use_cylinder = " << m_use_cylinder << ", m_ls = "
-                 << (m_ls ? "not null" : "null") << std::endl;
-  if (m_use_cylinder && m_ls ) {
+
+  // --- Level-set field φ, if present ---
+  if (have_phi) {
     names.push_back("phi");
   }
+
+  const int expected = nmacro + nmeso + nphi;
+  if (static_cast<int>(names.size()) != expected) {
+    amrex::Print() << "WARNING: PlotFileVarNames: names.size() = "
+                   << names.size() << " but expected " << expected << "\n";
+  } else {
+    amrex::Print() << "PlotFileVarNames: total vars = " << names.size() << "\n";
+  }
+
   return names;
 }
 
@@ -1160,6 +1228,20 @@ void AmrCoreLBM::FillPatchMacro(int lev, amrex::Real time, amrex::MultiFab &mf,
   }
 }
 
+void AmrCoreLBM::FillPatchForcing(int lev, amrex::Real time,
+                                  amrex::MultiFab &mf, int icomp, int ncomp) {
+  // Just copy from current forcing[lev]; no time interpolation
+  amrex::Vector<amrex::MultiFab *> smf(1, &forcing[lev]);
+  amrex::Vector<amrex::Real> stime(1, t_new[lev]);
+
+  GpuBndryFuncFab<macroBcFill> gpu_bndry_func(macroBcFill{bcval});
+  PhysBCFunct<GpuBndryFuncFab<macroBcFill>> physbc(geom[lev], bcsMacro,
+                                                   gpu_bndry_func);
+
+  amrex::FillPatchSingleLevel(mf, time, smf, stime, 0, icomp, ncomp, geom[lev],
+                              physbc, 0);
+}
+
 void AmrCoreLBM::FillCoarsePatchMacro(int lev, amrex::Real time,
                                       amrex::MultiFab &mf, int icomp,
                                       int ncomp) {
@@ -1205,4 +1287,21 @@ void AmrCoreLBM::GetDataMacro(int lev, Real time, Vector<MultiFab *> &data,
     datatime.push_back(t_old[lev]);
     datatime.push_back(t_new[lev]);
   }
+}
+
+void AmrCoreLBM::BuildLevelSetOnLevel(int lev) {
+  if (!m_use_cylinder || !m_ls)
+    return;
+
+  // Use the *macro* MultiFab as the reference for BA/DM
+  const BoxArray &ba = macro_new[lev].boxArray();
+  const DistributionMapping &dm = macro_new[lev].DistributionMap();
+  amrex::Print() << "BuildLevelSetOnLevel: level " << lev
+                 << " (nghost = " << nghost << ")\n";
+  // (Re)define storage for this level and rebuild φ
+  m_ls->define_level(lev, ba, dm, /*ng=*/nghost);
+  m_ls->build_from_cylinder(lev, geom[lev], m_ls_par);
+
+  amrex::Print() << "BuildLevelSetOnLevel: level " << lev
+                 << " (|BA| = " << ba.size() << ", R = " << m_ls_par.R << ")\n";
 }

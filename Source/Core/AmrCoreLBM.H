@@ -19,7 +19,7 @@
 
 #include "IBM/IBDiffuseLS.H"   // DiffuseIBParams, IBDiffuseLS
 #include "IBM/IBSharpLS.H"     // SharpIBParams,   IBSharpLS
-#include "LevelSet/LevelSet.H" // LSParams, LevelSetManager
+#include "LevelSet/LevelSet.H" // LevelSetParams, LevelSetManager
 
 // ---- Forward decls; full definitions live in the .cpps
 class LevelSetManager;
@@ -150,6 +150,8 @@ private:
 
   void check_ghost_cells_nonzero(const amrex::MultiFab &mf, int comp, int lev);
   void check_ghost_cells_nonzero2(const amrex::MultiFab &mf, int comp, int lev);
+
+  void BuildLevelSetOnLevel(int lev);
   ////////////////
   // private data members
 
@@ -168,6 +170,8 @@ private:
   amrex::Vector<amrex::MultiFab> f_old;
   amrex::Vector<amrex::MultiFab> macro_new;
   amrex::Vector<amrex::MultiFab> macro_old;
+
+  amrex::Vector<amrex::MultiFab> forcing;
 
   // this is essentially a 2*DIM integer array storing the physical boundary
   // condition types at the lo/hi walls in each direction
@@ -246,6 +250,9 @@ private:
   void FillPatchMacro(int lev, amrex::Real time, amrex::MultiFab &mf, int icomp,
                       int ncomp);
 
+  void FillPatchForcing(int lev, amrex::Real time, amrex::MultiFab &mf,
+                        int icomp, int ncomp);
+
   void FillCoarsePatchMacro(int lev, amrex::Real time, amrex::MultiFab &mf,
                             int icomp, int ncomp);
 
@@ -259,9 +266,9 @@ private:
   // IBM (cylinder) runtime knobs — default values and OFF by default
   int m_use_cylinder{0}; // 0 = off (default), 1 = on
   int m_ib_method{0};    // 0: none, 1: diffuse, 2: sharp
-  
+
   // Parameter bundles
-  LSParams m_ls_par{};
+  LevelSetParams m_ls_par{};
   DiffuseIBParams m_diff_par{};
   SharpIBParams m_sharp_par{};
 

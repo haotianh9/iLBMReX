@@ -1,35 +1,39 @@
-#pragma once
-#include <AMReX.H>
+#ifndef LEVELSET_H_
+#define LEVELSET_H_
+
 #include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>
+#include <AMReX_Vector.H>
 
-struct LSParams {
-  amrex::Real x0{120.0}, y0{60.0}, z0{0.0}, R{12.0}, eps{1.5}, alpha{2.0};
-  int reinit_niter{0}; // reserved for future
+struct LevelSetParams {
+  amrex::Real eps = 1.5;   // smoothing length
+  amrex::Real alpha = 2.0; // scaling factor, not strictly needed
+  amrex::Real x0 = 12.0;   // cylinder center x
+  amrex::Real y0 = 60.0;   // cylinder center y
+  amrex::Real z0 = 0.0;    // cylinder center z (for 3D)
+  amrex::Real R = 12.0;    // cylinder radius
 };
 
 class LevelSetManager {
 public:
   LevelSetManager() = default;
 
-  void define_level(int lev, const amrex::BoxArray &ba,
-                    const amrex::DistributionMapping &dm, int ng = 1) {
-    if ((int)m_phi.size() <= lev)
-      m_phi.resize(lev + 1);
-    m_phi[lev].define(ba, dm, 1, ng);
-  }
+  // Allocate φ on this level
+  void define_level(int lev, amrex::BoxArray const &ba,
+                    amrex::DistributionMapping const &dm, int ng);
 
-  bool has_level(int lev) const {
-    return (int)m_phi.size() > lev && m_phi[lev].ok();
-  }
+  // Build signed distance φ from a cylinder
+  void build_from_cylinder(int lev, amrex::Geometry const &geom,
+                           LevelSetParams const &par);
 
-  amrex::MultiFab &phi_at(int lev) { return m_phi[lev]; }
-  amrex::MultiFab const &phi_at(int lev) const { return m_phi[lev]; }
+  // Query & accessors used in AmrCoreLBM
+  bool has_level(int lev) const;
 
-  // Build signed-distance φ = distance-to-center - R
-  void build_from_cylinder(int lev, amrex::Geometry const &gm,
-                           LSParams const &p);
+  amrex::MultiFab &phi_at(int lev);
+  amrex::MultiFab const &phi_at(int lev) const;
 
 private:
-  amrex::Vector<amrex::MultiFab> m_phi;
+  amrex::Vector<std::unique_ptr<amrex::MultiFab>> m_phi;
 };
+
+#endif // LEVELSET_H_

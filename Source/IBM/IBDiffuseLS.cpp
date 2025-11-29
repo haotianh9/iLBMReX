@@ -21,12 +21,13 @@ void IBDiffuseLS::update_forcing(int lev, LevelSetManager &ls,
                                  MultiFab &Fy, MultiFab &Fz, Real alpha) const {
   auto const &phi = ls.phi_at(lev);
   const Real eps = Real(2.0) * m_geom.CellSize(0); // smooth thickness
-
+  amrex::Print() << "IBDiffuseLS::update_forcing at lev=" << lev
+                 << " eps=" << eps << "\n";
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
   for (MFIter mfi(Fx, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
-    const Box &bx = mfi.fabbox();
+    const Box &bx = mfi.tilebox();
 
     auto ph = phi[mfi].const_array();
     auto ux = ucc[mfi].const_array();
@@ -39,9 +40,21 @@ void IBDiffuseLS::update_forcing(int lev, LevelSetManager &ls,
 
     ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
       Real chi = Hsmooth(-ph(i, j, k), eps); // ≈1 in solid, 0 in fluid
-      fxw(i, j, k) += alpha * chi * (Real(0.0) - ux(i, j, k));
-      fyw(i, j, k) += alpha * chi * (Real(0.0) - uy(i, j, k));
-      fzw(i, j, k) += alpha * chi * (Real(0.0) - uz(i, j, k));
+    fxw(i, j, k) = alpha * chi * (Real(0.0) - ux(i, j, k));
+fyw(i, j, k) = alpha * chi * (Real(0.0) - uy(i, j, k));
+fzw(i, j, k) = alpha * chi * (Real(0.0) - uz(i, j, k));
+
+      // const amrex::Real eps = 1e-14;
+
+      // if ((amrex::Math::abs(fxw(i, j, k)) > eps) ||
+      //     (amrex::Math::abs(fyw(i, j, k)) > eps) ||
+      //     (amrex::Math::abs(fzw(i, j, k)) > eps)) {
+
+      //   amrex::Print() << "Forcing at i,j,k: " << i << "," << j << "," << k
+      //                  << " chi=" << chi << " fx=" << fxw(i, j, k)
+      //                  << " fy=" << fyw(i, j, k) << " fz=" << fzw(i, j, k)
+      //                  << "\n";
+      // }
     });
   }
 

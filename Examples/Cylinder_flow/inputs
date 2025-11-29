@@ -3,7 +3,7 @@
 # Run until nsteps == max_step or time == stop_time, 
 #     whichever comes first
 # *****************************************************************
-max_step  = 9
+max_step  = 50
 stop_time = 10000
 
 # *****************************************************************
@@ -86,7 +86,7 @@ amr.chk_int  = -1       # number of timesteps between checkpoint files
 #The viscosity coefficient is case-dependent
 lbmPhysicalParameters.nu   = 0.005
 
-#LBM for isothermal incompressible flow calculates up to four primitive quantities rho-u-v-w-vor-Pressure (vor-Pressure calculation added)
+#LBM for isothermal incompressible flow calculates up to four primitive quantities rho-u-v-w-vor-Pressure (vor-Pressure calculation added) the 7th is signed distance function
 lbmPhysicalParameters.nmac = 6
 
 
@@ -142,12 +142,12 @@ amrbc.bc_lo_0_uy_val  = 0.0
 
 # Level-set geometry (defaults = your cylinder)
 ibm.use_cylinder = 1     # 1: use cylinder level-set
-ibm.method      = 1      # none | diffuse | sharp
+ibm.method      = diffuse      # none | diffuse | sharp
 ibm.eps  = 1.5       # ε = eps_factor * min(dx)
-ibm.alpha       = 2.0       # penalization strength (diffuse)
+ibm.alpha       = 0.5       # penalization strength (diffuse)
 ibm.only_finest = 1         # 1: IB active only on finest level (IAMR style)
 
-ibm.x0 = 120.0
-ibm.y0 = 60.0
+ibm.x0 = 60.0
+ibm.y0 = 200.0
 ibm.z0 = 0.0
 ibm.R  = 12.0
