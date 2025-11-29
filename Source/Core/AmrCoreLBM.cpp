@@ -606,7 +606,8 @@ void AmrCoreLBM::ReadParameters() {
 
       // geometry: tie to your existing cylinder knobs (x0,y0,z0,R)
       pp_ibm.query("eps", m_ls_par.eps);
-      pp_ibm.query("alpha", m_ls_par.alpha);
+      // pp_ibm.query("alpha", m_ls_par.alpha);
+      pp_ibm.query("alpha", m_diff_par.alpha); // <-- use diffuse params here
       pp_ibm.query("x0", m_ls_par.x0);
       pp_ibm.query("y0", m_ls_par.y0);
       pp_ibm.query("z0", m_ls_par.z0);
@@ -615,7 +616,8 @@ void AmrCoreLBM::ReadParameters() {
                      << ", method = " << method << std::endl;
       amrex::Print() << "               x0 = " << m_ls_par.x0
                      << ", y0 = " << m_ls_par.y0 << ", z0 = " << m_ls_par.z0
-                     << ", R = " << m_ls_par.R << std::endl;
+                     << ", R = " << m_ls_par.R
+                     << ", alpha = " << m_diff_par.alpha << std::endl;
 
       // create managers
       m_ls = std::make_unique<LevelSetManager>();

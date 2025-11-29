@@ -3,7 +3,7 @@
 # Run until nsteps == max_step or time == stop_time, 
 #     whichever comes first
 # *****************************************************************
-max_step  = 50
+max_step  = 10000
 stop_time = 10000
 
 # *****************************************************************
@@ -67,7 +67,7 @@ amrvorth.thresholdRatio =  0.86  0.95  1.01
 # Plotfile name and frequency
 # *****************************************************************
 amr.plot_file  = out/plt    # root name of plot file
-amr.plot_int   = 1   # number of timesteps between plot files
+amr.plot_int   = 100   # number of timesteps between plot files
                         # if negative then no plot files will be written
 
 # *****************************************************************
@@ -83,8 +83,8 @@ amr.chk_int  = -1       # number of timesteps between checkpoint files
 # This is a specific parameter of LBM
 # *****************************************************************                        
 
-#The viscosity coefficient is case-dependent
-lbmPhysicalParameters.nu   = 0.005
+#The viscosity coefficient is case-dependent, Re=U*L/nu, nu=1/c_s^2*(tau-0.5) \Delta t
+lbmPhysicalParameters.nu   = 0.05
 
 #LBM for isothermal incompressible flow calculates up to four primitive quantities rho-u-v-w-vor-Pressure (vor-Pressure calculation added) the 7th is signed distance function
 lbmPhysicalParameters.nmac = 6
@@ -141,10 +141,10 @@ amrbc.bc_lo_0_uy_val  = 0.0
 
 
 # Level-set geometry (defaults = your cylinder)
-ibm.use_cylinder = 0     # 1: use cylinder level-set
-ibm.method      = none      # none | diffuse | sharp
+ibm.use_cylinder = 1     # 1: use cylinder level-set
+ibm.method      = diffuse      # none | diffuse | sharp
 ibm.eps  = 1.5       # ε = eps_factor * min(dx)
-ibm.alpha       = 0.5       # penalization strength (diffuse)
+ibm.alpha       = 0.1       # penalization strength (diffuse)
 ibm.only_finest = 1         # 1: IB active only on finest level (IAMR style)
 
 ibm.x0 = 60.0

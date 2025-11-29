@@ -5,15 +5,6 @@
 
 using namespace amrex;
 
-static AMREX_GPU_HOST_DEVICE inline Real Hsmooth(Real s, Real eps) {
-  if (s <= -eps)
-    return Real(0.0);
-  if (s >= eps)
-    return Real(1.0);
-  Real t = Real(0.5) + Real(0.5) * s / eps +
-           Real(0.5) / M_PI * std::sin(M_PI * s / eps);
-  return t;
-}
 
 void IBDiffuseLS::update_forcing(int lev, LevelSetManager &ls,
                                  MultiFab const &ucc, MultiFab const &vcc,
@@ -43,7 +34,13 @@ void IBDiffuseLS::update_forcing(int lev, LevelSetManager &ls,
       fxw(i, j, k) = alpha * chi * (Real(0.0) - ux(i, j, k));
       fyw(i, j, k) = alpha * chi * (Real(0.0) - uy(i, j, k));
       fzw(i, j, k) = alpha * chi * (Real(0.0) - uz(i, j, k));
-
+      //   if (chi > 0.9) { // deep in solid
+      //     amrex::Print() << "IBM: i="<<i<<" j="<<j
+      //                   << " chi="<<chi
+      //                   << " ux="<<ux(i, j, k)<<" uy="<<uy(i, j, k)
+      //                   << " Fx="<<fxw(i,j,k)
+      //                   << " Fy="<<fyw(i,j,k) << "\n";
+      // }
       // const amrex::Real eps = 1e-14;
 
       // if ((amrex::Math::abs(fxw(i, j, k)) > eps) ||
