@@ -141,8 +141,8 @@ amrbc.bc_lo_0_uy_val  = 0.0
 
 
 # Level-set geometry (defaults = your cylinder)
-ibm.use_cylinder = 1     # 1: use cylinder level-set
-ibm.method      = diffuse      # none | diffuse | sharp
+ibm.use_cylinder = 0     # 1: use cylinder level-set
+ibm.method      = none      # none | diffuse | sharp
 ibm.eps  = 1.5       # ε = eps_factor * min(dx)
 ibm.alpha       = 0.5       # penalization strength (diffuse)
 ibm.only_finest = 1         # 1: IB active only on finest level (IAMR style)

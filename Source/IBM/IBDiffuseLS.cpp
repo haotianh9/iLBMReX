@@ -40,9 +40,9 @@ void IBDiffuseLS::update_forcing(int lev, LevelSetManager &ls,
 
     ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
       Real chi = Hsmooth(-ph(i, j, k), eps); // ≈1 in solid, 0 in fluid
-    fxw(i, j, k) = alpha * chi * (Real(0.0) - ux(i, j, k));
-fyw(i, j, k) = alpha * chi * (Real(0.0) - uy(i, j, k));
-fzw(i, j, k) = alpha * chi * (Real(0.0) - uz(i, j, k));
+      fxw(i, j, k) = alpha * chi * (Real(0.0) - ux(i, j, k));
+      fyw(i, j, k) = alpha * chi * (Real(0.0) - uy(i, j, k));
+      fzw(i, j, k) = alpha * chi * (Real(0.0) - uz(i, j, k));
 
       // const amrex::Real eps = 1e-14;
 

@@ -18,7 +18,12 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
 
   MultiFab &sF_new = f_new[lev];
   MultiFab &sM_new = macro_new[lev];
-  MultiFab &sForcing = forcing[lev];
+  MultiFab* sForcingPtr = nullptr;
+  if (m_use_cylinder && forcing.size() > lev) {
+      sForcingPtr = &forcing[lev];
+  }
+
+
 
   // local IBM scratch:
   MultiFab fx_cc(grids[lev], dmap[lev], 1, nghost);
@@ -72,11 +77,22 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
   //     sM_new.nComp() > 0 && sF_new.nComp() > 0,
   //     "macro_new[lev] or f_new[lev] has zero components!");
 
-  MultiFab sForcingborder(grids[lev], dmap[lev], sForcing.nComp(),
-                          sForcing.nGrow());
+ std::unique_ptr<MultiFab> sForcingborder;
+if (sForcingPtr) {
+  sForcingborder = std::make_unique<MultiFab>(
+      grids[lev], dmap[lev], sForcingPtr->nComp(), sForcingPtr->nGrow());
+}
+  // if (sForcing) {
+  //     sForcingborder = std::make_unique<MultiFab>(
+  //         grids[lev], dmap[lev], sForcing.nComp(),
+  //                           sForcing.nGrow());
+  // }
+                          
   // ... fill fx_cc, fy_cc, fz_cc from IBM (m_ibd/m_ibs) ...
 
   // pack into forcing[lev] on valid region
+  if (sForcingPtr) {
+    MultiFab &sForcing = *sForcingPtr;
   for (MFIter mfi(sM_new, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
     // amrex::Print() << "MFIter lev=" << lev
     //                << " smSborder.nComp=" << smSborder.nComp()
@@ -102,8 +118,11 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
       //                << Fz(i, j, k) << "\n";
     });
   }
-
-  FillPatchForcing(lev, time, sForcingborder, 0, sForcingborder.nComp());
+  }
+  // FillPatchForcing(lev, time, sForcingborder, 0, sForcingborder.nComp());
+  if (sForcingborder) {
+  FillPatchForcing(lev, time, *sForcingborder, 0, sForcingborder->nComp());
+}
   {
     Real maxFx = fx_cc.norm0(0, 0, true);
     Real maxFy = fy_cc.norm0(0, 0, true);
@@ -215,20 +234,24 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
         });
   }
 #ifdef AMREX_DEBUG
-  {
-    Real max_rho = macro_new[lev].norm0(0, 0, true);
-    Real max_u = macro_new[lev].norm0(1, 0, true);
-    Real max_v = macro_new[lev].norm0(2, 0, true);
-    Real max_f =
-        f_new[lev].norm0(0, 0, true); // component 0 is enough for a check
-    Real maxFx = forcing[lev].norm0(0, 0, true);
+{
+  Real max_rho = macro_new[lev].norm0(0, 0, true);
+  Real max_u   = macro_new[lev].norm0(1, 0, true);
+  Real max_v   = macro_new[lev].norm0(2, 0, true);
+  Real max_f   = f_new[lev].norm0(0, 0, true); // component 0 is enough
 
-    if (amrex::ParallelDescriptor::IOProcessor()) {
-      amrex::Print() << "[lev " << lev << "] diag: "
-                     << "max rho=" << max_rho << " max |u| ~ "
-                     << std::max(max_u, max_v) << " max f=" << max_f
-                     << " max Fx=" << maxFx << "\n";
-    }
+  Real maxFx = 0.0;
+  if (m_use_cylinder && forcing.size() > lev) {
+    maxFx = forcing[lev].norm0(0, 0, true);
   }
+
+  if (amrex::ParallelDescriptor::IOProcessor()) {
+    amrex::Print() << "[lev " << lev << "] diag: "
+                   << "max rho=" << max_rho
+                   << " max |u| ~ " << std::max(max_u, max_v)
+                   << " max f="  << max_f
+                   << " max Fx=" << maxFx << "\n";
+  }
+}
 #endif
 }
