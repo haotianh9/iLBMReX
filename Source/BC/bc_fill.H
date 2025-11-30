@@ -45,7 +45,6 @@ struct macroBcFill {
 
 struct mesoscopicBcFill {
   BCBuf bcval;
-
   AMREX_GPU_DEVICE
   void operator()(const amrex::IntVect &iv, amrex::Array4<amrex::Real> const &f,
                   const int fcomp, const int /*numcomp*/,

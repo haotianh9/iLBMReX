@@ -5,13 +5,13 @@
 
 using namespace amrex;
 
-
 void IBDiffuseLS::update_forcing(int lev, LevelSetManager &ls,
                                  MultiFab const &ucc, MultiFab const &vcc,
                                  MultiFab const &wcc, MultiFab &Fx,
-                                 MultiFab &Fy, MultiFab &Fz, Real alpha, Real eps_ratio) const {
+                                 MultiFab &Fy, MultiFab &Fz, Real alpha,
+                                 Real eps_ratio) const {
   auto const &phi = ls.phi_at(lev);
-  const Real eps =eps_ratio * m_geom.CellSize(0); // smooth thickness
+  const Real eps = eps_ratio * m_geom.CellSize(0); // smooth thickness
   amrex::Print() << "IBDiffuseLS::update_forcing at lev=" << lev
                  << " eps=" << eps << "\n";
 #ifdef AMREX_USE_OMP

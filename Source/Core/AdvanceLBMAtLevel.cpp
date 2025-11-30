@@ -52,7 +52,7 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
     if (m_ib_method == 1 && m_ibd) {
       // Diffuse: Brinkman penalization in smoothed solid mask
       m_ibd->update_forcing(lev, *m_ls, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc,
-                            m_diff_par.alpha,m_diff_par.eps);
+                            m_diff_par.alpha, m_diff_par.eps);
     } else if (m_ib_method == 2 && m_ibs) {
       // Sharp: direct forcing in |phi|<=eps band
       m_ibs->update_forcing(lev, *m_ls, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc,
@@ -227,6 +227,20 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
                                   ndir, dirx, diry, dirz);
             // calculateMacro(i, j, k, stateout, rho, u, v, w, ndir, dirx, diry,
             // dirz);
+
+            visPara(i, j, k, rho, u, v, vor, P, tempdx, tempdy, T0);
+          }
+        });
+
+    // Make sure macro_new[lev] has at least 1 ghost cell (nghost = 3 in your
+    // class)
+    macro_new[lev].FillBoundary(geom[lev].periodicity());
+    // sM_new.FillBoundary(geom[lev].periodicity());
+    amrex::ParallelFor(
+        gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+          // Ensure that the calculation area is within the valid range
+          if (vbx.contains(i, j, k)) {
+
             visPara(i, j, k, rho, u, v, vor, P, tempdx, tempdy, T0);
           }
         });
