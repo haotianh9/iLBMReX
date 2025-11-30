@@ -32,7 +32,7 @@
 *.exe
 
 # Debug files
-*Backtrace.0
+*Backtrace.*
 Visualization_debug.ipynb
 
 #development files
@@ -40,3 +40,6 @@ Visualization_debug.ipynb
 
 # Data files
 *plt*/
+
+# visualization notebooks checkpoints
+*.ipynb_checkpoints*
