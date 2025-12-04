@@ -88,7 +88,7 @@ lbmPhysicalParameters.nu   = 0.025
 
 #LBM for isothermal incompressible flow calculates up to four primitive quantities rho-u-v-w-vor-Pressure (vor-Pressure calculation added) the 7th is signed distance function
 lbmPhysicalParameters.nmac = 6
-
+lbmPhysicalParameters.U0=0.1
 
 
 

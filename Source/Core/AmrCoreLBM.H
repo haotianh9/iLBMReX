@@ -39,6 +39,9 @@ public:
   // advance solution to final time
   void Evolve();
 
+  // integrated IBM force on the immersed body 
+  void ComputeIBForce(amrex::Real time, int step) const;
+
   // initializes multilevel data
   void InitData();
 

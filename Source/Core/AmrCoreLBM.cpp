@@ -20,6 +20,10 @@
 #include "IBM/IBSharpLS.H"
 #include "LevelSet/LevelSet.H"
 #include <AMReX_GpuContainers.H>
+
+#include <fstream>   
+#include <iomanip>   // optional, for nicer formatting
+
 using namespace amrex;
 
 // constructor - reads in parameters from inputs file
@@ -215,6 +219,10 @@ void AmrCoreLBM::Evolve() {
                    << " TIME = " << cur_time << " DT = " << dt[0]
                    << " Sum(Rho) = " << sum_rho << std::endl;
 
+    if (m_use_cylinder) {
+        ComputeIBForce(cur_time,step+1);
+    }
+
     // sync up time
     for (lev = 0; lev <= finest_level; ++lev) {
       t_new[lev] = cur_time;
@@ -256,6 +264,120 @@ void AmrCoreLBM::Evolve() {
     WritePlotFile();
   }
 }
+
+
+void AmrCoreLBM::ComputeIBForce(Real time, int step) const
+{
+    if (!m_use_cylinder) {
+        return;  // no IBM
+    }
+
+    const int lev = finestLevel();  // IBM is active only on finest level
+    if (lev < 0) return;
+
+    if (lev >= static_cast<int>(forcing.size())) {
+        return;
+    }
+
+    if (forcing[lev].nComp() < AMREX_SPACEDIM) {
+        return;
+    }
+
+    // --------------------------------------------------------------------
+    // 1) Integrate body-force density over the domain
+    // --------------------------------------------------------------------
+    // Sum only over the *valid domain* (no ghost cells)
+const amrex::Box& domain = geom[lev].Domain();
+
+Real Fx_sum = forcing[lev].sum(domain, 0, false); // region, comp, local=false
+Real Fy_sum = forcing[lev].sum(domain, 1, false);
+#if (AMREX_SPACEDIM == 3)
+Real Fz_sum = forcing[lev].sum(domain, 2, false);
+#else
+Real Fz_sum = 0.0;
+#endif
+
+    const auto dx = geom[lev].CellSizeArray();
+    Real dV = dx[0];
+#if (AMREX_SPACEDIM >= 2)
+    dV *= dx[1];
+#endif
+#if (AMREX_SPACEDIM == 3)
+    dV *= dx[2];
+#endif
+
+    // Total force on fluid (integral of body-force density)
+    Real Fx_fluid = Fx_sum * dV;
+    Real Fy_fluid = Fy_sum * dV;
+    Real Fz_fluid = Fz_sum * dV;
+
+    // Reaction on the body
+    Real Fx_body = -Fx_fluid;
+    Real Fy_body = -Fy_fluid;
+    Real Fz_body = -Fz_fluid;
+
+    // --------------------------------------------------------------------
+    // 2) Drag / lift coefficients
+    //
+    //   Cd = Fx_body / (0.5 * rho_ref * U_ref^2 * D)
+    //   Cl = Fy_body / (0.5 * rho_ref * U_ref^2 * D)
+    //
+    // Here:
+    //   - rho_ref ≈ 1 (LBM)
+    //   - U_ref   = U0 (already set in ReadParameters)
+    //   - D       = 2*R, with R from the cylinder level-set params
+    // --------------------------------------------------------------------
+    Real rho_ref = 1.0_rt;        // standard LBM choice
+    Real U_ref   = U0;            // set earlier in ReadParameters()
+    Real D_ref   = 2.0_rt * m_ls_par.R;   // cylinder diameter
+
+    Real Cd = 0.0_rt;
+    Real Cl = 0.0_rt;
+
+    Real denom = 0.5_rt * rho_ref * U_ref * U_ref * D_ref;
+    if (denom > 0.0_rt) {
+        Cd = Fx_body / denom;
+        Cl = Fy_body / denom;
+    }
+
+    // --------------------------------------------------------------------
+    // 3) Print + append everything to force.dat
+    // --------------------------------------------------------------------
+    if (amrex::ParallelDescriptor::IOProcessor()) {
+        amrex::Print() << "[IBM] t = " << time
+                       << "  F_body = (" << Fx_body << ", " << Fy_body
+#if (AMREX_SPACEDIM == 3)
+                       << ", " << Fz_body
+#endif
+                       << ")  Cd = " << Cd << "  Cl = " << Cl << "\n";
+
+        static bool header_written = false;
+
+        std::ofstream ofs("force.dat", std::ios::app);
+        if (!ofs) {
+            amrex::Print() << "WARNING: could not open force.dat for writing\n";
+            return;
+        }
+
+        if (!header_written) {
+            ofs << "# step  time  Fx_body  Fy_body";
+#if (AMREX_SPACEDIM == 3)
+            ofs << "  Fz_body";
+#endif
+            ofs << "  Cd  Cl\n";
+            header_written = true;
+        }
+
+        ofs << std::setprecision(10)
+            << step << "  " << time << "  "
+            << Fx_body << "  " << Fy_body;
+#if (AMREX_SPACEDIM == 3)
+        ofs << "  " << Fz_body;
+#endif
+        ofs << "  " << Cd << "  " << Cl << "\n";
+    }
+}
+
 
 // initializes multilevel data
 void AmrCoreLBM::InitData() {
@@ -588,6 +710,8 @@ void AmrCoreLBM::ReadParameters() {
       ParmParse pp("lbmPhysicalParameters");
       pp.query("nu", nu);
       pp.query("nmac", nmac);
+      U0 = 0.1_rt;
+      pp.query("U0", U0);
     }
     {
       amrex::ParmParse pp_ibm("ibm");
@@ -648,9 +772,6 @@ void AmrCoreLBM::ReadParameters() {
     const Geometry &geom = Geom(0);
     L0 = geom.ProbHi(0) - geom.ProbLo(0);
 
-    // The characteristic velocity is hard-coded when it is initialized, so I
-    // will define it here directly.
-    U0 = 0.02;
     T0 = L0 / U0;
   }
 }
