@@ -39,7 +39,7 @@ public:
   // advance solution to final time
   void Evolve();
 
-  // integrated IBM force on the immersed body 
+  // integrated IBM force on the immersed body
   void ComputeIBForce(amrex::Real time, int step) const;
 
   // initializes multilevel data
@@ -216,6 +216,8 @@ private:
   // checkpoint prefix and frequency
   std::string chk_file{"chk"};
   int chk_int = -1;
+
+  int m_force_interval = -1;
 
   // LBM specific parameter
 

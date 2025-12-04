@@ -227,24 +227,27 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
                                   ndir, dirx, diry, dirz);
             // calculateMacro(i, j, k, stateout, rho, u, v, w, ndir, dirx, diry,
             // dirz);
-
-            visPara(i, j, k, rho, u, v, vor, P, tempdx, tempdy, T0);
           }
         });
 
     // Make sure macro_new[lev] has at least 1 ghost cell (nghost = 3 in your
     // class)
     macro_new[lev].FillBoundary(geom[lev].periodicity());
-    // sM_new.FillBoundary(geom[lev].periodicity());
-    amrex::ParallelFor(
-        gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-          // Ensure that the calculation area is within the valid range
-          if (vbx.contains(i, j, k)) {
+    const int step_lev = istep[lev];
+    const bool do_vis_para = (plot_int > 0) && ((step_lev + 1) % plot_int == 0);
 
-            visPara(i, j, k, rho, u, v, vor, P, tempdx, tempdy, T0);
-          }
-        });
+    const Real T0_local = T0; // <--- NEW: copy the member value
 
+    if (do_vis_para) {
+      amrex::ParallelFor(gtbx, [=] AMREX_GPU_DEVICE(int i, int j,
+                                                    int k) noexcept {
+        // Ensure that the calculation area is within the valid range
+        if (vbx.contains(i, j, k)) {
+
+          visPara(i, j, k, rho, u, v, vor, P, tempdx, tempdy, tempdz, T0_local);
+        }
+      });
+    }
     if (m_use_cylinder && m_ls) {
       const auto &phi_cc = m_ls->phi_at(lev);
       auto phi = phi_cc[mfi].const_array();

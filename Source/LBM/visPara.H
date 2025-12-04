@@ -12,7 +12,7 @@ void visPara(int i, int j, int k, amrex::Array4<amrex::Real const> const &rho,
              amrex::Array4<amrex::Real const> const &v,
              amrex::Array4<amrex::Real> const &vorticity,
              amrex::Array4<amrex::Real> const &Pressure, amrex::Real const dx,
-             amrex::Real const dy, amrex::Real const T0) {
+             amrex::Real const dy, amrex::Real const dz, amrex::Real const T0) {
   using namespace amrex;
 
   Pressure(i, j, k) = (rho(i, j, k) - 1.0) / (3.0 * 0.5 * 0.02 * 0.02);
