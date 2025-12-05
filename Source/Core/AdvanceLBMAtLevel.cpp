@@ -120,7 +120,7 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
                          });
     }
   }
-  // FillPatchForcing(lev, time, sForcingborder, 0, sForcingborder.nComp());
+
   if (sForcingborder) {
     FillPatchForcing(lev, time, *sForcingborder, 0, sForcingborder->nComp());
   }
@@ -230,24 +230,6 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
           }
         });
 
-    const int step_lev = istep[lev];
-    const bool do_vis_para = (plot_int > 0) && ((step_lev + 1) % plot_int == 0);
-
-    if (do_vis_para) {
-      // Make sure macro_new[lev] has at least 1 ghost cell (nghost = 3 in your
-      // class)
-      macro_new[lev].FillBoundary(geom[lev].periodicity());
-
-      const Real T0_local = T0; // <--- NEW: copy the member value
-      amrex::ParallelFor(gtbx, [=] AMREX_GPU_DEVICE(int i, int j,
-                                                    int k) noexcept {
-        // Ensure that the calculation area is within the valid range
-        if (vbx.contains(i, j, k)) {
-
-          visPara(i, j, k, rho, u, v, vor, P, tempdx, tempdy, tempdz, T0_local);
-        }
-      });
-    }
     if (m_use_cylinder && m_ls) {
       const auto &phi_cc = m_ls->phi_at(lev);
       auto phi = phi_cc[mfi].const_array();
@@ -284,6 +266,37 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
                                   ));
             stateout(i, j, k, q) = feq;
           }
+        }
+      });
+    }
+  }
+  const int step_lev = istep[lev];
+  const bool do_vis_para = (plot_int > 0) && ((step_lev + 1) % plot_int == 0);
+
+  if (do_vis_para) {
+
+   
+    macro_new[lev].FillBoundary(geom[lev].periodicity());
+
+    const Real T0_local = T0; // <--- NEW: copy the member value
+    for (MFIter mfi(sF_new, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
+      const Box &vbx = mfi.validbox();
+      const Box &tbx = mfi.tilebox();
+      Box gtbx = mfi.growntilebox(nghost); // <-- safe grown box, clamped to FAB
+      Array4<Real> rho = sM_new[mfi].array(0);
+      Array4<Real> u = sM_new[mfi].array(1);
+      Array4<Real> v = sM_new[mfi].array(2);
+      Array4<Real> w = sM_new[mfi].array(3);
+      Array4<Real> vor = sM_new[mfi].array(4);
+      Array4<Real> P = sM_new[mfi].array(5);
+
+      amrex::ParallelFor(gtbx, [=] AMREX_GPU_DEVICE(int i, int j,
+                                                    int k) noexcept {
+        // Ensure that the calculation area is within the
+        // valid range
+        if (vbx.contains(i, j, k)) {
+
+          visPara(i, j, k, rho, u, v, vor, P, tempdx, tempdy, tempdz, T0_local);
         }
       });
     }
