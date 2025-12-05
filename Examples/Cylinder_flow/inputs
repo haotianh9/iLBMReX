@@ -151,4 +151,4 @@ ibm.x0 = 60.0
 ibm.y0 = 209.0
 ibm.z0 = 0.0
 ibm.R  = 20.0
-ibm.force_interval=1
+ibm.force_interval=-1

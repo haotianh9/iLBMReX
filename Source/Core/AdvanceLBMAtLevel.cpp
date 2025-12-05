@@ -230,15 +230,15 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
           }
         });
 
-    // Make sure macro_new[lev] has at least 1 ghost cell (nghost = 3 in your
-    // class)
-    macro_new[lev].FillBoundary(geom[lev].periodicity());
     const int step_lev = istep[lev];
     const bool do_vis_para = (plot_int > 0) && ((step_lev + 1) % plot_int == 0);
 
-    const Real T0_local = T0; // <--- NEW: copy the member value
-
     if (do_vis_para) {
+      // Make sure macro_new[lev] has at least 1 ghost cell (nghost = 3 in your
+      // class)
+      macro_new[lev].FillBoundary(geom[lev].periodicity());
+
+      const Real T0_local = T0; // <--- NEW: copy the member value
       amrex::ParallelFor(gtbx, [=] AMREX_GPU_DEVICE(int i, int j,
                                                     int k) noexcept {
         // Ensure that the calculation area is within the valid range
