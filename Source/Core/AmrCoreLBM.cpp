@@ -613,29 +613,82 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
     }
   }
 
-  amrex::Real vortMax = macro_new[lev].max(4);
-
   MultiFab &curMacro = macro_new[lev];
 
-  //    const int clearval = TagBox::CLEAR;
-  const int tagval = TagBox::SET;
+  // Max vorticity (component 4) on this level
+  amrex::Real vortMax = curMacro.max(4);
+  if (m_use_cylinder) {
+    // Level set φ for this level
+    MultiFab &phi_mf = m_ls->phi_at(lev);
+
+    // Characteristic cell size (assuming dx = dy = dz for now)
+    amrex::Real dx_min = xCellSize[lev];
+
+    //    const int clearval = TagBox::CLEAR;
+    const int tagval = TagBox::SET;
 
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
-  {
+    {
 
-    for (MFIter mfi(curMacro, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
-      const Box &bx = mfi.validbox();
-      Array4<const Real> statefab = curMacro[mfi].array(4);
-      auto const &tagfab = tags.array(mfi);
+      for (MFIter mfi(curMacro, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
+        const Box &bx = mfi.validbox();
 
-      Real threshold = thresholdRatio[lev] * vortMax;
+        // vorticity: macro_new[lev] component 4
+        auto const &vort = curMacro[mfi].const_array(4);
+        // level set φ: component 0 of m_ls->phi_at(lev)
 
-      amrex::ParallelFor(
-          bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-            state_error(i, j, k, tagfab, statefab, threshold, tagval);
-          });
+        auto const &phi_arr = phi_mf[mfi].const_array(0);
+
+        auto const &tagfab = tags[mfi].array();
+
+        Real threshold = thresholdRatio[lev] * vortMax;
+        int n_cells_band = 5; // you can set 3–5 as you like
+
+        amrex::ParallelFor(
+            bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+              // Tag by vorticity
+              vorticity_tagging(i, j, k, tagfab, vort, threshold, tagval);
+
+              // Tag by level-set band around structure
+              levelset_tagging(i, j, k, tagfab, phi_arr, dx_min, n_cells_band,
+                               tagval);
+            });
+      }
+    }
+
+  } else {
+
+    // Characteristic cell size (assuming dx = dy = dz for now)
+    amrex::Real dx_min = xCellSize[lev];
+
+    //    const int clearval = TagBox::CLEAR;
+    const int tagval = TagBox::SET;
+
+#ifdef AMREX_USE_OMP
+#pragma omp parallel if (Gpu::notInLaunchRegion())
+#endif
+    {
+
+      for (MFIter mfi(curMacro, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
+        const Box &bx = mfi.validbox();
+
+        // vorticity: macro_new[lev] component 4
+        auto const &vort = curMacro[mfi].const_array(4);
+        // level set φ: component 0 of m_ls->phi_at(lev)
+
+        auto const &tagfab = tags[mfi].array();
+
+        Real threshold = thresholdRatio[lev] * vortMax;
+        int n_cells_band = 5; // you can set 3–5 as you like
+
+        amrex::ParallelFor(
+            bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+              // Tag by vorticity
+              vorticity_tagging(i, j, k, tagfab, vort, threshold, tagval);
+            });
+      }
     }
   }
 }
