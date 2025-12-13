@@ -32,7 +32,7 @@ initdata(amrex::Box const& bx, amrex::Array4<amrex::Real> const& rho,amrex::Arra
 
             
                  rho(i, j, k)  =1.0;
-                 ux(i, j, k)  =0.0;
+                 ux(i, j, k)  =0.1;
                  uy(i, j, k)  =0.0;
                  uz(i, j, k)  =0.0;
                  

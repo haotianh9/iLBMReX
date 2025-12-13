@@ -412,24 +412,64 @@ void AmrCoreLBM::MakeNewLevelFromCoarse(int lev, Real time, const BoxArray &ba,
   t_new[lev] = time;
   t_old[lev] = time - 1.e200;
 
-  // This part requires special attention, both macroscopic - mesoscopic need to
-  // be initialized
-  FillCoarsePatchMesoscopic(lev, time, f_new[lev], 0, f_ncomp);
-  MultiFab::Copy(f_old[lev], f_new[lev], 0, 0, f_ncomp, f_nghost);
-
+  // This part requires special attention. For AMR stability, do not
+  // interpolate the mesoscopic populations f_i from coarse to fine. Instead,
+  // initialize macros first and reconstruct f_i from equilibrium.
   FillCoarsePatchMacro(lev, time, macro_new[lev], 0, m_ncomp);
   MultiFab::Copy(macro_old[lev], macro_new[lev], 0, 0, m_ncomp, m_nghost);
+
+  {
+    auto const *wi_d = wi_dev.data();
+    auto const *cx_d = dirx_dev.data();
+    auto const *cy_d = diry_dev.data();
+    auto const *cz_d = dirz_dev.data();
+    const int ndir_l = ndir;
+
+#ifdef AMREX_USE_OMP
+#pragma omp parallel if (Gpu::notInLaunchRegion())
+#endif
+    for (MFIter mfi(f_new[lev], TilingIfNotGPU()); mfi.isValid(); ++mfi) {
+
+      const Box &bx = mfi.fabbox();
+
+      auto const rho = macro_new[lev][mfi].const_array(0);
+      auto const ux = macro_new[lev][mfi].const_array(1);
+      auto const uy = macro_new[lev][mfi].const_array(2);
+      auto const uz = macro_new[lev][mfi].const_array(3);
+
+      auto const f = f_new[lev][mfi].array();
+      auto const fo = f_old[lev][mfi].array();
+
+      amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j,
+                                                  int k) noexcept {
+        Real r = amrex::max(rho(i, j, k), 1.e-12_rt);
+        Real u0 = ux(i, j, k);
+        Real v0 = uy(i, j, k);
+        Real w0 = uz(i, j, k);
+        Real u2 = u0 * u0 + v0 * v0 + w0 * w0;
+
+        for (int q = 0; q < ndir_l; ++q) {
+          Real cu = cx_d[q] * u0 + cy_d[q] * v0 + cz_d[q] * w0;
+          Real feq = wi_d[q] * r *
+                     (1.0_rt + 3.0_rt * cu + 4.5_rt * cu * cu - 1.5_rt * u2);
+          f(i, j, k, q) = feq;
+          fo(i, j, k, q) = feq;
+        }
+      });
+    }
+  }
+
   // --- Level-set φ on this level ---
   if (m_use_cylinder) {
     // --- Level-set φ on this level ---
     BuildLevelSetOnLevel(lev);
+    const int nforce = 3;
+    forcing[lev].define(ba, dm, nforce, m_nghost);
+    forcing[lev].setVal(0.0);
   }
 
   // --- IBM object only for current finest (optional) ---
   if (m_use_cylinder && lev == finestLevel()) {
-    const int nforce = 3;
-    forcing[lev].define(ba, dm, nforce, m_nghost);
-    forcing[lev].setVal(0.0);
     if (m_ib_method == 1)
       m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
     else if (m_ib_method == 2)
@@ -456,12 +496,52 @@ void AmrCoreLBM::RemakeLevel(int lev, Real time, const BoxArray &ba,
   MultiFab oldF_state(ba, dm, f_ncomp, f_nghost);
   MultiFab newM_state(ba, dm, m_ncomp, m_nghost);
   MultiFab oldM_state(ba, dm, m_ncomp, m_nghost);
-
-  FillPatchMesoscopic(lev, time, newF_state, 0, f_ncomp);
+  // Fill macroscopic state first (time-consistent), then reconstruct mesoscopic
+  // populations from equilibrium. This is significantly more robust across AMR
+  // regrids/remaps than interpolating f_i directly.
   FillPatchMacro(lev, time, newM_state, 0, m_ncomp);
-
-  MultiFab::Copy(oldF_state, newF_state, 0, 0, f_ncomp, f_nghost);
   MultiFab::Copy(oldM_state, newM_state, 0, 0, m_ncomp, m_nghost);
+
+  {
+    auto const *wi_d = wi_dev.data();
+    auto const *cx_d = dirx_dev.data();
+    auto const *cy_d = diry_dev.data();
+    auto const *cz_d = dirz_dev.data();
+    const int ndir_l = ndir;
+
+#ifdef AMREX_USE_OMP
+#pragma omp parallel if (Gpu::notInLaunchRegion())
+#endif
+    for (MFIter mfi(newF_state, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
+
+      const Box &bx = mfi.fabbox();
+
+      auto const rho = newM_state[mfi].const_array(0);
+      auto const ux = newM_state[mfi].const_array(1);
+      auto const uy = newM_state[mfi].const_array(2);
+      auto const uz = newM_state[mfi].const_array(3);
+
+      auto const f = newF_state[mfi].array();
+      auto const fo = oldF_state[mfi].array();
+
+      amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j,
+                                                  int k) noexcept {
+        Real r = amrex::max(rho(i, j, k), 1.e-12_rt);
+        Real u0 = ux(i, j, k);
+        Real v0 = uy(i, j, k);
+        Real w0 = uz(i, j, k);
+        Real u2 = u0 * u0 + v0 * v0 + w0 * w0;
+
+        for (int q = 0; q < ndir_l; ++q) {
+          Real cu = cx_d[q] * u0 + cy_d[q] * v0 + cz_d[q] * w0;
+          Real feq = wi_d[q] * r *
+                     (1.0_rt + 3.0_rt * cu + 4.5_rt * cu * cu - 1.5_rt * u2);
+          f(i, j, k, q) = feq;
+          fo(i, j, k, q) = feq;
+        }
+      });
+    }
+  }
 
   std::swap(newF_state, f_new[lev]);
   std::swap(oldF_state, f_old[lev]);
@@ -471,13 +551,13 @@ void AmrCoreLBM::RemakeLevel(int lev, Real time, const BoxArray &ba,
   if (m_use_cylinder) {
     // --- Level-set φ on this level ---
     BuildLevelSetOnLevel(lev);
+    const int nforce = 3;
+    forcing[lev].define(ba, dm, nforce, m_nghost);
+    forcing[lev].setVal(0.0);
   }
 
   // --- IBM object only for current finest (optional) ---
   if (m_use_cylinder && lev == finestLevel()) {
-    const int nforce = 3;
-    forcing[lev].define(ba, dm, nforce, m_nghost);
-    forcing[lev].setVal(0.0);
     if (m_ib_method == 1)
       m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
     else if (m_ib_method == 2)
@@ -496,7 +576,9 @@ void AmrCoreLBM::ClearLevel(int lev) {
   f_old[lev].clear();
   macro_new[lev].clear();
   macro_old[lev].clear();
-  forcing[lev].clear();
+  if (m_use_cylinder && lev < static_cast<int>(forcing.size())) {
+    forcing[lev].clear();
+  }
 }
 
 // Make a new level from scratch using provided BoxArray and
@@ -522,9 +604,6 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
 
   // --- IBM object only for current finest (optional) ---
   if (m_use_cylinder && lev == finestLevel()) {
-    const int nforce = 3;
-    forcing[lev].define(ba, dm, nforce, nghost);
-    forcing[lev].setVal(0.0);
     if (m_ib_method == 1)
       m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
     else if (m_ib_method == 2)
@@ -610,6 +689,13 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
     int n = pp.countval("thresholdRatio");
     if (n > 0) {
       pp.getarr("thresholdRatio", thresholdRatio, 0, n);
+    }
+
+    // Ensure thresholdRatio is defined for all levels [0..max_level]
+    if (thresholdRatio.empty()) {
+      thresholdRatio.resize(max_level + 1, 1.0_rt);
+    } else if (static_cast<int>(thresholdRatio.size()) < max_level + 1) {
+      thresholdRatio.resize(max_level + 1, thresholdRatio.back());
     }
   }
 
@@ -870,6 +956,71 @@ void AmrCoreLBM::FillPatchMesoscopic(int lev, amrex::Real time,
     amrex::FillPatchTwoLevels(mf, time, cmf, ctime, fmf, ftime, 0, icomp, ncomp,
                               geom[lev - 1], geom[lev], cphysbc, 0, fphysbc, 0,
                               refRatio(lev - 1), mapper, bcsMesoscopic, 0);
+    // AMR stability: f_i are not conserved scalars. Interpolating them across
+    // coarse-fine interfaces can introduce nonphysical ghost-cell populations.
+    // Here we overwrite only ghost cells with equilibrium reconstructed from a
+    // time-consistent macroscopic FillPatch.
+    if (mf.nGrow() > 0 && icomp == 0 && ncomp == ndir) {
+      MultiFab tmpM(mf.boxArray(), mf.DistributionMap(), nmac, mf.nGrow());
+      FillPatchMacro(lev, time, tmpM, 0, nmac);
+
+      auto const *wi_d = wi_dev.data();
+      auto const *cx_d = dirx_dev.data();
+      auto const *cy_d = diry_dev.data();
+      auto const *cz_d = dirz_dev.data();
+      const int ndir_l = ndir;
+
+#ifdef AMREX_USE_OMP
+#pragma omp parallel if (Gpu::notInLaunchRegion())
+#endif
+      for (MFIter mfi(mf, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
+
+        const Box &vbx = mfi.validbox();
+        const Box &gbx = mfi.fabbox();
+
+        const int ilo = vbx.smallEnd(0), ihi = vbx.bigEnd(0);
+        const int jlo = vbx.smallEnd(1), jhi = vbx.bigEnd(1);
+#if (AMREX_SPACEDIM == 3)
+        const int klo = vbx.smallEnd(2), khi = vbx.bigEnd(2);
+#else
+        const int klo = 0, khi = 0;
+#endif
+
+        auto const rho = tmpM[mfi].const_array(0);
+        auto const ux = tmpM[mfi].const_array(1);
+        auto const uy = tmpM[mfi].const_array(2);
+        auto const uz = tmpM[mfi].const_array(3);
+
+        auto const f = mf[mfi].array();
+
+        amrex::ParallelFor(
+            gbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+              const bool in_valid = (i >= ilo && i <= ihi) &&
+                                    (j >= jlo && j <= jhi) &&
+#if (AMREX_SPACEDIM == 3)
+                                    (k >= klo && k <= khi);
+#else
+              true;
+#endif
+
+              if (!in_valid) {
+                Real r = amrex::max(rho(i, j, k), 1.e-12_rt);
+                Real u0 = ux(i, j, k);
+                Real v0 = uy(i, j, k);
+                Real w0 = uz(i, j, k);
+                Real u2 = u0 * u0 + v0 * v0 + w0 * w0;
+
+                for (int q = 0; q < ndir_l; ++q) {
+                  Real cu = cx_d[q] * u0 + cy_d[q] * v0 + cz_d[q] * w0;
+                  Real feq =
+                      wi_d[q] * r *
+                      (1.0_rt + 3.0_rt * cu + 4.5_rt * cu * cu - 1.5_rt * u2);
+                  f(i, j, k, q) = feq;
+                }
+              }
+            });
+      }
+    }
   }
 }
 
@@ -899,18 +1050,28 @@ void AmrCoreLBM::FillCoarsePatchMesoscopic(int lev, amrex::Real time,
 }
 
 // utility to copy in data from phi_old and/or phi_new into another multifab
-void AmrCoreLBM::GetDataMesoscopic(int lev, Real time, Vector<MultiFab *> &data,
-                                   Vector<Real> &datatime) {
-
+void AmrCoreLBM::GetDataMesoscopic(int lev, amrex::Real time,
+                                   amrex::Vector<amrex::MultiFab *> &data,
+                                   amrex::Vector<amrex::Real> &datatime) {
   data.clear();
   datatime.clear();
 
-  const Real teps = (t_new[lev] - t_old[lev]) * 1.e-3;
-
-  if (time > t_new[lev] - teps && time < t_new[lev] + teps) {
+  // Handle uninitialized old-time (you set t_old = time - 1.e200 on new levels)
+  // In that case, only "new" data is meaningful.
+  if (t_old[lev] < -1.e100_rt) {
     data.push_back(&f_new[lev]);
     datatime.push_back(t_new[lev]);
-  } else if (time > t_old[lev] - teps && time < t_old[lev] + teps) {
+    return;
+  }
+
+  const amrex::Real dtloc = t_new[lev] - t_old[lev];
+  const amrex::Real teps =
+      amrex::max(1.e-12_rt, amrex::Math::abs(dtloc) * 1.e-3_rt);
+
+  if (time >= t_new[lev] - teps && time <= t_new[lev] + teps) {
+    data.push_back(&f_new[lev]);
+    datatime.push_back(t_new[lev]);
+  } else if (time >= t_old[lev] - teps && time <= t_old[lev] + teps) {
     data.push_back(&f_old[lev]);
     datatime.push_back(t_old[lev]);
   } else {
@@ -1316,6 +1477,13 @@ void AmrCoreLBM::ReadCheckpointFile() {
 
 void AmrCoreLBM::InitEquilibrium() {
 
+  // Device-accessible stencil data
+  auto const *wi_d = wi_dev.data();
+  auto const *cx_d = dirx_dev.data();
+  auto const *cy_d = diry_dev.data();
+  auto const *cz_d = dirz_dev.data();
+  const int ndir_l = ndir;
+
   for (int lev = finest_level; lev >= 0; --lev) {
     MultiFab &curF = f_new[lev];
     MultiFab &curFo = f_old[lev];
@@ -1327,33 +1495,31 @@ void AmrCoreLBM::InitEquilibrium() {
     for (MFIter mfi(curF, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
 
       const Box &bx = mfi.fabbox();
-      Array4<Real> rho = curMacro[mfi].array(0);
-      Array4<Real> u = curMacro[mfi].array(1);
-      Array4<Real> v = curMacro[mfi].array(2);
-      Array4<Real> w = curMacro[mfi].array(3);
-      Array4<Real> f = curF[mfi].array();
-      Array4<Real> fo = curFo[mfi].array();
 
-      amrex::ParallelFor(bx,
-                         [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-                           amrex::Vector<amrex::Real> tempMac(nmac);
-                           tempMac[0] = rho(i, j, k);
-                           tempMac[1] = u(i, j, k);
-                           tempMac[2] = v(i, j, k);
-                           tempMac[3] = w(i, j, k);
+      auto const rho = curMacro[mfi].const_array(0);
+      auto const ux = curMacro[mfi].const_array(1);
+      auto const uy = curMacro[mfi].const_array(2);
+      auto const uz = curMacro[mfi].const_array(3);
 
-                           for (unsigned int i_dir = 0; i_dir < ndir; ++i_dir) {
+      auto const f = curF[mfi].array();
+      auto const fo = curFo[mfi].array();
 
-                             amrex::Vector<amrex::Real> tempMes(4);
-                             tempMes[0] = wi[i_dir];
-                             tempMes[1] = dirx[i_dir];
-                             tempMes[2] = diry[i_dir];
-                             tempMes[3] = dirz[i_dir];
+      amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j,
+                                                  int k) noexcept {
+        Real r = amrex::max(rho(i, j, k), 1.e-12_rt);
+        Real u0 = ux(i, j, k);
+        Real v0 = uy(i, j, k);
+        Real w0 = uz(i, j, k);
+        Real u2 = u0 * u0 + v0 * v0 + w0 * w0;
 
-                             f(i, j, k, i_dir) = feqFunction(tempMes, tempMac);
-                             fo(i, j, k, i_dir) = f(i, j, k, i_dir);
-                           }
-                         });
+        for (int q = 0; q < ndir_l; ++q) {
+          Real cu = cx_d[q] * u0 + cy_d[q] * v0 + cz_d[q] * w0;
+          Real feq = wi_d[q] * r *
+                     (1.0_rt + 3.0_rt * cu + 4.5_rt * cu * cu - 1.5_rt * u2);
+          f(i, j, k, q) = feq;
+          fo(i, j, k, q) = feq;
+        }
+      });
     }
   }
 }
@@ -1433,21 +1599,31 @@ void AmrCoreLBM::FillCoarsePatchMacro(int lev, amrex::Real time,
 
 void AmrCoreLBM::GetDataMacro(int lev, Real time, Vector<MultiFab *> &data,
                               Vector<Real> &datatime) {
-
   data.clear();
   datatime.clear();
 
-  const Real teps = (t_new[lev] - t_old[lev]) * 1.e-3;
-
-  if (time > t_new[lev] - teps && time < t_new[lev] + teps) {
-    data.push_back(&macro_old[lev]);
+  // Handle uninitialized/sentinel time (e.g. t_old = time - 1.e200 on new
+  // levels). In that case, only the "new" state is meaningful.
+  constexpr Real SENT = 1.e50_rt;
+  if (amrex::Math::abs(t_old[lev]) > SENT ||
+      amrex::Math::abs(t_new[lev]) > SENT) {
+    data.push_back(&macro_new[lev]);
     datatime.push_back(t_new[lev]);
-  } else if (time > t_old[lev] - teps && time < t_old[lev] + teps) {
+    return;
+  }
+
+  const Real dtloc = amrex::Math::abs(t_new[lev] - t_old[lev]);
+  const Real teps = amrex::max(1.e-12_rt, dtloc * 1.e-3_rt);
+
+  if (time >= t_new[lev] - teps && time <= t_new[lev] + teps) {
+    data.push_back(&macro_new[lev]);
+    datatime.push_back(t_new[lev]);
+  } else if (time >= t_old[lev] - teps && time <= t_old[lev] + teps) {
     data.push_back(&macro_old[lev]);
     datatime.push_back(t_old[lev]);
   } else {
     data.push_back(&macro_old[lev]);
-    data.push_back(&macro_old[lev]);
+    data.push_back(&macro_new[lev]);
     datatime.push_back(t_old[lev]);
     datatime.push_back(t_new[lev]);
   }

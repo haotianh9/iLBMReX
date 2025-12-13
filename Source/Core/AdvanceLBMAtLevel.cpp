@@ -19,8 +19,17 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
   MultiFab &sF_new = f_new[lev];
   MultiFab &sM_new = macro_new[lev];
   MultiFab *sForcingPtr = nullptr;
-  if (m_use_cylinder && forcing.size() > lev) {
-    sForcingPtr = &forcing[lev];
+
+  if (m_use_cylinder && lev == finestLevel()) {
+    if (forcing.size() > lev && forcing[lev].ok() &&
+        forcing[lev].nComp() == 3) {
+      sForcingPtr = &forcing[lev];
+    }
+  } else {
+    // enforce "0 anywhere else"
+    if (m_use_cylinder && forcing.size() > lev && forcing[lev].ok()) {
+      forcing[lev].setVal(0.0);
+    }
   }
 
   // local IBM scratch:
@@ -310,7 +319,8 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
     Real max_f = f_new[lev].norm0(0, 0, true); // component 0 is enough
 
     Real maxFx = 0.0;
-    if (m_use_cylinder && forcing.size() > lev) {
+    if (m_use_cylinder && forcing.size() > lev &&
+        forcing[lev].boxArray().size() > 0) {
       maxFx = forcing[lev].norm0(0, 0, true);
     }
 

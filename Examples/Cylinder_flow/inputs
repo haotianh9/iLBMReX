@@ -32,7 +32,7 @@ amr.v              = 1       # verbosity in Amr
 # Resolution and refinement
 # *****************************************************************
 amr.n_cell          = 400 400 8
-amr.max_level       = 0     # maximum level number allowed -- 
+amr.max_level       = 2    # maximum level number allowed -- 
                               # number of levels = max_level + 1
 
 amr.ref_ratio       = 2 2 2 2 # refinement ratio between levels
@@ -144,7 +144,7 @@ amrbc.bc_lo_0_uy_val  = 0.0
 ibm.use_cylinder = 1     # 1: use cylinder level-set
 ibm.method      = diffuse      # none | diffuse | sharp
 ibm.eps  = 3      # ε = eps_factor * min(dx)
-ibm.alpha       = 0.10       # penalization strength (diffuse)
+ibm.alpha       = 0.50       # penalization strength (diffuse)
 ibm.only_finest = 1         # 1: IB active only on finest level (IAMR style)
 
 ibm.x0 = 60.0
