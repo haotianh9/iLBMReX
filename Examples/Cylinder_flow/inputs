@@ -49,7 +49,7 @@ amr.blocking_factor_z = 8
 
 amr.max_grid_size   = 128
 
-amr.regrid_int      = 2       # how often to regrid
+amr.regrid_int      = 100       # how often to regrid
 
 
 
@@ -58,7 +58,7 @@ amr.regrid_int      = 2       # how often to regrid
 #            if phi > 1.1  at level 1, then refine 
 #            if phi > 1.5  at level 2, then refine 
 # *****************************************************************
-amrvorth.thresholdRatio =  0.86  0.95  1.01
+amrvorth.thresholdRatio =  0.1 0.25
 # amrvorth.thresholdRatio = 9 9 9
 #adv.thresholdRatio = 0.9 0.95 1.0
 #adv.thresholdRatio = 2.0 3.0 4.0
