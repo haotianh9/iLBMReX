@@ -88,100 +88,79 @@ AmrCoreLBM::AmrCoreLBM() {
   int bc_lo[AMREX_SPACEDIM];
   int bc_hi[AMREX_SPACEDIM];
 
+
+  // 1) Define bc_lo/bc_hi and bcval for both periodic and non-periodic cases
   if (!(geom[0].isAllPeriodic())) {
 
-    {
-      amrex::Vector<int> temp0, temp1;
-      ParmParse pp("amrbc");
+    amrex::Vector<int> temp0, temp1;
+    ParmParse pp("amrbc");
 
-      pp.getarr("bc_lo", temp0);
-      pp.getarr("bc_hi", temp1);
+    pp.getarr("bc_lo", temp0);
+    pp.getarr("bc_hi", temp1);
 
-      for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
-        bc_lo[idim] = temp0[idim];
-        bc_hi[idim] = temp1[idim];
+    for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+      bc_lo[idim] = temp0[idim];
+      bc_hi[idim] = temp1[idim];
 
-        if (bc_lo[idim] == amrex::BCType::ext_dir) {
-          std::string dir = std::to_string(idim);
-          pp.query(("bc_lo_" + dir + "_rho_val").c_str(),
-                   BCVals::bc_lo_rho_val[idim]);
-          pp.query(("bc_lo_" + dir + "_ux_val").c_str(),
-                   BCVals::bc_lo_ux_val[idim]);
-          pp.query(("bc_lo_" + dir + "_uy_val").c_str(),
-                   BCVals::bc_lo_uy_val[idim]);
-        }
-
-        if (bc_hi[idim] == amrex::BCType::ext_dir) {
-          std::string dir = std::to_string(idim);
-          pp.query(("bc_hi_" + dir + "_rho_val").c_str(),
-                   BCVals::bc_hi_rho_val[idim]);
-          pp.query(("bc_hi_" + dir + "_ux_val").c_str(),
-                   BCVals::bc_hi_ux_val[idim]);
-          pp.query(("bc_hi_" + dir + "_uy_val").c_str(),
-                   BCVals::bc_hi_uy_val[idim]);
-        }
+      if (bc_lo[idim] == amrex::BCType::ext_dir) {
+        std::string dir = std::to_string(idim);
+        pp.query(("bc_lo_" + dir + "_rho_val").c_str(),
+                 BCVals::bc_lo_rho_val[idim]);
+        pp.query(("bc_lo_" + dir + "_ux_val").c_str(),
+                 BCVals::bc_lo_ux_val[idim]);
+        pp.query(("bc_lo_" + dir + "_uy_val").c_str(),
+                 BCVals::bc_lo_uy_val[idim]);
       }
-
-      for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
-        bcval.lo_rho[idim] = BCVals::bc_lo_rho_val[idim];
-        bcval.lo_ux[idim] = BCVals::bc_lo_ux_val[idim];
-        bcval.lo_uy[idim] = BCVals::bc_lo_uy_val[idim];
-        bcval.hi_rho[idim] = BCVals::bc_hi_rho_val[idim];
-        bcval.hi_ux[idim] = BCVals::bc_hi_ux_val[idim];
-        bcval.hi_uy[idim] = BCVals::bc_hi_uy_val[idim];
+      if (bc_hi[idim] == amrex::BCType::ext_dir) {
+        std::string dir = std::to_string(idim);
+        pp.query(("bc_hi_" + dir + "_rho_val").c_str(),
+                 BCVals::bc_hi_rho_val[idim]);
+        pp.query(("bc_hi_" + dir + "_ux_val").c_str(),
+                 BCVals::bc_hi_ux_val[idim]);
+        pp.query(("bc_hi_" + dir + "_uy_val").c_str(),
+                 BCVals::bc_hi_uy_val[idim]);
       }
     }
 
-    bcsMesoscopic.resize(ndir); // Setup 1-component
-    for (int idir = 0; idir < ndir; ++idir) {
-
-      for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
-        // lo-side BCs
-        if (bc_lo[idim] ==
-                BCType::int_dir || // periodic uses "internal Dirichlet"
-            bc_lo[idim] == BCType::foextrap || // first-order extrapolation
-            bc_lo[idim] == BCType::ext_dir) {  // external Dirichlet
-          bcsMesoscopic[idir].setLo(idim, bc_lo[idim]);
-        } else {
-          amrex::Abort("Invalid bc_lo");
-        }
-
-        // hi-side BCSs
-        if (bc_hi[idim] ==
-                BCType::int_dir || // periodic uses "internal Dirichlet"
-            bc_hi[idim] == BCType::foextrap || // first-order extrapolation
-            bc_hi[idim] == BCType::ext_dir) {  // external Dirichlet
-          bcsMesoscopic[idir].setHi(idim, bc_hi[idim]);
-        } else {
-          amrex::Abort("Invalid bc_hi");
-        }
-      }
+    for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+      bcval.lo_rho[idim] = BCVals::bc_lo_rho_val[idim];
+      bcval.lo_ux[idim] = BCVals::bc_lo_ux_val[idim];
+      bcval.lo_uy[idim] = BCVals::bc_lo_uy_val[idim];
+      bcval.hi_rho[idim] = BCVals::bc_hi_rho_val[idim];
+      bcval.hi_ux[idim] = BCVals::bc_hi_ux_val[idim];
+      bcval.hi_uy[idim] = BCVals::bc_hi_uy_val[idim];
     }
 
-    bcsMacro.resize(nmac); // Setup 1-component
-    for (int idir = 0; idir < nmac; ++idir) {
+  } else {
+    // Fully periodic: still must provide valid BCRec vectors for FillPatch.
+    for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+      bc_lo[idim] = amrex::BCType::int_dir;
+      bc_hi[idim] = amrex::BCType::int_dir;
 
-      for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
-        // lo-side BCs
-        if (bc_lo[idim] ==
-                BCType::int_dir || // periodic uses "internal Dirichlet"
-            bc_lo[idim] == BCType::foextrap || // first-order extrapolation
-            bc_lo[idim] == BCType::ext_dir) {  // external Dirichlet
-          bcsMacro[idir].setLo(idim, bc_lo[idim]);
-        } else {
-          amrex::Abort("Invalid bc_lo");
-        }
+      // Not used for int_dir, but keep defined.
+      bcval.lo_rho[idim] = 0.0_rt;
+      bcval.lo_ux[idim] = 0.0_rt;
+      bcval.lo_uy[idim] = 0.0_rt;
+      bcval.hi_rho[idim] = 0.0_rt;
+      bcval.hi_ux[idim] = 0.0_rt;
+      bcval.hi_uy[idim] = 0.0_rt;
+    }
+  }
 
-        // hi-side BCSs
-        if (bc_hi[idim] ==
-                BCType::int_dir || // periodic uses "internal Dirichlet"
-            bc_hi[idim] == BCType::foextrap || // first-order extrapolation
-            bc_hi[idim] == BCType::ext_dir) {  // external Dirichlet
-          bcsMacro[idir].setHi(idim, bc_hi[idim]);
-        } else {
-          amrex::Abort("Invalid bc_hi");
-        }
-      }
+  // 2) ALWAYS build BCRec vectors (required even if domain is periodic)
+  bcsMesoscopic.resize(ndir);
+  for (int c = 0; c < ndir; ++c) {
+    for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+      bcsMesoscopic[c].setLo(idim, bc_lo[idim]);
+      bcsMesoscopic[c].setHi(idim, bc_hi[idim]);
+    }
+  }
+
+  bcsMacro.resize(nmac);
+  for (int c = 0; c < nmac; ++c) {
+    for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+      bcsMacro[c].setLo(idim, bc_lo[idim]);
+      bcsMacro[c].setHi(idim, bc_hi[idim]);
     }
   }
 
