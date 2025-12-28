@@ -1,4 +1,5 @@
 #include "AmrCoreLBM.H"
+#include "IBM/IBMarkerDF.H"
 #include "Kernels.H"
 #include <AMReX_FillPatchUtil.H>
 #include <AMReX_PhysBCFunct.H>
@@ -66,6 +67,9 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
       // Sharp: direct forcing in |phi|<=eps band
       m_ibs->update_forcing(lev, *m_ls, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc,
                             dt_lev);
+    } else if (m_ib_method == 3 && m_ibm) {
+      // Marker DF: IAMReX-style multi-direct-forcing with delta-kernel
+      m_ibm->update_forcing(ucc, vcc, wcc, fx_cc, fy_cc, fz_cc, dt_lev);
     }
   }
   // amrex::Print() << "AdvancePhiAtLevel lev=" << lev

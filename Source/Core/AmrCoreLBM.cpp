@@ -17,6 +17,7 @@
 #include "DebugNaN.H"
 
 #include "IBM/IBDiffuseLS.H"
+#include "IBM/IBMarkerDF.H"
 #include "IBM/IBSharpLS.H"
 #include "LevelSet/LevelSet.H"
 #include <AMReX_GpuContainers.H>
@@ -87,7 +88,6 @@ AmrCoreLBM::AmrCoreLBM() {
 
   int bc_lo[AMREX_SPACEDIM];
   int bc_hi[AMREX_SPACEDIM];
-
 
   // 1) Define bc_lo/bc_hi and bcval for both periodic and non-periodic cases
   if (!(geom[0].isAllPeriodic())) {
@@ -449,13 +449,24 @@ void AmrCoreLBM::MakeNewLevelFromCoarse(int lev, Real time, const BoxArray &ba,
 
   // --- IBM object only for current finest (optional) ---
   if (m_use_cylinder && lev == finestLevel()) {
-    if (m_ib_method == 1)
+    if (m_ib_method == 1) {
       m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
-    else if (m_ib_method == 2)
+      m_ibs.reset();
+      m_ibm.reset();
+    } else if (m_ib_method == 2) {
       m_ibs = std::make_unique<IBSharpLS>(geom[lev]);
-    else {
+      m_ibd.reset();
+      m_ibm.reset();
+    } else if (m_ib_method == 3) {
+      m_ibm = std::make_unique<IBMarkerDF>(geom[lev], dm, ba, m_ls_par.x0,
+                                           m_ls_par.y0, m_ls_par.z0, m_ls_par.R,
+                                           m_marker_par);
       m_ibd.reset();
       m_ibs.reset();
+    } else {
+      m_ibd.reset();
+      m_ibs.reset();
+      m_ibm.reset();
     }
   }
 }
@@ -537,13 +548,24 @@ void AmrCoreLBM::RemakeLevel(int lev, Real time, const BoxArray &ba,
 
   // --- IBM object only for current finest (optional) ---
   if (m_use_cylinder && lev == finestLevel()) {
-    if (m_ib_method == 1)
+    if (m_ib_method == 1) {
       m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
-    else if (m_ib_method == 2)
+      m_ibs.reset();
+      m_ibm.reset();
+    } else if (m_ib_method == 2) {
       m_ibs = std::make_unique<IBSharpLS>(geom[lev]);
-    else {
+      m_ibd.reset();
+      m_ibm.reset();
+    } else if (m_ib_method == 3) {
+      m_ibm = std::make_unique<IBMarkerDF>(geom[lev], dm, ba, m_ls_par.x0,
+                                           m_ls_par.y0, m_ls_par.z0, m_ls_par.R,
+                                           m_marker_par);
       m_ibd.reset();
       m_ibs.reset();
+    } else {
+      m_ibd.reset();
+      m_ibs.reset();
+      m_ibm.reset();
     }
   }
 }
@@ -583,13 +605,24 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
 
   // --- IBM object only for current finest (optional) ---
   if (m_use_cylinder && lev == finestLevel()) {
-    if (m_ib_method == 1)
+    if (m_ib_method == 1) {
       m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
-    else if (m_ib_method == 2)
+      m_ibs.reset();
+      m_ibm.reset();
+    } else if (m_ib_method == 2) {
       m_ibs = std::make_unique<IBSharpLS>(geom[lev]);
-    else {
+      m_ibd.reset();
+      m_ibm.reset();
+    } else if (m_ib_method == 3) {
+      m_ibm = std::make_unique<IBMarkerDF>(geom[lev], dm, ba, m_ls_par.x0,
+                                           m_ls_par.y0, m_ls_par.z0, m_ls_par.R,
+                                           m_marker_par);
       m_ibd.reset();
       m_ibs.reset();
+    } else {
+      m_ibd.reset();
+      m_ibs.reset();
+      m_ibm.reset();
     }
   }
 
@@ -825,12 +858,15 @@ void AmrCoreLBM::ReadParameters() {
 
       std::string method = "none";
       pp_ibm.query("method", method);
-      if (method == "diffuse")
+      if (method == "diffuse") {
         m_ib_method = 1;
-      else if (method == "sharp")
+      } else if (method == "sharp") {
         m_ib_method = 2;
-      else
+      } else if (method == "marker" || method == "iamr_marker") {
+        m_ib_method = 3;
+      } else {
         m_ib_method = 0;
+      }
 
       // geometry: tie to your existing cylinder knobs (x0,y0,z0,R)
       pp_ibm.query("eps", m_diff_par.eps);
@@ -840,6 +876,19 @@ void AmrCoreLBM::ReadParameters() {
       pp_ibm.query("y0", m_ls_par.y0);
       pp_ibm.query("z0", m_ls_par.z0);
       pp_ibm.query("R", m_ls_par.R);
+
+      // IAMReX-style marker DF parameters
+      pp_ibm.query("delta_type", m_marker_par.delta_type); // 0:4pt, 1:3pt
+      pp_ibm.query("loop_ns", m_marker_par.loop_ns);
+      pp_ibm.query("n_marker", m_marker_par.n_marker);
+      pp_ibm.query("rd", m_marker_par.rd);
+      pp_ibm.query("ubx", m_marker_par.ubx);
+      pp_ibm.query("uby", m_marker_par.uby);
+      pp_ibm.query("ubz", m_marker_par.ubz);
+      pp_ibm.query("omx", m_marker_par.omx);
+      pp_ibm.query("omy", m_marker_par.omy);
+      pp_ibm.query("omz", m_marker_par.omz);
+      pp_ibm.query("verbose", m_marker_par.verbose);
       pp_ibm.query("force_interval", m_force_interval);
 
       amrex::Print() << "IBM parameters: use_cylinder = " << m_use_cylinder
@@ -853,6 +902,7 @@ void AmrCoreLBM::ReadParameters() {
       m_ls = std::make_unique<LevelSetManager>();
       m_ibd.reset();
       m_ibs.reset();
+      m_ibm.reset();
     }
 
     int n_phi = (m_use_cylinder ? 1 : 0);

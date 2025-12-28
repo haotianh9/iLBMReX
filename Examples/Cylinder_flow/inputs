@@ -152,3 +152,11 @@ ibm.y0 = 209.0
 ibm.z0 = 0.0
 ibm.R  = 20.0
 ibm.force_interval=1
+
+ibm.use_pvf        = 1   # (default 1)
+ibm.use_delta_band = 0  #  (default 0; if 1, localize forcing near interface)
+ibm.pvf_band       = 0  #  (only used if use_pvf=1 and use_delta_band=1;   if 1 use 4*pvf*(1-pvf), else use pvf)
+ibm.finest_only    = 1  # (default 1; your call site already forces finest-only)
+ibm.u_wall=0  # (default 0)
+ibm.v_wall=0  # (default 0)
+ibm.w_wall=0  # (default 0)

@@ -1,7 +1,9 @@
 #pragma once
 #include "LevelSet/LevelSet.H"
 #include <AMReX_Geometry.H>
+#include <AMReX_Math.H>
 #include <AMReX_MultiFab.H>
+#include <cmath>
 
 AMREX_GPU_HOST_DEVICE
 AMREX_FORCE_INLINE
@@ -12,9 +14,10 @@ amrex::Real Hsmooth(amrex::Real s, amrex::Real eps) noexcept {
   if (s >= eps)
     return Real(1.0);
 
-  constexpr Real pi = Real(3.14159265358979323846);
-  Real t = Real(0.5) + Real(0.5) * s / eps +
-           Real(0.5) / M_PI * std::sin(M_PI * s / eps);
+  // Use sin(pi*x) helper for device safety; avoids relying on amrex::Math::sin.
+  const Real inv_pi = Real(1.0) / amrex::Math::pi<Real>();
+  const Real t = Real(0.5) + Real(0.5) * s / eps +
+                 Real(0.5) * inv_pi * amrex::Math::sinpi(s / eps);
   return t;
 }
 
