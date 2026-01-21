@@ -1,0 +1,43 @@
+# Simple LBM forcing validation (periodic box, uniform body force)
+max_step  = 50
+stop_time = 50
+
+amr.v              = 1
+amr.plot_file      = out_force/plt
+amr.plot_int       = -1
+amr.chk_file       = chk
+amr.chk_int        = -1
+
+# Geometry: periodic box with dx=1, dt=1
+geometry.prob_lo     = 0.0  0.0  0.0
+geometry.prob_hi     = 64.0 64.0 1.0
+geometry.is_periodic = 1 1 1
+
+amr.n_cell          = 64 64 1
+amr.max_level       = 0
+amr.blocking_factor_x = 8
+amr.blocking_factor_y = 8
+amr.blocking_factor_z = 1
+amr.max_grid_size   = 32
+
+# LBM parameters
+lbmPhysicalParameters.nu   = 0.01
+lbmPhysicalParameters.nmac = 6
+
+# D2Q9
+lbm2d.ndir   = 9
+lbm2d.wis    = 4.0  1.0  1.0  1.0   1.0  1.0  1.0  1.0  1.0
+lbm2d.wim    = 9.0  9.0  9.0  9.0   9.0  36.0 36.0 36.0 36.0
+lbm2d.dirx   = 0.0  1.0  0.0  -1.0  0.0  1.0  -1.0 -1.0 1.0
+lbm2d.diry   = 0.0  0.0  1.0  0.0   -1.0 1.0  1.0  -1.0 -1.0
+lbm2d.dirz   = 0.0  0.0  0.0  0.0   0.0  0.0  0.0  0.0  0.0
+
+# Prescribed uniform force in lattice units (dt * force_density)
+# Expect <u>(t) ~= (t/dt + 0.5) * Fx / <rho>
+# With dt=1, rho~1: <u> ~= (step + 0.5) * Fx
+lbm.prescribed_force = 1.0e-6 0.0 0.0
+lbm.force_validation = 1
+
+# No IBM
+ibm.use_cylinder = 0
+ibm.method = none

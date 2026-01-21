@@ -221,6 +221,16 @@ private:
 
   int m_force_interval = -1;
 
+  // ------------------------------
+  // Prescribed (user) forcing for LBM validation / simple test cases
+  // Convention: Fx,Fy,Fz are in *lattice forcing units* used by Guo forcing
+  // and calculateMacroForcing, i.e. they correspond to (dt * force_density).
+  bool m_use_prescribed_force{false};
+  // Use explicit amrex::Real casts here to avoid relying on AMReX "_rt" literal
+  // (which requires amrex::literals to be in scope).
+  amrex::GpuArray<amrex::Real, 3> m_prescribed_force{{amrex::Real(0.0), amrex::Real(0.0), amrex::Real(0.0)}};
+  bool m_force_validation{false};
+
   // LBM specific parameter
 
   // LBM stencil size (default per dimension)

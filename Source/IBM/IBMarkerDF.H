@@ -4,8 +4,29 @@
 
 #include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>
-#include <AMReX_ParIter.H>
-#include <AMReX_ParticleContainer.H>
+#include <AMReX_Config.H>
+
+// IBMarkerDF is implemented using AMReX particles (ParticleContainer).
+// When AMReX is built without particle support, we provide a small stub
+// implementation that aborts if used.
+
+#if defined(AMREX_PARTICLES) && AMREX_PARTICLES
+
+// Prefer the umbrella header when available; it pulls in the correct set of
+// particle headers for the AMReX version in use.
+#if defined(__has_include)
+#  if __has_include(<AMReX_Particles.H>)
+#    include <AMReX_Particles.H>
+#  else
+#    include <AMReX_TypeTraits.H>
+#    include <AMReX_ParticleUtil.H>
+#    include <AMReX_ParticleMesh.H>
+#    include <AMReX_ParticleContainer.H>
+#    include <AMReX_ParIter.H>
+#  endif
+#else
+#  include <AMReX_Particles.H>
+#endif
 
 #include <array>
 #include <memory>
@@ -51,9 +72,13 @@ public:
   //   - Inputs:  ucc/vcc/wcc are cell-centered velocities
   //   - Outputs: Fx/Fy/Fz are cell-centered force densities (same
   //   units/convention as your existing IBM)
-  void update_forcing(amrex::MultiFab const &ucc, amrex::MultiFab const &vcc,
-                      amrex::MultiFab const &wcc, amrex::MultiFab &Fx,
-                      amrex::MultiFab &Fy, amrex::MultiFab &Fz,
+  void update_forcing(amrex::MultiFab const &rhocc,
+                      amrex::MultiFab const &ucc,
+                      amrex::MultiFab const &vcc,
+                      amrex::MultiFab const &wcc,
+                      amrex::MultiFab &Fx,
+                      amrex::MultiFab &Fy,
+                      amrex::MultiFab &Fz,
                       amrex::Real dt) const;
 
   // Access for diagnostics
@@ -96,3 +121,31 @@ private:
 
   std::unique_ptr<MarkerContainer> m_markers;
 };
+
+#else
+
+#include <AMReX.H>
+
+// Stub implementation when AMReX particles are not enabled.
+// This allows the codebase to build for non-particle examples (e.g. pure LBM)
+// while giving a clear runtime error if marker IBM is selected.
+class IBMarkerDF {
+public:
+  IBMarkerDF(amrex::Geometry const &geom, amrex::DistributionMapping const &dm,
+             amrex::BoxArray const &ba, amrex::Real x0, amrex::Real y0,
+             amrex::Real z0, amrex::Real R, MarkerIBParams const &par) {
+    amrex::ignore_unused(geom, dm, ba, x0, y0, z0, R, par);
+    amrex::Abort(
+        "IBMarkerDF (marker IBM) requires AMReX particles. Rebuild with USE_PARTICLES=TRUE (GNUmake) or enable AMReX particles in your build system.");
+  }
+
+  void update_forcing(amrex::MultiFab const&, amrex::MultiFab const&, amrex::MultiFab const&,
+                      amrex::MultiFab const&, amrex::MultiFab&, amrex::MultiFab&,
+                      amrex::MultiFab&, amrex::Real) const {
+    amrex::Abort("IBMarkerDF::update_forcing called but AMReX particles are disabled.");
+  }
+
+  [[nodiscard]] amrex::Long num_markers() const { return 0; }
+};
+
+#endif // (AMREX_PARTICLES && AMREX_PARTICLES)

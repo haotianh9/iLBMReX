@@ -1,5 +1,7 @@
 #include "IBM/IBMarkerDF.H"
 
+#if defined(AMREX_PARTICLES) && AMREX_PARTICLES
+
 #include <AMReX_Array4.H>
 #include <AMReX_GpuAtomic.H>
 #include <AMReX_GpuContainers.H>
@@ -19,27 +21,27 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE Real
 delta_function(Real xf, Real xp, Real h, int type) noexcept {
   // Matches IAMReX DiffusedIB_Parallel::deltaFunction (value/h scaling).
   const Real rr = Math::abs(xf - xp) / h;
-  Real value = 0.0_rt;
+  Real value = amrex::Real(0.0);
 
   if (type == 0) { // FOUR_POINT_IB
-    if (rr < 1.0_rt) {
-      value = 0.125_rt * (3.0_rt - 2.0_rt * rr +
-                          std::sqrt(1.0_rt + 4.0_rt * rr - 4.0_rt * rr * rr));
-    } else if (rr < 2.0_rt) {
-      value = 0.125_rt * (5.0_rt - 2.0_rt * rr -
-                          std::sqrt(-7.0_rt + 12.0_rt * rr - 4.0_rt * rr * rr));
+    if (rr < amrex::Real(1.0)) {
+      value = amrex::Real(0.125) * (amrex::Real(3.0) - amrex::Real(2.0) * rr +
+                          std::sqrt(amrex::Real(1.0) + amrex::Real(4.0) * rr - amrex::Real(4.0) * rr * rr));
+    } else if (rr < amrex::Real(2.0)) {
+      value = amrex::Real(0.125) * (amrex::Real(5.0) - amrex::Real(2.0) * rr -
+                          std::sqrt(-amrex::Real(7.0) + amrex::Real(12.0) * rr - amrex::Real(4.0) * rr * rr));
     } else {
-      value = 0.0_rt;
+      value = amrex::Real(0.0);
     }
   } else { // THREE_POINT_IB
-    if (rr < 0.5_rt) {
-      value = (1.0_rt + std::sqrt(1.0_rt - 3.0_rt * rr * rr)) / 3.0_rt;
-    } else if (rr < 1.5_rt) {
-      value = (5.0_rt - 3.0_rt * rr -
-               std::sqrt(-2.0_rt + 6.0_rt * rr - 3.0_rt * rr * rr)) /
-              6.0_rt;
+    if (rr < amrex::Real(0.5)) {
+      value = (amrex::Real(1.0) + std::sqrt(amrex::Real(1.0) - amrex::Real(3.0) * rr * rr)) / amrex::Real(3.0);
+    } else if (rr < amrex::Real(1.5)) {
+      value = (amrex::Real(5.0) - amrex::Real(3.0) * rr -
+               std::sqrt(-amrex::Real(2.0) + amrex::Real(6.0) * rr - amrex::Real(3.0) * rr * rr)) /
+              amrex::Real(6.0);
     } else {
-      value = 0.0_rt;
+      value = amrex::Real(0.0);
     }
   }
 
@@ -76,53 +78,53 @@ void IBMarkerDF::build_markers(DistributionMapping const &dm,
   const Real pi = Math::pi<Real>();
 
   int Ml = m_par.n_marker;
-  Real dv = 0.0_rt;
+  Real dv = amrex::Real(0.0);
 
 #if (AMREX_SPACEDIM == 2)
   if (Ml <= 0) {
-    Ml = static_cast<int>(std::ceil(2.0_rt * pi * m_R / h));
+    Ml = static_cast<int>(std::ceil(amrex::Real(2.0) * pi * m_R / h));
     Ml = std::max(Ml, 16);
   }
   // Approximate annulus area of thickness h.
-  dv = (2.0_rt * pi * m_R * h) / static_cast<Real>(Ml);
+  dv = (amrex::Real(2.0) * pi * m_R * h) / static_cast<Real>(Ml);
 
   // theta=pi/2 -> z=0, and phi is the polar angle.
-  std::vector<Real> phi_h(Ml + 1, 0.0_rt);
-  std::vector<Real> theta_h(Ml + 1, 0.5_rt * pi);
+  std::vector<Real> phi_h(Ml + 1, amrex::Real(0.0));
+  std::vector<Real> theta_h(Ml + 1, amrex::Real(0.5) * pi);
   for (int i = 1; i <= Ml; ++i) {
-    phi_h[i] = 2.0_rt * pi * Real(i - 1) / Real(Ml);
+    phi_h[i] = amrex::Real(2.0) * pi * Real(i - 1) / Real(Ml);
   }
 #else
   // IAMReX-like heuristic: build markers on a thin shell at radius R.
   if (Ml <= 0) {
     const Real rd = m_par.rd;
-    const Real a1 = Math::powi<3>(m_R - (rd - 0.5_rt) * h);
-    const Real a2 = Math::powi<3>(m_R - (rd + 0.5_rt) * h);
-    const Real denom = 3.0_rt * h * h * h / 4.0_rt / pi;
+    const Real a1 = Math::powi<3>(m_R - (rd - amrex::Real(0.5)) * h);
+    const Real a2 = Math::powi<3>(m_R - (rd + amrex::Real(0.5)) * h);
+    const Real denom = amrex::Real(3.0) * h * h * h / amrex::Real(4.0) / pi;
     Ml = static_cast<int>((a1 - a2) / denom);
     Ml = std::max(Ml, 32);
   }
   {
     const Real rd = m_par.rd;
-    const Real a1 = Math::powi<3>(m_R - (rd - 0.5_rt) * h);
-    const Real a2 = Math::powi<3>(m_R - (rd + 0.5_rt) * h);
-    dv = (a1 - a2) / (3.0_rt * Real(Ml) / 4.0_rt / pi);
+    const Real a1 = Math::powi<3>(m_R - (rd - amrex::Real(0.5)) * h);
+    const Real a2 = Math::powi<3>(m_R - (rd + amrex::Real(0.5)) * h);
+    dv = (a1 - a2) / (amrex::Real(3.0) * Real(Ml) / amrex::Real(4.0) / pi);
   }
 
   // Golden-spiral parameterization (ported from IAMReX), but shifted to be
   // 1-based so we can index with particle.id() directly.
-  std::vector<Real> phi_h(Ml + 1, 0.0_rt);
-  std::vector<Real> theta_h(Ml + 1, 0.0_rt);
-  Real phi = 0.0_rt;
+  std::vector<Real> phi_h(Ml + 1, amrex::Real(0.0));
+  std::vector<Real> theta_h(Ml + 1, amrex::Real(0.0));
+  Real phi = amrex::Real(0.0);
   for (int marker_index = 0; marker_index < Ml; ++marker_index) {
-    const Real Hk = -1.0_rt + 2.0_rt * Real(marker_index) / (Real(Ml) - 1.0_rt);
+    const Real Hk = -amrex::Real(1.0) + amrex::Real(2.0) * Real(marker_index) / (Real(Ml) - amrex::Real(1.0));
     const Real theta = std::acos(Hk);
     if (marker_index == 0 || marker_index == Ml - 1) {
-      phi = 0.0_rt;
+      phi = amrex::Real(0.0);
     } else {
-      phi = std::fmod(phi + 3.809_rt / std::sqrt(Real(Ml)) /
-                                std::sqrt(1.0_rt - Hk * Hk),
-                      2.0_rt * pi);
+      phi = std::fmod(phi + amrex::Real(3.809) / std::sqrt(Real(Ml)) /
+                                std::sqrt(amrex::Real(1.0) - Hk * Hk),
+                      amrex::Real(2.0) * pi);
     }
     const int idx = marker_index + 1;
     phi_h[idx] = phi;
@@ -215,15 +217,15 @@ void IBMarkerDF::update_lagrangian_marker() const {
       particles[i].pos(2) = z0 + R * std::cos(thetaK[idx]);
 #endif
 
-      uP[i] = 0.0_rt;
-      vP[i] = 0.0_rt;
-      wP[i] = 0.0_rt;
-      fxP[i] = 0.0_rt;
-      fyP[i] = 0.0_rt;
-      fzP[i] = 0.0_rt;
-      mxP[i] = 0.0_rt;
-      myP[i] = 0.0_rt;
-      mzP[i] = 0.0_rt;
+      uP[i] = amrex::Real(0.0);
+      vP[i] = amrex::Real(0.0);
+      wP[i] = amrex::Real(0.0);
+      fxP[i] = amrex::Real(0.0);
+      fyP[i] = amrex::Real(0.0);
+      fzP[i] = amrex::Real(0.0);
+      mxP[i] = amrex::Real(0.0);
+      myP[i] = amrex::Real(0.0);
+      mzP[i] = amrex::Real(0.0);
     });
   }
 
@@ -235,6 +237,8 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE void velocity_interpolation_cic(
     P const &p, Real &Up, Real &Vp, Real &Wp, Array4<Real const> const &E,
     int EulerVIndex, GpuArray<Real, AMREX_SPACEDIM> const &plo,
     GpuArray<Real, AMREX_SPACEDIM> const &dx, int type) noexcept {
+  // AMREX_D_TERM does token concatenation; include operators in args 2/3.
+  // In 2D: dx[0]*dx[1]. In 3D: dx[0]*dx[1]*dx[2].
   const Real d = AMREX_D_TERM(dx[0], *dx[1], *dx[2]);
 
   const Real lx = (p.pos(0) - plo[0]) / dx[0];
@@ -242,26 +246,29 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE void velocity_interpolation_cic(
 #if (AMREX_SPACEDIM == 3)
   const Real lz = (p.pos(2) - plo[2]) / dx[2];
 #else
-  const Real lz = 0.0_rt;
+  const Real lz = amrex::Real(0.0);
 #endif
 
   const int i0 = static_cast<int>(std::floor(lx));
   const int j0 = static_cast<int>(std::floor(ly));
   const int k0 = static_cast<int>(std::floor(lz));
+#if (AMREX_SPACEDIM < 3)
+  amrex::ignore_unused(k0);
+#endif
 
-  Real u = 0.0_rt, v = 0.0_rt, w = 0.0_rt;
+  Real u = amrex::Real(0.0), v = amrex::Real(0.0), w = amrex::Real(0.0);
 
   for (int ii = -2 + type; ii < 3 - type; ++ii) {
-    const Real xi = plo[0] + (Real(i0 + ii) + 0.5_rt) * dx[0];
+    const Real xi = plo[0] + (Real(i0 + ii) + amrex::Real(0.5)) * dx[0];
     const Real tU = delta_function(xi, p.pos(0), dx[0], type);
 
     for (int jj = -2 + type; jj < 3 - type; ++jj) {
-      const Real yi = plo[1] + (Real(j0 + jj) + 0.5_rt) * dx[1];
+      const Real yi = plo[1] + (Real(j0 + jj) + amrex::Real(0.5)) * dx[1];
       const Real tV = delta_function(yi, p.pos(1), dx[1], type);
 
 #if (AMREX_SPACEDIM == 3)
       for (int kk = -2 + type; kk < 3 - type; ++kk) {
-        const Real zi = plo[2] + (Real(k0 + kk) + 0.5_rt) * dx[2];
+        const Real zi = plo[2] + (Real(k0 + kk) + amrex::Real(0.5)) * dx[2];
         const Real tW = delta_function(zi, p.pos(2), dx[2], type);
 
         const Real delta_value = tU * tV * tW;
@@ -273,7 +280,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE void velocity_interpolation_cic(
       const Real delta_value = tU * tV;
       u += delta_value * E(i0 + ii, j0 + jj, 0, EulerVIndex + 0) * d;
       v += delta_value * E(i0 + ii, j0 + jj, 0, EulerVIndex + 1) * d;
-      w += 0.0_rt;
+      w += amrex::Real(0.0);
 #endif
     }
   }
@@ -305,7 +312,7 @@ void IBMarkerDF::velocity_interpolation(MultiFab const &EulerVel,
     auto const &Efab = E[pti].const_array();
 
     ParallelFor(np, [=] AMREX_GPU_DEVICE(int i) noexcept {
-      Real Up = 0.0_rt, Vp = 0.0_rt, Wp = 0.0_rt;
+      Real Up = amrex::Real(0.0), Vp = amrex::Real(0.0), Wp = amrex::Real(0.0);
       velocity_interpolation_cic(particles[i], Up, Vp, Wp, Efab, euler_vel_comp,
                                  plo, dx, delta_type);
       uP[i] += Up;
@@ -343,7 +350,7 @@ void IBMarkerDF::compute_lagrangian_force(Real dt) const {
 #if (AMREX_SPACEDIM == 3)
       const Real rz = particles[i].pos(2) - z0;
 #else
-      const Real rz = 0.0_rt;
+      const Real rz = amrex::Real(0.0);
 #endif
 
       Real urx, ury, urz;
@@ -365,29 +372,35 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE void force_spreading_cic(
     P const &p, Real fxP, Real fyP, Real fzP, Array4<Real> const &E,
     int EulerFIndex, GpuArray<Real, AMREX_SPACEDIM> const &plo,
     GpuArray<Real, AMREX_SPACEDIM> const &dx, int type) noexcept {
+#if (AMREX_SPACEDIM < 3)
+  amrex::ignore_unused(fzP);
+#endif
   const Real lx = (p.pos(0) - plo[0]) / dx[0];
   const Real ly = (p.pos(1) - plo[1]) / dx[1];
 #if (AMREX_SPACEDIM == 3)
   const Real lz = (p.pos(2) - plo[2]) / dx[2];
 #else
-  const Real lz = 0.0_rt;
+  const Real lz = amrex::Real(0.0);
 #endif
 
   const int i0 = static_cast<int>(std::floor(lx));
   const int j0 = static_cast<int>(std::floor(ly));
   const int k0 = static_cast<int>(std::floor(lz));
+#if (AMREX_SPACEDIM < 3)
+  amrex::ignore_unused(k0);
+#endif
 
   for (int ii = -2 + type; ii < 3 - type; ++ii) {
-    const Real xi = plo[0] + (Real(i0 + ii) + 0.5_rt) * dx[0];
+    const Real xi = plo[0] + (Real(i0 + ii) + amrex::Real(0.5)) * dx[0];
     const Real tU = delta_function(xi, p.pos(0), dx[0], type);
 
     for (int jj = -2 + type; jj < 3 - type; ++jj) {
-      const Real yi = plo[1] + (Real(j0 + jj) + 0.5_rt) * dx[1];
+      const Real yi = plo[1] + (Real(j0 + jj) + amrex::Real(0.5)) * dx[1];
       const Real tV = delta_function(yi, p.pos(1), dx[1], type);
 
 #if (AMREX_SPACEDIM == 3)
       for (int kk = -2 + type; kk < 3 - type; ++kk) {
-        const Real zi = plo[2] + (Real(k0 + kk) + 0.5_rt) * dx[2];
+        const Real zi = plo[2] + (Real(k0 + kk) + amrex::Real(0.5)) * dx[2];
         const Real tW = delta_function(zi, p.pos(2), dx[2], type);
 
         const Real delta_value = tU * tV * tW;
@@ -446,7 +459,7 @@ void IBMarkerDF::force_spreading(MultiFab &EulerForce, int euler_force_comp,
 #if (AMREX_SPACEDIM == 3)
       const Real rz = particles[i].pos(2) - z0;
 #else
-      const Real rz = 0.0_rt;
+      const Real rz = amrex::Real(0.0);
 #endif
 
       // Store moment about body center (r x F).
@@ -470,20 +483,26 @@ void IBMarkerDF::velocity_correction(MultiFab &EulerVel,
                   0);
 }
 
-void IBMarkerDF::update_forcing(MultiFab const &ucc, MultiFab const &vcc,
-                                MultiFab const &wcc, MultiFab &Fx, MultiFab &Fy,
-                                MultiFab &Fz, Real dt) const {
+void IBMarkerDF::update_forcing(MultiFab const &rhocc, MultiFab const &ucc,
+                                MultiFab const &vcc, MultiFab const &wcc,
+                                MultiFab &Fx, MultiFab &Fy, MultiFab &Fz,
+                                Real dt) const {
   // Build Euler velocity scratch: (u,v,w)
-  MultiFab EulerVel(ucc.boxArray(), ucc.DistributionMap(), 3, 2);
-  MultiFab EulerForceIter(ucc.boxArray(), ucc.DistributionMap(), 3, 2);
-  MultiFab EulerForceTotal(ucc.boxArray(), ucc.DistributionMap(), 3, 2);
+  // IMPORTANT: We need at least two ghost cells for the 3-pt/4-pt delta
+  // stencil. However ucc/vcc/wcc may not have that many ghosts. Therefore we
+  // only copy the *valid* region from ucc into EulerVel, and rely on
+  // FillBoundary to populate the ghosts.
+  constexpr int ng = 2;
+  MultiFab EulerVel(ucc.boxArray(), ucc.DistributionMap(), 3, ng);
+  MultiFab EulerForceIter(ucc.boxArray(), ucc.DistributionMap(), 3, ng);
+  MultiFab EulerForceTotal(ucc.boxArray(), ucc.DistributionMap(), 3, ng);
 
   EulerVel.setVal(0.0);
   EulerForceIter.setVal(0.0);
   EulerForceTotal.setVal(0.0);
 
   for (MFIter mfi(EulerVel, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
-    const Box &bx = mfi.fabbox();
+    const Box &bx = mfi.validbox();
 
     auto const u = ucc[mfi].const_array();
     auto const v = vcc[mfi].const_array();
@@ -496,6 +515,9 @@ void IBMarkerDF::update_forcing(MultiFab const &ucc, MultiFab const &vcc,
       ev(i, j, k, 2) = w(i, j, k, 0);
     });
   }
+
+  // Fill ghost cells before the first interpolation.
+  EulerVel.FillBoundary(0, 3, m_geom.periodicity());
 
   // Multi-direct forcing loop (IAMReX loop_ns semantics), with total-force
   // accumulation.
@@ -515,17 +537,26 @@ void IBMarkerDF::update_forcing(MultiFab const &ucc, MultiFab const &vcc,
   }
 
   // Export to your existing (Fx,Fy,Fz) convention.
+  // IMPORTANT (LBM coupling): Your LBM kernels are advanced with an implicit
+  // lattice time step of 1.0 (dt does not enter collide/stream). The direct
+  // forcing formulation above computes an Eulerian acceleration field f such
+  // that a Navier–Stokes update would apply u^{n+1}=u^n+dt*f.
+  // Therefore we export dt*f so that the LBM update applies the same impulse
+  // per time step and does not blow up when dt_lev = O(dx) is small.
   for (MFIter mfi(Fx, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
     const Box &bx = mfi.fabbox();
     auto fx = Fx[mfi].array();
     auto fy = Fy[mfi].array();
     auto fz = Fz[mfi].array();
     auto ef = EulerForceTotal[mfi].const_array();
+    auto rho = rhocc[mfi].const_array();
 
     ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-      fx(i, j, k, 0) = ef(i, j, k, 0);
-      fy(i, j, k, 0) = ef(i, j, k, 1);
-      fz(i, j, k, 0) = ef(i, j, k, 2);
+      // LBM Guo forcing expects (dt * force_density) in lattice units.
+      // EulerForceTotal stores the acceleration field a, so force_density = rho*a.
+      fx(i, j, k, 0) = dt * rho(i, j, k, 0) * ef(i, j, k, 0);
+      fy(i, j, k, 0) = dt * rho(i, j, k, 0) * ef(i, j, k, 1);
+      fz(i, j, k, 0) = dt * rho(i, j, k, 0) * ef(i, j, k, 2);
     });
   }
 
@@ -533,3 +564,5 @@ void IBMarkerDF::update_forcing(MultiFab const &ucc, MultiFab const &vcc,
   Fy.FillBoundary(m_geom.periodicity());
   Fz.FillBoundary(m_geom.periodicity());
 }
+
+#endif // (AMREX_PARTICLES && AMREX_PARTICLES)

@@ -138,12 +138,12 @@ AmrCoreLBM::AmrCoreLBM() {
       bc_hi[idim] = amrex::BCType::int_dir;
 
       // Not used for int_dir, but keep defined.
-      bcval.lo_rho[idim] = 0.0_rt;
-      bcval.lo_ux[idim] = 0.0_rt;
-      bcval.lo_uy[idim] = 0.0_rt;
-      bcval.hi_rho[idim] = 0.0_rt;
-      bcval.hi_ux[idim] = 0.0_rt;
-      bcval.hi_uy[idim] = 0.0_rt;
+      bcval.lo_rho[idim] = amrex::Real(0.0);
+      bcval.lo_ux[idim] = amrex::Real(0.0);
+      bcval.lo_uy[idim] = amrex::Real(0.0);
+      bcval.hi_rho[idim] = amrex::Real(0.0);
+      bcval.hi_ux[idim] = amrex::Real(0.0);
+      bcval.hi_uy[idim] = amrex::Real(0.0);
     }
   }
 
@@ -193,6 +193,33 @@ void AmrCoreLBM::Evolve() {
 
     // sum rho to check conservation
     Real sum_rho = macro_new[0].sum(0);
+
+    // Simple forcing validation: for a fully periodic box with spatially
+    // uniform forcing and initially uniform fields, the domain-averaged
+    // velocity should follow u(t) ~ (t/dt - 0.5) * Fx / rho (with Fx the
+    // LBM forcing term dt*force_density). This is a strong sanity check that
+    // your Guo forcing path + macro update are wired correctly.
+    if (m_force_validation && m_use_prescribed_force) {
+      const auto& dom = geom[0].Domain();
+      const long ncell = static_cast<long>(dom.numPts());
+      Real mean_u = macro_new[0].sum(1) / static_cast<Real>(ncell);
+      Real mean_v = macro_new[0].sum(2) / static_cast<Real>(ncell);
+      Real mean_rho = sum_rho / static_cast<Real>(ncell);
+      const Real dt0 = dt[0];
+      const Real Fx = m_prescribed_force[0];
+      const Real Fy = m_prescribed_force[1];
+      // predicted mean velocity using the standard half-step velocity definition
+      Real u_pred = (cur_time / dt0 - amrex::Real(0.5)) * Fx / mean_rho;
+      Real v_pred = (cur_time / dt0 - amrex::Real(0.5)) * Fy / mean_rho;
+      // Also report mean raw momentum m = sum_q f*c (i.e. without the +0.5F shift)
+const Real mean_momx = mean_rho * mean_u - amrex::Real(0.5) * Fx;
+const Real mean_momy = mean_rho * mean_v - amrex::Real(0.5) * Fy;
+amrex::Print() << std::setprecision(12)
+                     << "  [force_validation] <rho>=" << mean_rho
+                     << " <u>=" << mean_u << " pred=" << u_pred << " <momx>=" << mean_momx
+                     << " <v>=" << mean_v << " pred=" << v_pred << " <momy>=" << mean_momy
+                     << " (t=" << cur_time << ")\n";
+    }
 
     if (m_use_cylinder && m_force_interval > 0 &&
         ((step + 1) % m_force_interval == 0)) {
@@ -306,15 +333,15 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
   //   - U_ref   = U0 (already set in ReadParameters)
   //   - D       = 2*R, with R from the cylinder level-set params
   // --------------------------------------------------------------------
-  Real rho_ref = 1.0_rt;            // standard LBM choice
+  Real rho_ref = amrex::Real(1.0);            // standard LBM choice
   Real U_ref = U0;                  // set earlier in ReadParameters()
-  Real D_ref = 2.0_rt * m_ls_par.R; // cylinder diameter
+  Real D_ref = amrex::Real(2.0) * m_ls_par.R; // cylinder diameter
 
-  Real Cd = 0.0_rt;
-  Real Cl = 0.0_rt;
+  Real Cd = amrex::Real(0.0);
+  Real Cl = amrex::Real(0.0);
 
-  Real denom = 0.5_rt * rho_ref * U_ref * U_ref * D_ref;
-  if (denom > 0.0_rt) {
+  Real denom = amrex::Real(0.5) * rho_ref * U_ref * U_ref * D_ref;
+  if (denom > amrex::Real(0.0)) {
     Cd = Fx_body / denom;
     Cl = Fy_body / denom;
   }
@@ -421,7 +448,7 @@ void AmrCoreLBM::MakeNewLevelFromCoarse(int lev, Real time, const BoxArray &ba,
 
       amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j,
                                                   int k) noexcept {
-        Real r = amrex::max(rho(i, j, k), 1.e-12_rt);
+        Real r = amrex::max(rho(i, j, k), amrex::Real(1.e-12));
         Real u0 = ux(i, j, k);
         Real v0 = uy(i, j, k);
         Real w0 = uz(i, j, k);
@@ -430,7 +457,7 @@ void AmrCoreLBM::MakeNewLevelFromCoarse(int lev, Real time, const BoxArray &ba,
         for (int q = 0; q < ndir_l; ++q) {
           Real cu = cx_d[q] * u0 + cy_d[q] * v0 + cz_d[q] * w0;
           Real feq = wi_d[q] * r *
-                     (1.0_rt + 3.0_rt * cu + 4.5_rt * cu * cu - 1.5_rt * u2);
+                     (amrex::Real(1.0) + amrex::Real(3.0) * cu + amrex::Real(4.5) * cu * cu - amrex::Real(1.5) * u2);
           f(i, j, k, q) = feq;
           fo(i, j, k, q) = feq;
         }
@@ -448,21 +475,23 @@ void AmrCoreLBM::MakeNewLevelFromCoarse(int lev, Real time, const BoxArray &ba,
   }
 
   // --- IBM object only for current finest (optional) ---
-  if (m_use_cylinder && lev == finestLevel()) {
-    if (m_ib_method == 1) {
-      m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
-      m_ibs.reset();
-      m_ibm.reset();
-    } else if (m_ib_method == 2) {
-      m_ibs = std::make_unique<IBSharpLS>(geom[lev]);
-      m_ibd.reset();
-      m_ibm.reset();
-    } else if (m_ib_method == 3) {
+  // Marker-based IBM (method 3) does NOT require a level-set/cylinder.
+  // Level-set based IBM (methods 1/2) requires m_use_cylinder.
+  if (lev == finestLevel()) {
+    if (m_ib_method == 3) {
       m_ibm = std::make_unique<IBMarkerDF>(geom[lev], dm, ba, m_ls_par.x0,
                                            m_ls_par.y0, m_ls_par.z0, m_ls_par.R,
                                            m_marker_par);
       m_ibd.reset();
       m_ibs.reset();
+    } else if (m_use_cylinder && m_ib_method == 1) {
+      m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
+      m_ibs.reset();
+      m_ibm.reset();
+    } else if (m_use_cylinder && m_ib_method == 2) {
+      m_ibs = std::make_unique<IBSharpLS>(geom[lev]);
+      m_ibd.reset();
+      m_ibm.reset();
     } else {
       m_ibd.reset();
       m_ibs.reset();
@@ -516,7 +545,7 @@ void AmrCoreLBM::RemakeLevel(int lev, Real time, const BoxArray &ba,
 
       amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j,
                                                   int k) noexcept {
-        Real r = amrex::max(rho(i, j, k), 1.e-12_rt);
+        Real r = amrex::max(rho(i, j, k), amrex::Real(1.e-12));
         Real u0 = ux(i, j, k);
         Real v0 = uy(i, j, k);
         Real w0 = uz(i, j, k);
@@ -525,7 +554,7 @@ void AmrCoreLBM::RemakeLevel(int lev, Real time, const BoxArray &ba,
         for (int q = 0; q < ndir_l; ++q) {
           Real cu = cx_d[q] * u0 + cy_d[q] * v0 + cz_d[q] * w0;
           Real feq = wi_d[q] * r *
-                     (1.0_rt + 3.0_rt * cu + 4.5_rt * cu * cu - 1.5_rt * u2);
+                     (amrex::Real(1.0) + amrex::Real(3.0) * cu + amrex::Real(4.5) * cu * cu - amrex::Real(1.5) * u2);
           f(i, j, k, q) = feq;
           fo(i, j, k, q) = feq;
         }
@@ -705,7 +734,7 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
 
     // Ensure thresholdRatio is defined for all levels [0..max_level]
     if (thresholdRatio.empty()) {
-      thresholdRatio.resize(max_level + 1, 1.0_rt);
+      thresholdRatio.resize(max_level + 1, amrex::Real(1.0));
     } else if (static_cast<int>(thresholdRatio.size()) < max_level + 1) {
       thresholdRatio.resize(max_level + 1, thresholdRatio.back());
     }
@@ -847,9 +876,33 @@ void AmrCoreLBM::ReadParameters() {
       ParmParse pp("lbmPhysicalParameters");
       pp.query("nu", nu);
       pp.query("nmac", nmac);
-      U0 = 0.1_rt;
+      U0 = amrex::Real(0.1);
       pp.query("U0", U0);
     }
+
+    // ------------------------------------------------------------
+    // Optional: prescribed forcing for validation / simple forcing tests
+    // Convention: values are the LBM forcing terms passed to Guo forcing,
+    // i.e. (dt * force_density) in lattice units.
+    // Example: lbm.prescribed_force = 1e-6 0 0
+    //          lbm.force_validation = 1
+    {
+      ParmParse pp_lbm("lbm");
+      amrex::Vector<amrex::Real> Ftmp;
+      if (pp_lbm.queryarr("prescribed_force", Ftmp) && Ftmp.size() >= 2) {
+        m_use_prescribed_force = true;
+        m_prescribed_force[0] = Ftmp[0];
+        m_prescribed_force[1] = Ftmp[1];
+        m_prescribed_force[2] = (Ftmp.size() > 2) ? Ftmp[2] : amrex::Real(0.0);
+      }
+      pp_lbm.query("force_validation", m_force_validation);
+      if (m_use_prescribed_force) {
+        amrex::Print() << "LBM prescribed_force = (" << m_prescribed_force[0]
+                       << ", " << m_prescribed_force[1] << ", "
+                       << m_prescribed_force[2] << ")" << std::endl;
+      }
+    }
+
     {
       amrex::ParmParse pp_ibm("ibm");
 
@@ -1033,7 +1086,7 @@ void AmrCoreLBM::FillPatchMesoscopic(int lev, amrex::Real time,
 #endif
 
               if (!in_valid) {
-                Real r = amrex::max(rho(i, j, k), 1.e-12_rt);
+                Real r = amrex::max(rho(i, j, k), amrex::Real(1.e-12));
                 Real u0 = ux(i, j, k);
                 Real v0 = uy(i, j, k);
                 Real w0 = uz(i, j, k);
@@ -1043,7 +1096,7 @@ void AmrCoreLBM::FillPatchMesoscopic(int lev, amrex::Real time,
                   Real cu = cx_d[q] * u0 + cy_d[q] * v0 + cz_d[q] * w0;
                   Real feq =
                       wi_d[q] * r *
-                      (1.0_rt + 3.0_rt * cu + 4.5_rt * cu * cu - 1.5_rt * u2);
+                      (amrex::Real(1.0) + amrex::Real(3.0) * cu + amrex::Real(4.5) * cu * cu - amrex::Real(1.5) * u2);
                   f(i, j, k, q) = feq;
                 }
               }
@@ -1087,7 +1140,7 @@ void AmrCoreLBM::GetDataMesoscopic(int lev, amrex::Real time,
 
   // Handle uninitialized old-time (you set t_old = time - 1.e200 on new levels)
   // In that case, only "new" data is meaningful.
-  if (t_old[lev] < -1.e100_rt) {
+  if (t_old[lev] < -amrex::Real(1.e100)) {
     data.push_back(&f_new[lev]);
     datatime.push_back(t_new[lev]);
     return;
@@ -1095,7 +1148,7 @@ void AmrCoreLBM::GetDataMesoscopic(int lev, amrex::Real time,
 
   const amrex::Real dtloc = t_new[lev] - t_old[lev];
   const amrex::Real teps =
-      amrex::max(1.e-12_rt, amrex::Math::abs(dtloc) * 1.e-3_rt);
+      amrex::max(amrex::Real(1.e-12), amrex::Math::abs(dtloc) * amrex::Real(1.e-3));
 
   if (time >= t_new[lev] - teps && time <= t_new[lev] + teps) {
     data.push_back(&f_new[lev]);
@@ -1535,7 +1588,7 @@ void AmrCoreLBM::InitEquilibrium() {
 
       amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j,
                                                   int k) noexcept {
-        Real r = amrex::max(rho(i, j, k), 1.e-12_rt);
+        Real r = amrex::max(rho(i, j, k), amrex::Real(1.e-12));
         Real u0 = ux(i, j, k);
         Real v0 = uy(i, j, k);
         Real w0 = uz(i, j, k);
@@ -1544,7 +1597,7 @@ void AmrCoreLBM::InitEquilibrium() {
         for (int q = 0; q < ndir_l; ++q) {
           Real cu = cx_d[q] * u0 + cy_d[q] * v0 + cz_d[q] * w0;
           Real feq = wi_d[q] * r *
-                     (1.0_rt + 3.0_rt * cu + 4.5_rt * cu * cu - 1.5_rt * u2);
+                     (amrex::Real(1.0) + amrex::Real(3.0) * cu + amrex::Real(4.5) * cu * cu - amrex::Real(1.5) * u2);
           f(i, j, k, q) = feq;
           fo(i, j, k, q) = feq;
         }
@@ -1633,7 +1686,7 @@ void AmrCoreLBM::GetDataMacro(int lev, Real time, Vector<MultiFab *> &data,
 
   // Handle uninitialized/sentinel time (e.g. t_old = time - 1.e200 on new
   // levels). In that case, only the "new" state is meaningful.
-  constexpr Real SENT = 1.e50_rt;
+  constexpr Real SENT = amrex::Real(1.e50);
   if (amrex::Math::abs(t_old[lev]) > SENT ||
       amrex::Math::abs(t_new[lev]) > SENT) {
     data.push_back(&macro_new[lev]);
@@ -1642,7 +1695,7 @@ void AmrCoreLBM::GetDataMacro(int lev, Real time, Vector<MultiFab *> &data,
   }
 
   const Real dtloc = amrex::Math::abs(t_new[lev] - t_old[lev]);
-  const Real teps = amrex::max(1.e-12_rt, dtloc * 1.e-3_rt);
+  const Real teps = amrex::max(amrex::Real(1.e-12), dtloc * amrex::Real(1.e-3));
 
   if (time >= t_new[lev] - teps && time <= t_new[lev] + teps) {
     data.push_back(&macro_new[lev]);

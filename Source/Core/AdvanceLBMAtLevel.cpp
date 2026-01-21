@@ -1,13 +1,20 @@
 #include "AmrCoreLBM.H"
-#include "IBM/IBMarkerDF.H"
+
+#ifndef LBM_USE_IBM
+#define LBM_USE_IBM 1
+#endif
+
 #include "Kernels.H"
 #include <AMReX_FillPatchUtil.H>
 #include <AMReX_PhysBCFunct.H>
 
-// Level-set & IBM backends
+#if LBM_USE_IBM
+#include "IBM/IBMarkerDF.H"
 #include "IBM/IBDiffuseLS.H"
 #include "IBM/IBSharpLS.H"
 #include "LevelSet/LevelSet.H"
+#endif
+
 
 using namespace amrex;
 
@@ -40,22 +47,39 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
   fx_cc.setVal(0.0);
   fy_cc.setVal(0.0);
   fz_cc.setVal(0.0);
+
+  // ---- Prescribed forcing (simple validation / regression test) ----
+  // Applies everywhere on all levels unless you override it via IBM.
+  if (m_use_prescribed_force) {
+    fx_cc.setVal(m_prescribed_force[0]);
+    fy_cc.setVal(m_prescribed_force[1]);
+    fz_cc.setVal(m_prescribed_force[2]);
+  }
   MultiFab sfSborder(grids[lev], dmap[lev], sF_new.nComp(), sF_new.nGrow());
   MultiFab smSborder(grids[lev], dmap[lev], sM_new.nComp(), sM_new.nGrow());
   FillPatchMesoscopic(lev, time, sfSborder, 0, sfSborder.nComp());
   FillPatchMacro(lev, time, smSborder, 0, smSborder.nComp());
 
-  // ---- Level-set driven IBM (only on finest) ----
-  if (m_use_cylinder && lev == finestLevel() && m_ls) {
-    // alias velocity components from macro staging
-    MultiFab ucc(smSborder, amrex::make_alias, 1, 1); // u
-    MultiFab vcc(smSborder, amrex::make_alias, 2, 1); // v
+  // Alias macro fields from the macro staging MultiFab.
+  MultiFab rhocc(smSborder, amrex::make_alias, 0, 1); // rho
+  MultiFab ucc(smSborder, amrex::make_alias, 1, 1);   // u
+  MultiFab vcc(smSborder, amrex::make_alias, 2, 1);   // v
 #if (AMREX_SPACEDIM == 3)
-    MultiFab wcc(smSborder, amrex::make_alias, 3, 1); // w
+  MultiFab wcc(smSborder, amrex::make_alias, 3, 1);   // w
 #else
-    MultiFab wcc(grids[lev], dmap[lev], 1, 0); // dummy w in 2D
-    wcc.setVal(0.0);
+  MultiFab wcc(grids[lev], dmap[lev], 1, 0); // dummy w in 2D
+  wcc.setVal(0.0);
 #endif
+
+#if LBM_USE_IBM
+  // ---- Marker DF IBM (no level-set required; only on finest) ----
+  if (lev == finestLevel() && m_ib_method == 3 && m_ibm) {
+    // IAMReX-style multi-direct-forcing with delta-kernel
+    m_ibm->update_forcing(rhocc, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc, dt_lev);
+  }
+
+  // ---- Level-set driven IBM (only on finest; requires level set) ----
+  if (m_use_cylinder && lev == finestLevel() && m_ls) {
     // amrex::Print() << "AdvancePhiAtLevel: lev=" << lev << " dt_lev=" <<
     // dt_lev
     //                << " updating IBM forcing\n";
@@ -67,11 +91,9 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
       // Sharp: direct forcing in |phi|<=eps band
       m_ibs->update_forcing(lev, *m_ls, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc,
                             dt_lev);
-    } else if (m_ib_method == 3 && m_ibm) {
-      // Marker DF: IAMReX-style multi-direct-forcing with delta-kernel
-      m_ibm->update_forcing(ucc, vcc, wcc, fx_cc, fy_cc, fz_cc, dt_lev);
     }
   }
+#endif // LBM_USE_IBM
   // amrex::Print() << "AdvancePhiAtLevel lev=" << lev
   //                << "  sF_new.nComp=" << sF_new.nComp()
   //                << "  sM_new.nComp=" << sM_new.nComp();
@@ -255,13 +277,13 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
 
         // Deep inside the solid: overwrite state with rest equilibrium
         if (chi > Real(0.99)) {
-          Real rho0 = 1.0; // or just 1.0_rt
+          Real rho0 = 1.0; // or just amrex::Real(1.0)
           rho(i, j, k) = rho0;
           u(i, j, k) = Real(0.0);
           v(i, j, k) = Real(0.0);
           w(i, j, k) = Real(0.0);
           vor(i, j, k) = Real(0.0);
-          P(i, j, k) = rho0 / 3.0_rt;
+          P(i, j, k) = rho0 / amrex::Real(3.0);
 
           for (int q = 0; q < ndir; ++q) {
             Real cu = dirx[q] * u(i, j, k) + diry[q] * v(i, j, k)

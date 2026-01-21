@@ -1,7 +1,9 @@
+
 PRECISION  = DOUBLE
 PROFILE    = FALSE
 
 DEBUG      = TRUE
+
 
 DIM        = 2
 #DIM       = 3
@@ -11,9 +13,6 @@ COMP	   = gcc
 USE_MPI    = TRUE
 USE_OMP    = TRUE 
 USE_CUDA   = FALSE
-
-USE_PARTICLES = TRUE
-DEFINES      += -DAMREX_PARTICLES
 
 Bpack   := ./Make.package 
 Blocs   := . 
