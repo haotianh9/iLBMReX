@@ -7,6 +7,7 @@
 #include "Kernels.H"
 #include <AMReX_FillPatchUtil.H>
 #include <AMReX_PhysBCFunct.H>
+#include <iomanip>
 
 #if LBM_USE_IBM
 #include "IBM/IBMarkerDF.H"
@@ -72,10 +73,50 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
 #endif
 
 #if LBM_USE_IBM
+  std::unique_ptr<MultiFab> prevFxAlias;
+  std::unique_ptr<MultiFab> prevFyAlias;
+  std::unique_ptr<MultiFab> prevFzAlias;
+
+  // Ensure the IBM backend exists on the active finest level.
+  // In AMReX level construction callbacks, finest_level can still be in
+  // transition, so creating the backend only there can leave it null at run
+  // time (which silently disables IBM forcing).
+  if (m_use_cylinder && lev == finestLevel()) {
+    if (m_ib_method == 3 && !m_ibm) {
+      m_ibm = std::make_unique<IBMarkerDF>(geom[lev], dmap[lev], grids[lev],
+                                           m_ls_par.x0, m_ls_par.y0,
+                                           m_ls_par.z0, m_ls_par.R,
+                                           m_marker_par);
+      m_ibd.reset();
+      m_ibs.reset();
+      amrex::Print() << "AdvancePhiAtLevel: initialized marker IBM backend on "
+                     << "level " << lev << "\n";
+    } else if (m_ib_method == 1 && !m_ibd) {
+      m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
+      m_ibs.reset();
+      m_ibm.reset();
+      amrex::Print() << "AdvancePhiAtLevel: initialized diffuse IBM backend on "
+                     << "level " << lev << "\n";
+    } else if (m_ib_method == 2 && !m_ibs) {
+      m_ibs = std::make_unique<IBSharpLS>(geom[lev]);
+      m_ibd.reset();
+      m_ibm.reset();
+      amrex::Print() << "AdvancePhiAtLevel: initialized sharp IBM backend on "
+                     << "level " << lev << "\n";
+    }
+  }
+
   // ---- Marker DF IBM (no level-set required; only on finest) ----
   if (lev == finestLevel() && m_ib_method == 3 && m_ibm) {
+    if (sForcingPtr && sForcingPtr->nComp() >= 3) {
+      prevFxAlias = std::make_unique<MultiFab>(*sForcingPtr, amrex::make_alias, 0, 1);
+      prevFyAlias = std::make_unique<MultiFab>(*sForcingPtr, amrex::make_alias, 1, 1);
+      prevFzAlias = std::make_unique<MultiFab>(*sForcingPtr, amrex::make_alias, 2, 1);
+    }
     // IAMReX-style multi-direct-forcing with delta-kernel
-    m_ibm->update_forcing(rhocc, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc, dt_lev);
+    m_ibm->update_forcing(rhocc, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc, dt_lev,
+                          prevFxAlias.get(), prevFyAlias.get(),
+                          prevFzAlias.get());
   }
 
   // ---- Level-set driven IBM (only on finest; requires level set) ----
@@ -160,11 +201,32 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
     FillPatchForcing(lev, time, *sForcingborder, 0, sForcingborder->nComp());
   }
   {
-    Real maxFx = fx_cc.norm0(0, 0, true);
-    Real maxFy = fy_cc.norm0(0, 0, true);
-    Real maxF = std::max(maxFx, maxFy);
-    amrex::Print() << "t = " << time << " max |F| = " << maxF
-                   << " (Fx=" << maxFx << ", Fy=" << maxFy << ")\n";
+    // NOTE: `local=true` is per-rank and can print zero on IO rank even when
+    // other ranks have nonzero forcing. Report both local and global norms.
+    const Real maxFx_local = fx_cc.norm0(0, 0, true);
+    const Real maxFy_local = fy_cc.norm0(0, 0, true);
+    const Real maxFx_global = fx_cc.norm0(0, 0, false);
+    const Real maxFy_global = fy_cc.norm0(0, 0, false);
+    const Real maxF_global = std::max(maxFx_global, maxFy_global);
+
+    Real maxFx_packed = Real(0.0);
+    Real maxFy_packed = Real(0.0);
+    if (sForcingPtr) {
+      maxFx_packed = sForcingPtr->norm0(0, 0, false);
+      maxFy_packed = sForcingPtr->norm0(1, 0, false);
+    }
+    const Real maxF_packed = std::max(maxFx_packed, maxFy_packed);
+
+    amrex::Print() << std::scientific << std::setprecision(6)
+                   << "[diag_force] lev=" << lev
+                   << " step=" << (istep[lev] + 1)
+                   << " t=" << time
+                   << " cc_max|F|_global=" << maxF_global
+                   << " (Fx=" << maxFx_global << ", Fy=" << maxFy_global << ")"
+                   << " cc_max|F|_local=" << std::max(maxFx_local, maxFy_local)
+                   << " packed_max|F|_global=" << maxF_packed
+                   << " (Fx=" << maxFx_packed << ", Fy=" << maxFy_packed << ")"
+                   << "\n" << std::defaultfloat;
   }
   const Real tempdx = xCellSize[lev];
   const Real tempdy = yCellSize[lev];
@@ -265,7 +327,10 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
           }
         });
 
-    if (m_use_cylinder && m_ls) {
+    // The "overwrite deep-solid cells to rest equilibrium" treatment is for
+    // level-set IBM variants. Marker direct-forcing IBM (IAMR style) should
+    // rely on marker coupling alone and must not apply this extra solid reset.
+    if (m_use_cylinder && m_ls && m_ib_method != 3) {
       const auto &phi_cc = m_ls->phi_at(lev);
       auto phi = phi_cc[mfi].const_array();
 
@@ -306,8 +371,8 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
     }
   }
   const int step_lev = istep[lev];
-  const bool do_vorticity = (step_lev + 1 % regrid_int == 0) ||
-                            (plot_int > 0) && ((step_lev + 1) % plot_int == 0);
+  const bool do_vorticity = (((step_lev + 1) % regrid_int) == 0) ||
+                            ((plot_int > 0) && (((step_lev + 1) % plot_int) == 0));
 
   if (do_vorticity) {
 

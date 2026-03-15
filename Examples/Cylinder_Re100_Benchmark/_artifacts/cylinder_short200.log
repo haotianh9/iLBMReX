@@ -1,0 +1,1239 @@
+Initializing AMReX (25.03-6-g5da47374715c)...
+MPI initialized with 12 MPI processes
+MPI initialized with thread support level 0
+OMP initialized with 1 OMP threads
+AMReX (25.03-6-g5da47374715c) initialized
+Successfully read inputs file ... 
+ max_step = 200
+ stop_time = 200
+IBM parameters: use_cylinder = 1, method = iamr_marker
+               x0 = 96, y0 = 127.9, z0 = 0, R = 16, alpha = 0.1
+               marker_geometry = cylinder
+               force_eval_method = momentum_exchange (2)
+               marker_coupling = ivc (ivc_diag_reg=1.3, ivc_rebuild_matrix=0)
+Number signed distance functions = 1
+Total number of variables = 16
+Using IBM with method = 3
+AmrCoreLBM::AmrCoreLBM() finished.
+Creating new distribution map on level: 0
+Making new level 0
+BuildLevelSetOnLevel: level 0 (nghost = 3)
+LevelSetManager: built cylinder level-set on level 0 with R = 16
+BuildLevelSetOnLevel: level 0 (|BA| = 16, R = 16)
+BuildLevelSetOnLevel: level 0 (nghost = 3)
+LevelSetManager: built cylinder level-set on level 0 with R = 16
+BuildLevelSetOnLevel: level 0 (|BA| = 16, R = 16)
+Preparing plotfile data at level 0
+m_use_cylinder = 1, m_ls = not null, phi_written = yes
+PlotFileVarNames: total vars = 16
+
+Coarse STEP 1 starts ...
+[Level 0 step 1] ADVANCE with time = 0 dt = 1
+[diag_force] lev=0 step=1 t=0.000000e+00 cc_max|F|_global=9.379640e-03 (Fx=9.379640e-03, Fy=0.000000e+00) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.379640e-03 (Fx=9.379640e-03, Fy=0.000000e+00)
+[Level 0 step 1] Advanced 131072 cells
+Coarse STEP 1 ends. TIME = 1 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 2 starts ...
+[Level 0 step 2] ADVANCE with time = 1 dt = 1
+[diag_force] lev=0 step=2 t=1.000000e+00 cc_max|F|_global=8.270636e-03 (Fx=8.270636e-03, Fy=5.687648e-06) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.270636e-03 (Fx=8.270636e-03, Fy=5.687648e-06)
+[Level 0 step 2] Advanced 131072 cells
+Coarse STEP 2 ends. TIME = 2 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 3 starts ...
+[Level 0 step 3] ADVANCE with time = 2 dt = 1
+[diag_force] lev=0 step=3 t=2.000000e+00 cc_max|F|_global=6.864292e-03 (Fx=6.864292e-03, Fy=2.131878e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=6.864292e-03 (Fx=6.864292e-03, Fy=2.131878e-04)
+[Level 0 step 3] Advanced 131072 cells
+Coarse STEP 3 ends. TIME = 3 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 4 starts ...
+[Level 0 step 4] ADVANCE with time = 3 dt = 1
+[diag_force] lev=0 step=4 t=3.000000e+00 cc_max|F|_global=5.689741e-03 (Fx=5.689741e-03, Fy=5.619130e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.689741e-03 (Fx=5.689741e-03, Fy=5.619130e-04)
+[Level 0 step 4] Advanced 131072 cells
+Coarse STEP 4 ends. TIME = 4 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 5 starts ...
+[Level 0 step 5] ADVANCE with time = 4 dt = 1
+[diag_force] lev=0 step=5 t=4.000000e+00 cc_max|F|_global=5.490998e-03 (Fx=5.490998e-03, Fy=1.018741e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.490998e-03 (Fx=5.490998e-03, Fy=1.018741e-03)
+[Level 0 step 5] Advanced 131072 cells
+Coarse STEP 5 ends. TIME = 5 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 6 starts ...
+[Level 0 step 6] ADVANCE with time = 5 dt = 1
+[diag_force] lev=0 step=6 t=5.000000e+00 cc_max|F|_global=5.386464e-03 (Fx=5.386464e-03, Fy=1.341048e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.386464e-03 (Fx=5.386464e-03, Fy=1.341048e-03)
+[Level 0 step 6] Advanced 131072 cells
+Coarse STEP 6 ends. TIME = 6 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 7 starts ...
+[Level 0 step 7] ADVANCE with time = 6 dt = 1
+[diag_force] lev=0 step=7 t=6.000000e+00 cc_max|F|_global=5.744343e-03 (Fx=5.744343e-03, Fy=1.783043e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.744343e-03 (Fx=5.744343e-03, Fy=1.783043e-03)
+[Level 0 step 7] Advanced 131072 cells
+Coarse STEP 7 ends. TIME = 7 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 8 starts ...
+[Level 0 step 8] ADVANCE with time = 7 dt = 1
+[diag_force] lev=0 step=8 t=7.000000e+00 cc_max|F|_global=5.687554e-03 (Fx=5.687554e-03, Fy=2.135032e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.687554e-03 (Fx=5.687554e-03, Fy=2.135032e-03)
+[Level 0 step 8] Advanced 131072 cells
+Coarse STEP 8 ends. TIME = 8 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 9 starts ...
+[Level 0 step 9] ADVANCE with time = 8 dt = 1
+[diag_force] lev=0 step=9 t=8.000000e+00 cc_max|F|_global=5.857401e-03 (Fx=5.857401e-03, Fy=2.448932e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.857401e-03 (Fx=5.857401e-03, Fy=2.448932e-03)
+[Level 0 step 9] Advanced 131072 cells
+Coarse STEP 9 ends. TIME = 9 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 10 starts ...
+[Level 0 step 10] ADVANCE with time = 9 dt = 1
+[diag_force] lev=0 step=10 t=9.000000e+00 cc_max|F|_global=5.621500e-03 (Fx=5.621500e-03, Fy=2.533341e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.621500e-03 (Fx=5.621500e-03, Fy=2.533341e-03)
+[Level 0 step 10] Advanced 131072 cells
+Coarse STEP 10 ends. TIME = 10 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 11 starts ...
+[Level 0 step 11] ADVANCE with time = 10 dt = 1
+[diag_force] lev=0 step=11 t=1.000000e+01 cc_max|F|_global=5.686778e-03 (Fx=5.686778e-03, Fy=2.559122e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.686778e-03 (Fx=5.686778e-03, Fy=2.559122e-03)
+[Level 0 step 11] Advanced 131072 cells
+Coarse STEP 11 ends. TIME = 11 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 12 starts ...
+[Level 0 step 12] ADVANCE with time = 11 dt = 1
+[diag_force] lev=0 step=12 t=1.100000e+01 cc_max|F|_global=5.489788e-03 (Fx=5.489788e-03, Fy=2.541320e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.489788e-03 (Fx=5.489788e-03, Fy=2.541320e-03)
+[Level 0 step 12] Advanced 131072 cells
+Coarse STEP 12 ends. TIME = 12 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 13 starts ...
+[Level 0 step 13] ADVANCE with time = 12 dt = 1
+[diag_force] lev=0 step=13 t=1.200000e+01 cc_max|F|_global=5.642357e-03 (Fx=5.642357e-03, Fy=2.634448e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.642357e-03 (Fx=5.642357e-03, Fy=2.634448e-03)
+[Level 0 step 13] Advanced 131072 cells
+Coarse STEP 13 ends. TIME = 13 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 14 starts ...
+[Level 0 step 14] ADVANCE with time = 13 dt = 1
+[diag_force] lev=0 step=14 t=1.300000e+01 cc_max|F|_global=5.527073e-03 (Fx=5.527073e-03, Fy=2.697076e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.527073e-03 (Fx=5.527073e-03, Fy=2.697076e-03)
+[Level 0 step 14] Advanced 131072 cells
+Coarse STEP 14 ends. TIME = 14 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 15 starts ...
+[Level 0 step 15] ADVANCE with time = 14 dt = 1
+[diag_force] lev=0 step=15 t=1.400000e+01 cc_max|F|_global=5.693165e-03 (Fx=5.693165e-03, Fy=2.774427e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.693165e-03 (Fx=5.693165e-03, Fy=2.774427e-03)
+[Level 0 step 15] Advanced 131072 cells
+Coarse STEP 15 ends. TIME = 15 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 16 starts ...
+[Level 0 step 16] ADVANCE with time = 15 dt = 1
+[diag_force] lev=0 step=16 t=1.500000e+01 cc_max|F|_global=5.551333e-03 (Fx=5.551333e-03, Fy=2.776091e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.551333e-03 (Fx=5.551333e-03, Fy=2.776091e-03)
+[Level 0 step 16] Advanced 131072 cells
+Coarse STEP 16 ends. TIME = 16 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 17 starts ...
+[Level 0 step 17] ADVANCE with time = 16 dt = 1
+[diag_force] lev=0 step=17 t=1.600000e+01 cc_max|F|_global=5.649721e-03 (Fx=5.649721e-03, Fy=2.826491e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.649721e-03 (Fx=5.649721e-03, Fy=2.826491e-03)
+[Level 0 step 17] Advanced 131072 cells
+Coarse STEP 17 ends. TIME = 17 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 18 starts ...
+[Level 0 step 18] ADVANCE with time = 17 dt = 1
+[diag_force] lev=0 step=18 t=1.700000e+01 cc_max|F|_global=5.494144e-03 (Fx=5.494144e-03, Fy=2.840237e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.494144e-03 (Fx=5.494144e-03, Fy=2.840237e-03)
+[Level 0 step 18] Advanced 131072 cells
+Coarse STEP 18 ends. TIME = 18 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 19 starts ...
+[Level 0 step 19] ADVANCE with time = 18 dt = 1
+[diag_force] lev=0 step=19 t=1.800000e+01 cc_max|F|_global=5.591601e-03 (Fx=5.591601e-03, Fy=2.864047e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.591601e-03 (Fx=5.591601e-03, Fy=2.864047e-03)
+[Level 0 step 19] Advanced 131072 cells
+Coarse STEP 19 ends. TIME = 19 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 20 starts ...
+[Level 0 step 20] ADVANCE with time = 19 dt = 1
+[diag_force] lev=0 step=20 t=1.900000e+01 cc_max|F|_global=5.479367e-03 (Fx=5.479367e-03, Fy=2.806641e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.479367e-03 (Fx=5.479367e-03, Fy=2.806641e-03)
+[Level 0 step 20] Advanced 131072 cells
+Coarse STEP 20 ends. TIME = 20 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 21 starts ...
+[Level 0 step 21] ADVANCE with time = 20 dt = 1
+[diag_force] lev=0 step=21 t=2.000000e+01 cc_max|F|_global=5.588235e-03 (Fx=5.588235e-03, Fy=2.790832e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.588235e-03 (Fx=5.588235e-03, Fy=2.790832e-03)
+[Level 0 step 21] Advanced 131072 cells
+Coarse STEP 21 ends. TIME = 21 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 22 starts ...
+[Level 0 step 22] ADVANCE with time = 21 dt = 1
+[diag_force] lev=0 step=22 t=2.100000e+01 cc_max|F|_global=5.485766e-03 (Fx=5.485766e-03, Fy=2.785483e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.485766e-03 (Fx=5.485766e-03, Fy=2.785483e-03)
+[Level 0 step 22] Advanced 131072 cells
+Coarse STEP 22 ends. TIME = 22 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 23 starts ...
+[Level 0 step 23] ADVANCE with time = 22 dt = 1
+[diag_force] lev=0 step=23 t=2.200000e+01 cc_max|F|_global=5.574061e-03 (Fx=5.574061e-03, Fy=2.847406e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.574061e-03 (Fx=5.574061e-03, Fy=2.847406e-03)
+[Level 0 step 23] Advanced 131072 cells
+Coarse STEP 23 ends. TIME = 23 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 24 starts ...
+[Level 0 step 24] ADVANCE with time = 23 dt = 1
+[diag_force] lev=0 step=24 t=2.300000e+01 cc_max|F|_global=5.461814e-03 (Fx=5.461814e-03, Fy=2.858690e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.461814e-03 (Fx=5.461814e-03, Fy=2.858690e-03)
+[Level 0 step 24] Advanced 131072 cells
+Coarse STEP 24 ends. TIME = 24 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 25 starts ...
+[Level 0 step 25] ADVANCE with time = 24 dt = 1
+[diag_force] lev=0 step=25 t=2.400000e+01 cc_max|F|_global=5.531918e-03 (Fx=5.531918e-03, Fy=2.863634e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.531918e-03 (Fx=5.531918e-03, Fy=2.863634e-03)
+[Level 0 step 25] Advanced 131072 cells
+Coarse STEP 25 ends. TIME = 25 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 26 starts ...
+[Level 0 step 26] ADVANCE with time = 25 dt = 1
+[diag_force] lev=0 step=26 t=2.500000e+01 cc_max|F|_global=5.420036e-03 (Fx=5.420036e-03, Fy=2.822571e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.420036e-03 (Fx=5.420036e-03, Fy=2.822571e-03)
+[Level 0 step 26] Advanced 131072 cells
+Coarse STEP 26 ends. TIME = 26 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 27 starts ...
+[Level 0 step 27] ADVANCE with time = 26 dt = 1
+[diag_force] lev=0 step=27 t=2.600000e+01 cc_max|F|_global=5.466745e-03 (Fx=5.466745e-03, Fy=2.820108e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.466745e-03 (Fx=5.466745e-03, Fy=2.820108e-03)
+[Level 0 step 27] Advanced 131072 cells
+Coarse STEP 27 ends. TIME = 27 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 28 starts ...
+[Level 0 step 28] ADVANCE with time = 27 dt = 1
+[diag_force] lev=0 step=28 t=2.700000e+01 cc_max|F|_global=5.378846e-03 (Fx=5.378846e-03, Fy=2.798007e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.378846e-03 (Fx=5.378846e-03, Fy=2.798007e-03)
+[Level 0 step 28] Advanced 131072 cells
+Coarse STEP 28 ends. TIME = 28 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 29 starts ...
+[Level 0 step 29] ADVANCE with time = 28 dt = 1
+[diag_force] lev=0 step=29 t=2.800000e+01 cc_max|F|_global=5.435134e-03 (Fx=5.435134e-03, Fy=2.802239e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.435134e-03 (Fx=5.435134e-03, Fy=2.802239e-03)
+[Level 0 step 29] Advanced 131072 cells
+Coarse STEP 29 ends. TIME = 29 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 30 starts ...
+[Level 0 step 30] ADVANCE with time = 29 dt = 1
+[diag_force] lev=0 step=30 t=2.900000e+01 cc_max|F|_global=5.356481e-03 (Fx=5.356481e-03, Fy=2.763960e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.356481e-03 (Fx=5.356481e-03, Fy=2.763960e-03)
+[Level 0 step 30] Advanced 131072 cells
+Coarse STEP 30 ends. TIME = 30 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 31 starts ...
+[Level 0 step 31] ADVANCE with time = 30 dt = 1
+[diag_force] lev=0 step=31 t=3.000000e+01 cc_max|F|_global=5.395817e-03 (Fx=5.395817e-03, Fy=2.761649e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.395817e-03 (Fx=5.395817e-03, Fy=2.761649e-03)
+[Level 0 step 31] Advanced 131072 cells
+Coarse STEP 31 ends. TIME = 31 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 32 starts ...
+[Level 0 step 32] ADVANCE with time = 31 dt = 1
+[diag_force] lev=0 step=32 t=3.100000e+01 cc_max|F|_global=5.304803e-03 (Fx=5.304803e-03, Fy=2.766191e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.304803e-03 (Fx=5.304803e-03, Fy=2.766191e-03)
+[Level 0 step 32] Advanced 131072 cells
+Coarse STEP 32 ends. TIME = 32 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 33 starts ...
+[Level 0 step 33] ADVANCE with time = 32 dt = 1
+[diag_force] lev=0 step=33 t=3.200000e+01 cc_max|F|_global=5.314006e-03 (Fx=5.314006e-03, Fy=2.789881e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.314006e-03 (Fx=5.314006e-03, Fy=2.789881e-03)
+[Level 0 step 33] Advanced 131072 cells
+Coarse STEP 33 ends. TIME = 33 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 34 starts ...
+[Level 0 step 34] ADVANCE with time = 33 dt = 1
+[diag_force] lev=0 step=34 t=3.300000e+01 cc_max|F|_global=5.224330e-03 (Fx=5.224330e-03, Fy=2.755144e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.224330e-03 (Fx=5.224330e-03, Fy=2.755144e-03)
+[Level 0 step 34] Advanced 131072 cells
+Coarse STEP 34 ends. TIME = 34 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 35 starts ...
+[Level 0 step 35] ADVANCE with time = 34 dt = 1
+[diag_force] lev=0 step=35 t=3.400000e+01 cc_max|F|_global=5.228190e-03 (Fx=5.228190e-03, Fy=2.724573e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.228190e-03 (Fx=5.228190e-03, Fy=2.724573e-03)
+[Level 0 step 35] Advanced 131072 cells
+Coarse STEP 35 ends. TIME = 35 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 36 starts ...
+[Level 0 step 36] ADVANCE with time = 35 dt = 1
+[diag_force] lev=0 step=36 t=3.500000e+01 cc_max|F|_global=5.146553e-03 (Fx=5.146553e-03, Fy=2.683608e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.146553e-03 (Fx=5.146553e-03, Fy=2.683608e-03)
+[Level 0 step 36] Advanced 131072 cells
+Coarse STEP 36 ends. TIME = 36 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 37 starts ...
+[Level 0 step 37] ADVANCE with time = 36 dt = 1
+[diag_force] lev=0 step=37 t=3.600000e+01 cc_max|F|_global=5.139365e-03 (Fx=5.139365e-03, Fy=2.672481e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.139365e-03 (Fx=5.139365e-03, Fy=2.672481e-03)
+[Level 0 step 37] Advanced 131072 cells
+Coarse STEP 37 ends. TIME = 37 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 38 starts ...
+[Level 0 step 38] ADVANCE with time = 37 dt = 1
+[diag_force] lev=0 step=38 t=3.700000e+01 cc_max|F|_global=5.059126e-03 (Fx=5.059126e-03, Fy=2.641990e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.059126e-03 (Fx=5.059126e-03, Fy=2.641990e-03)
+[Level 0 step 38] Advanced 131072 cells
+Coarse STEP 38 ends. TIME = 38 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 39 starts ...
+[Level 0 step 39] ADVANCE with time = 38 dt = 1
+[diag_force] lev=0 step=39 t=3.800000e+01 cc_max|F|_global=5.035011e-03 (Fx=5.035011e-03, Fy=2.627130e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.035011e-03 (Fx=5.035011e-03, Fy=2.627130e-03)
+[Level 0 step 39] Advanced 131072 cells
+Coarse STEP 39 ends. TIME = 39 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 40 starts ...
+[Level 0 step 40] ADVANCE with time = 39 dt = 1
+[diag_force] lev=0 step=40 t=3.900000e+01 cc_max|F|_global=4.943308e-03 (Fx=4.943308e-03, Fy=2.593532e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.943308e-03 (Fx=4.943308e-03, Fy=2.593532e-03)
+[Level 0 step 40] Advanced 131072 cells
+Coarse STEP 40 ends. TIME = 40 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 41 starts ...
+[Level 0 step 41] ADVANCE with time = 40 dt = 1
+[diag_force] lev=0 step=41 t=4.000000e+01 cc_max|F|_global=4.888982e-03 (Fx=4.888982e-03, Fy=2.577695e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.888982e-03 (Fx=4.888982e-03, Fy=2.577695e-03)
+[Level 0 step 41] Advanced 131072 cells
+Coarse STEP 41 ends. TIME = 41 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 42 starts ...
+[Level 0 step 42] ADVANCE with time = 41 dt = 1
+[diag_force] lev=0 step=42 t=4.100000e+01 cc_max|F|_global=4.781858e-03 (Fx=4.781858e-03, Fy=2.534469e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.781858e-03 (Fx=4.781858e-03, Fy=2.534469e-03)
+[Level 0 step 42] Advanced 131072 cells
+Coarse STEP 42 ends. TIME = 42 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 43 starts ...
+[Level 0 step 43] ADVANCE with time = 42 dt = 1
+[diag_force] lev=0 step=43 t=4.200000e+01 cc_max|F|_global=4.709689e-03 (Fx=4.709689e-03, Fy=2.493792e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.709689e-03 (Fx=4.709689e-03, Fy=2.493792e-03)
+[Level 0 step 43] Advanced 131072 cells
+Coarse STEP 43 ends. TIME = 43 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 44 starts ...
+[Level 0 step 44] ADVANCE with time = 43 dt = 1
+[diag_force] lev=0 step=44 t=4.300000e+01 cc_max|F|_global=4.601927e-03 (Fx=4.601927e-03, Fy=2.425525e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.601927e-03 (Fx=4.601927e-03, Fy=2.425525e-03)
+[Level 0 step 44] Advanced 131072 cells
+Coarse STEP 44 ends. TIME = 44 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 45 starts ...
+[Level 0 step 45] ADVANCE with time = 44 dt = 1
+[diag_force] lev=0 step=45 t=4.400000e+01 cc_max|F|_global=4.512576e-03 (Fx=4.512576e-03, Fy=2.368743e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.512576e-03 (Fx=4.512576e-03, Fy=2.368743e-03)
+[Level 0 step 45] Advanced 131072 cells
+Coarse STEP 45 ends. TIME = 45 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 46 starts ...
+[Level 0 step 46] ADVANCE with time = 45 dt = 1
+[diag_force] lev=0 step=46 t=4.500000e+01 cc_max|F|_global=4.380243e-03 (Fx=4.380243e-03, Fy=2.296666e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.380243e-03 (Fx=4.380243e-03, Fy=2.296666e-03)
+[Level 0 step 46] Advanced 131072 cells
+Coarse STEP 46 ends. TIME = 46 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 47 starts ...
+[Level 0 step 47] ADVANCE with time = 46 dt = 1
+[diag_force] lev=0 step=47 t=4.600000e+01 cc_max|F|_global=4.288710e-03 (Fx=4.288710e-03, Fy=2.233002e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.288710e-03 (Fx=4.288710e-03, Fy=2.233002e-03)
+[Level 0 step 47] Advanced 131072 cells
+Coarse STEP 47 ends. TIME = 47 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 48 starts ...
+[Level 0 step 48] ADVANCE with time = 47 dt = 1
+[diag_force] lev=0 step=48 t=4.700000e+01 cc_max|F|_global=4.164846e-03 (Fx=4.164846e-03, Fy=2.146061e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.164846e-03 (Fx=4.164846e-03, Fy=2.146061e-03)
+[Level 0 step 48] Advanced 131072 cells
+Coarse STEP 48 ends. TIME = 48 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 49 starts ...
+[Level 0 step 49] ADVANCE with time = 48 dt = 1
+[diag_force] lev=0 step=49 t=4.800000e+01 cc_max|F|_global=4.087086e-03 (Fx=4.087086e-03, Fy=2.053061e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.087086e-03 (Fx=4.087086e-03, Fy=2.053061e-03)
+[Level 0 step 49] Advanced 131072 cells
+Coarse STEP 49 ends. TIME = 49 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 50 starts ...
+[Level 0 step 50] ADVANCE with time = 49 dt = 1
+[diag_force] lev=0 step=50 t=4.900000e+01 cc_max|F|_global=3.932740e-03 (Fx=3.932740e-03, Fy=1.941955e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.932740e-03 (Fx=3.932740e-03, Fy=1.941955e-03)
+[Level 0 step 50] Advanced 131072 cells
+Coarse STEP 50 ends. TIME = 50 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 51 starts ...
+[Level 0 step 51] ADVANCE with time = 50 dt = 1
+[diag_force] lev=0 step=51 t=5.000000e+01 cc_max|F|_global=3.808472e-03 (Fx=3.808472e-03, Fy=1.857634e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.808472e-03 (Fx=3.808472e-03, Fy=1.857634e-03)
+[Level 0 step 51] Advanced 131072 cells
+Coarse STEP 51 ends. TIME = 51 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 52 starts ...
+[Level 0 step 52] ADVANCE with time = 51 dt = 1
+[diag_force] lev=0 step=52 t=5.100000e+01 cc_max|F|_global=3.614070e-03 (Fx=3.614070e-03, Fy=1.732160e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.614070e-03 (Fx=3.614070e-03, Fy=1.732160e-03)
+[Level 0 step 52] Advanced 131072 cells
+Coarse STEP 52 ends. TIME = 52 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 53 starts ...
+[Level 0 step 53] ADVANCE with time = 52 dt = 1
+[diag_force] lev=0 step=53 t=5.200000e+01 cc_max|F|_global=3.442216e-03 (Fx=3.442216e-03, Fy=1.619026e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.442216e-03 (Fx=3.442216e-03, Fy=1.619026e-03)
+[Level 0 step 53] Advanced 131072 cells
+Coarse STEP 53 ends. TIME = 53 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 54 starts ...
+[Level 0 step 54] ADVANCE with time = 53 dt = 1
+[diag_force] lev=0 step=54 t=5.300000e+01 cc_max|F|_global=3.206197e-03 (Fx=3.206197e-03, Fy=1.470818e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.206197e-03 (Fx=3.206197e-03, Fy=1.470818e-03)
+[Level 0 step 54] Advanced 131072 cells
+Coarse STEP 54 ends. TIME = 54 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 55 starts ...
+[Level 0 step 55] ADVANCE with time = 54 dt = 1
+[diag_force] lev=0 step=55 t=5.400000e+01 cc_max|F|_global=2.988930e-03 (Fx=2.988930e-03, Fy=1.342296e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.988930e-03 (Fx=2.988930e-03, Fy=1.342296e-03)
+[Level 0 step 55] Advanced 131072 cells
+Coarse STEP 55 ends. TIME = 55 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 56 starts ...
+[Level 0 step 56] ADVANCE with time = 55 dt = 1
+[diag_force] lev=0 step=56 t=5.500000e+01 cc_max|F|_global=2.731844e-03 (Fx=2.731844e-03, Fy=1.203380e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.731844e-03 (Fx=2.731844e-03, Fy=1.203380e-03)
+[Level 0 step 56] Advanced 131072 cells
+Coarse STEP 56 ends. TIME = 56 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 57 starts ...
+[Level 0 step 57] ADVANCE with time = 56 dt = 1
+[diag_force] lev=0 step=57 t=5.600000e+01 cc_max|F|_global=2.527659e-03 (Fx=2.527659e-03, Fy=1.190440e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.527659e-03 (Fx=2.527659e-03, Fy=1.190440e-03)
+[Level 0 step 57] Advanced 131072 cells
+Coarse STEP 57 ends. TIME = 57 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 58 starts ...
+[Level 0 step 58] ADVANCE with time = 57 dt = 1
+[diag_force] lev=0 step=58 t=5.700000e+01 cc_max|F|_global=2.623387e-03 (Fx=2.623387e-03, Fy=1.210013e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.623387e-03 (Fx=2.623387e-03, Fy=1.210013e-03)
+[Level 0 step 58] Advanced 131072 cells
+Coarse STEP 58 ends. TIME = 58 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 59 starts ...
+[Level 0 step 59] ADVANCE with time = 58 dt = 1
+[diag_force] lev=0 step=59 t=5.800000e+01 cc_max|F|_global=2.778037e-03 (Fx=2.778037e-03, Fy=1.272488e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.778037e-03 (Fx=2.778037e-03, Fy=1.272488e-03)
+[Level 0 step 59] Advanced 131072 cells
+Coarse STEP 59 ends. TIME = 59 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 60 starts ...
+[Level 0 step 60] ADVANCE with time = 59 dt = 1
+[diag_force] lev=0 step=60 t=5.900000e+01 cc_max|F|_global=2.977090e-03 (Fx=2.977090e-03, Fy=1.346782e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.977090e-03 (Fx=2.977090e-03, Fy=1.346782e-03)
+[Level 0 step 60] Advanced 131072 cells
+Coarse STEP 60 ends. TIME = 60 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 61 starts ...
+[Level 0 step 61] ADVANCE with time = 60 dt = 1
+[diag_force] lev=0 step=61 t=6.000000e+01 cc_max|F|_global=3.138565e-03 (Fx=3.138565e-03, Fy=1.435640e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.138565e-03 (Fx=3.138565e-03, Fy=1.435640e-03)
+[Level 0 step 61] Advanced 131072 cells
+Coarse STEP 61 ends. TIME = 61 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 62 starts ...
+[Level 0 step 62] ADVANCE with time = 61 dt = 1
+[diag_force] lev=0 step=62 t=6.100000e+01 cc_max|F|_global=3.246311e-03 (Fx=3.246311e-03, Fy=1.501668e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.246311e-03 (Fx=3.246311e-03, Fy=1.501668e-03)
+[Level 0 step 62] Advanced 131072 cells
+Coarse STEP 62 ends. TIME = 62 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 63 starts ...
+[Level 0 step 63] ADVANCE with time = 62 dt = 1
+[diag_force] lev=0 step=63 t=6.200000e+01 cc_max|F|_global=3.229966e-03 (Fx=3.229966e-03, Fy=1.545548e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.229966e-03 (Fx=3.229966e-03, Fy=1.545548e-03)
+[Level 0 step 63] Advanced 131072 cells
+Coarse STEP 63 ends. TIME = 63 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 64 starts ...
+[Level 0 step 64] ADVANCE with time = 63 dt = 1
+[diag_force] lev=0 step=64 t=6.300000e+01 cc_max|F|_global=3.137508e-03 (Fx=3.137508e-03, Fy=1.542837e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.137508e-03 (Fx=3.137508e-03, Fy=1.542837e-03)
+[Level 0 step 64] Advanced 131072 cells
+Coarse STEP 64 ends. TIME = 64 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 65 starts ...
+[Level 0 step 65] ADVANCE with time = 64 dt = 1
+[diag_force] lev=0 step=65 t=6.400000e+01 cc_max|F|_global=3.018119e-03 (Fx=3.018119e-03, Fy=1.514468e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.018119e-03 (Fx=3.018119e-03, Fy=1.514468e-03)
+[Level 0 step 65] Advanced 131072 cells
+Coarse STEP 65 ends. TIME = 65 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 66 starts ...
+[Level 0 step 66] ADVANCE with time = 65 dt = 1
+[diag_force] lev=0 step=66 t=6.500000e+01 cc_max|F|_global=3.014627e-03 (Fx=3.014627e-03, Fy=1.456089e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.014627e-03 (Fx=3.014627e-03, Fy=1.456089e-03)
+[Level 0 step 66] Advanced 131072 cells
+Coarse STEP 66 ends. TIME = 66 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 67 starts ...
+[Level 0 step 67] ADVANCE with time = 66 dt = 1
+[diag_force] lev=0 step=67 t=6.600000e+01 cc_max|F|_global=2.938048e-03 (Fx=2.938048e-03, Fy=1.397334e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.938048e-03 (Fx=2.938048e-03, Fy=1.397334e-03)
+[Level 0 step 67] Advanced 131072 cells
+Coarse STEP 67 ends. TIME = 67 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 68 starts ...
+[Level 0 step 68] ADVANCE with time = 67 dt = 1
+[diag_force] lev=0 step=68 t=6.700000e+01 cc_max|F|_global=2.800550e-03 (Fx=2.800550e-03, Fy=1.336700e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.800550e-03 (Fx=2.800550e-03, Fy=1.336700e-03)
+[Level 0 step 68] Advanced 131072 cells
+Coarse STEP 68 ends. TIME = 68 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 69 starts ...
+[Level 0 step 69] ADVANCE with time = 68 dt = 1
+[diag_force] lev=0 step=69 t=6.800000e+01 cc_max|F|_global=2.662940e-03 (Fx=2.662940e-03, Fy=1.301014e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.662940e-03 (Fx=2.662940e-03, Fy=1.301014e-03)
+[Level 0 step 69] Advanced 131072 cells
+Coarse STEP 69 ends. TIME = 69 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 70 starts ...
+[Level 0 step 70] ADVANCE with time = 69 dt = 1
+[diag_force] lev=0 step=70 t=6.900000e+01 cc_max|F|_global=2.664094e-03 (Fx=2.664094e-03, Fy=1.281275e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.664094e-03 (Fx=2.664094e-03, Fy=1.281275e-03)
+[Level 0 step 70] Advanced 131072 cells
+Coarse STEP 70 ends. TIME = 70 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 71 starts ...
+[Level 0 step 71] ADVANCE with time = 70 dt = 1
+[diag_force] lev=0 step=71 t=7.000000e+01 cc_max|F|_global=2.662213e-03 (Fx=2.662213e-03, Fy=1.287293e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.662213e-03 (Fx=2.662213e-03, Fy=1.287293e-03)
+[Level 0 step 71] Advanced 131072 cells
+Coarse STEP 71 ends. TIME = 71 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 72 starts ...
+[Level 0 step 72] ADVANCE with time = 71 dt = 1
+[diag_force] lev=0 step=72 t=7.100000e+01 cc_max|F|_global=2.651907e-03 (Fx=2.651907e-03, Fy=1.292927e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.651907e-03 (Fx=2.651907e-03, Fy=1.292927e-03)
+[Level 0 step 72] Advanced 131072 cells
+Coarse STEP 72 ends. TIME = 72 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 73 starts ...
+[Level 0 step 73] ADVANCE with time = 72 dt = 1
+[diag_force] lev=0 step=73 t=7.200000e+01 cc_max|F|_global=2.567383e-03 (Fx=2.567383e-03, Fy=1.299337e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.567383e-03 (Fx=2.567383e-03, Fy=1.299337e-03)
+[Level 0 step 73] Advanced 131072 cells
+Coarse STEP 73 ends. TIME = 73 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 74 starts ...
+[Level 0 step 74] ADVANCE with time = 73 dt = 1
+[diag_force] lev=0 step=74 t=7.300000e+01 cc_max|F|_global=2.536543e-03 (Fx=2.536543e-03, Fy=1.286653e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.536543e-03 (Fx=2.536543e-03, Fy=1.286653e-03)
+[Level 0 step 74] Advanced 131072 cells
+Coarse STEP 74 ends. TIME = 74 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 75 starts ...
+[Level 0 step 75] ADVANCE with time = 74 dt = 1
+[diag_force] lev=0 step=75 t=7.400000e+01 cc_max|F|_global=2.522713e-03 (Fx=2.522713e-03, Fy=1.266912e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.522713e-03 (Fx=2.522713e-03, Fy=1.266912e-03)
+[Level 0 step 75] Advanced 131072 cells
+Coarse STEP 75 ends. TIME = 75 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 76 starts ...
+[Level 0 step 76] ADVANCE with time = 75 dt = 1
+[diag_force] lev=0 step=76 t=7.500000e+01 cc_max|F|_global=2.479044e-03 (Fx=2.479044e-03, Fy=1.230008e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.479044e-03 (Fx=2.479044e-03, Fy=1.230008e-03)
+[Level 0 step 76] Advanced 131072 cells
+Coarse STEP 76 ends. TIME = 76 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 77 starts ...
+[Level 0 step 77] ADVANCE with time = 76 dt = 1
+[diag_force] lev=0 step=77 t=7.600000e+01 cc_max|F|_global=2.412709e-03 (Fx=2.412709e-03, Fy=1.193777e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.412709e-03 (Fx=2.412709e-03, Fy=1.193777e-03)
+[Level 0 step 77] Advanced 131072 cells
+Coarse STEP 77 ends. TIME = 77 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 78 starts ...
+[Level 0 step 78] ADVANCE with time = 77 dt = 1
+[diag_force] lev=0 step=78 t=7.700000e+01 cc_max|F|_global=2.349195e-03 (Fx=2.349195e-03, Fy=1.154879e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.349195e-03 (Fx=2.349195e-03, Fy=1.154879e-03)
+[Level 0 step 78] Advanced 131072 cells
+Coarse STEP 78 ends. TIME = 78 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 79 starts ...
+[Level 0 step 79] ADVANCE with time = 78 dt = 1
+[diag_force] lev=0 step=79 t=7.800000e+01 cc_max|F|_global=2.293293e-03 (Fx=2.293293e-03, Fy=1.133055e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.293293e-03 (Fx=2.293293e-03, Fy=1.133055e-03)
+[Level 0 step 79] Advanced 131072 cells
+Coarse STEP 79 ends. TIME = 79 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 80 starts ...
+[Level 0 step 80] ADVANCE with time = 79 dt = 1
+[diag_force] lev=0 step=80 t=7.900000e+01 cc_max|F|_global=2.261907e-03 (Fx=2.261907e-03, Fy=1.119054e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.261907e-03 (Fx=2.261907e-03, Fy=1.119054e-03)
+[Level 0 step 80] Advanced 131072 cells
+Coarse STEP 80 ends. TIME = 80 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 81 starts ...
+[Level 0 step 81] ADVANCE with time = 80 dt = 1
+[diag_force] lev=0 step=81 t=8.000000e+01 cc_max|F|_global=2.236506e-03 (Fx=2.236506e-03, Fy=1.118817e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.236506e-03 (Fx=2.236506e-03, Fy=1.118817e-03)
+[Level 0 step 81] Advanced 131072 cells
+Coarse STEP 81 ends. TIME = 81 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 82 starts ...
+[Level 0 step 82] ADVANCE with time = 81 dt = 1
+[diag_force] lev=0 step=82 t=8.100000e+01 cc_max|F|_global=2.222430e-03 (Fx=2.222430e-03, Fy=1.113864e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.222430e-03 (Fx=2.222430e-03, Fy=1.113864e-03)
+[Level 0 step 82] Advanced 131072 cells
+Coarse STEP 82 ends. TIME = 82 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 83 starts ...
+[Level 0 step 83] ADVANCE with time = 82 dt = 1
+[diag_force] lev=0 step=83 t=8.200000e+01 cc_max|F|_global=2.195673e-03 (Fx=2.195673e-03, Fy=1.109587e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.195673e-03 (Fx=2.195673e-03, Fy=1.109587e-03)
+[Level 0 step 83] Advanced 131072 cells
+Coarse STEP 83 ends. TIME = 83 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 84 starts ...
+[Level 0 step 84] ADVANCE with time = 83 dt = 1
+[diag_force] lev=0 step=84 t=8.300000e+01 cc_max|F|_global=2.173301e-03 (Fx=2.173301e-03, Fy=1.093816e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.173301e-03 (Fx=2.173301e-03, Fy=1.093816e-03)
+[Level 0 step 84] Advanced 131072 cells
+Coarse STEP 84 ends. TIME = 84 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 85 starts ...
+[Level 0 step 85] ADVANCE with time = 84 dt = 1
+[diag_force] lev=0 step=85 t=8.400000e+01 cc_max|F|_global=2.139036e-03 (Fx=2.139036e-03, Fy=1.077120e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.139036e-03 (Fx=2.139036e-03, Fy=1.077120e-03)
+[Level 0 step 85] Advanced 131072 cells
+Coarse STEP 85 ends. TIME = 85 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 86 starts ...
+[Level 0 step 86] ADVANCE with time = 85 dt = 1
+[diag_force] lev=0 step=86 t=8.500000e+01 cc_max|F|_global=2.116634e-03 (Fx=2.116634e-03, Fy=1.051605e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.116634e-03 (Fx=2.116634e-03, Fy=1.051605e-03)
+[Level 0 step 86] Advanced 131072 cells
+Coarse STEP 86 ends. TIME = 86 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 87 starts ...
+[Level 0 step 87] ADVANCE with time = 86 dt = 1
+[diag_force] lev=0 step=87 t=8.600000e+01 cc_max|F|_global=2.083658e-03 (Fx=2.083658e-03, Fy=1.032118e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.083658e-03 (Fx=2.083658e-03, Fy=1.032118e-03)
+[Level 0 step 87] Advanced 131072 cells
+Coarse STEP 87 ends. TIME = 87 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 88 starts ...
+[Level 0 step 88] ADVANCE with time = 87 dt = 1
+[diag_force] lev=0 step=88 t=8.700000e+01 cc_max|F|_global=2.062654e-03 (Fx=2.062654e-03, Fy=1.014145e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.062654e-03 (Fx=2.062654e-03, Fy=1.014145e-03)
+[Level 0 step 88] Advanced 131072 cells
+Coarse STEP 88 ends. TIME = 88 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 89 starts ...
+[Level 0 step 89] ADVANCE with time = 88 dt = 1
+[diag_force] lev=0 step=89 t=8.800000e+01 cc_max|F|_global=2.028938e-03 (Fx=2.028938e-03, Fy=1.009827e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.028938e-03 (Fx=2.028938e-03, Fy=1.009827e-03)
+[Level 0 step 89] Advanced 131072 cells
+Coarse STEP 89 ends. TIME = 89 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 90 starts ...
+[Level 0 step 90] ADVANCE with time = 89 dt = 1
+[diag_force] lev=0 step=90 t=8.900000e+01 cc_max|F|_global=2.011783e-03 (Fx=2.011783e-03, Fy=1.007396e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.011783e-03 (Fx=2.011783e-03, Fy=1.007396e-03)
+[Level 0 step 90] Advanced 131072 cells
+Coarse STEP 90 ends. TIME = 90 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 91 starts ...
+[Level 0 step 91] ADVANCE with time = 90 dt = 1
+[diag_force] lev=0 step=91 t=9.000000e+01 cc_max|F|_global=1.987177e-03 (Fx=1.987177e-03, Fy=1.011326e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.987177e-03 (Fx=1.987177e-03, Fy=1.011326e-03)
+[Level 0 step 91] Advanced 131072 cells
+Coarse STEP 91 ends. TIME = 91 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 92 starts ...
+[Level 0 step 92] ADVANCE with time = 91 dt = 1
+[diag_force] lev=0 step=92 t=9.100000e+01 cc_max|F|_global=1.985063e-03 (Fx=1.985063e-03, Fy=1.008905e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.985063e-03 (Fx=1.985063e-03, Fy=1.008905e-03)
+[Level 0 step 92] Advanced 131072 cells
+Coarse STEP 92 ends. TIME = 92 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 93 starts ...
+[Level 0 step 93] ADVANCE with time = 92 dt = 1
+[diag_force] lev=0 step=93 t=9.200000e+01 cc_max|F|_global=1.974259e-03 (Fx=1.974259e-03, Fy=1.007262e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.974259e-03 (Fx=1.974259e-03, Fy=1.007262e-03)
+[Level 0 step 93] Advanced 131072 cells
+Coarse STEP 93 ends. TIME = 93 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 94 starts ...
+[Level 0 step 94] ADVANCE with time = 93 dt = 1
+[diag_force] lev=0 step=94 t=9.300000e+01 cc_max|F|_global=1.980635e-03 (Fx=1.980635e-03, Fy=9.984928e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.980635e-03 (Fx=1.980635e-03, Fy=9.984928e-04)
+[Level 0 step 94] Advanced 131072 cells
+Coarse STEP 94 ends. TIME = 94 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 95 starts ...
+[Level 0 step 95] ADVANCE with time = 94 dt = 1
+[diag_force] lev=0 step=95 t=9.400000e+01 cc_max|F|_global=1.969037e-03 (Fx=1.969037e-03, Fy=9.928232e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.969037e-03 (Fx=1.969037e-03, Fy=9.928232e-04)
+[Level 0 step 95] Advanced 131072 cells
+Coarse STEP 95 ends. TIME = 95 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 96 starts ...
+[Level 0 step 96] ADVANCE with time = 95 dt = 1
+[diag_force] lev=0 step=96 t=9.500000e+01 cc_max|F|_global=1.970086e-03 (Fx=1.970086e-03, Fy=9.850097e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.970086e-03 (Fx=1.970086e-03, Fy=9.850097e-04)
+[Level 0 step 96] Advanced 131072 cells
+Coarse STEP 96 ends. TIME = 96 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 97 starts ...
+[Level 0 step 97] ADVANCE with time = 96 dt = 1
+[diag_force] lev=0 step=97 t=9.600000e+01 cc_max|F|_global=1.953749e-03 (Fx=1.953749e-03, Fy=9.861768e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.953749e-03 (Fx=1.953749e-03, Fy=9.861768e-04)
+[Level 0 step 97] Advanced 131072 cells
+Coarse STEP 97 ends. TIME = 97 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 98 starts ...
+[Level 0 step 98] ADVANCE with time = 97 dt = 1
+[diag_force] lev=0 step=98 t=9.700000e+01 cc_max|F|_global=1.958590e-03 (Fx=1.958590e-03, Fy=9.894087e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.958590e-03 (Fx=1.958590e-03, Fy=9.894087e-04)
+[Level 0 step 98] Advanced 131072 cells
+Coarse STEP 98 ends. TIME = 98 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 99 starts ...
+[Level 0 step 99] ADVANCE with time = 98 dt = 1
+[diag_force] lev=0 step=99 t=9.800000e+01 cc_max|F|_global=1.954635e-03 (Fx=1.954635e-03, Fy=1.001340e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.954635e-03 (Fx=1.954635e-03, Fy=1.001340e-03)
+[Level 0 step 99] Advanced 131072 cells
+Coarse STEP 99 ends. TIME = 99 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 100 starts ...
+[Level 0 step 100] ADVANCE with time = 99 dt = 1
+[diag_force] lev=0 step=100 t=9.900000e+01 cc_max|F|_global=1.977460e-03 (Fx=1.977460e-03, Fy=1.011290e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.977460e-03 (Fx=1.977460e-03, Fy=1.011290e-03)
+[Level 0 step 100] Advanced 131072 cells
+Coarse STEP 100 ends. TIME = 100 DT = 1 Sum(Rho) = 131072
+Preparing plotfile data at level 0
+m_use_cylinder = 1, m_ls = not null, phi_written = yes
+PlotFileVarNames: total vars = 16
+
+Coarse STEP 101 starts ...
+[Level 0 step 101] ADVANCE with time = 100 dt = 1
+[diag_force] lev=0 step=101 t=1.000000e+02 cc_max|F|_global=1.988730e-03 (Fx=1.988730e-03, Fy=1.025888e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.988730e-03 (Fx=1.988730e-03, Fy=1.025888e-03)
+[Level 0 step 101] Advanced 131072 cells
+Coarse STEP 101 ends. TIME = 101 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 102 starts ...
+[Level 0 step 102] ADVANCE with time = 101 dt = 1
+[diag_force] lev=0 step=102 t=1.010000e+02 cc_max|F|_global=2.019390e-03 (Fx=2.019390e-03, Fy=1.034341e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.019390e-03 (Fx=2.019390e-03, Fy=1.034341e-03)
+[Level 0 step 102] Advanced 131072 cells
+Coarse STEP 102 ends. TIME = 102 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 103 starts ...
+[Level 0 step 103] ADVANCE with time = 102 dt = 1
+[diag_force] lev=0 step=103 t=1.020000e+02 cc_max|F|_global=2.028576e-03 (Fx=2.028576e-03, Fy=1.047750e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.028576e-03 (Fx=2.028576e-03, Fy=1.047750e-03)
+[Level 0 step 103] Advanced 131072 cells
+Coarse STEP 103 ends. TIME = 103 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 104 starts ...
+[Level 0 step 104] ADVANCE with time = 103 dt = 1
+[diag_force] lev=0 step=104 t=1.030000e+02 cc_max|F|_global=2.051109e-03 (Fx=2.051109e-03, Fy=1.055519e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.051109e-03 (Fx=2.051109e-03, Fy=1.055519e-03)
+[Level 0 step 104] Advanced 131072 cells
+Coarse STEP 104 ends. TIME = 104 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 105 starts ...
+[Level 0 step 105] ADVANCE with time = 104 dt = 1
+[diag_force] lev=0 step=105 t=1.040000e+02 cc_max|F|_global=2.049488e-03 (Fx=2.049488e-03, Fy=1.069542e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.049488e-03 (Fx=2.049488e-03, Fy=1.069542e-03)
+[Level 0 step 105] Advanced 131072 cells
+Coarse STEP 105 ends. TIME = 105 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 106 starts ...
+[Level 0 step 106] ADVANCE with time = 105 dt = 1
+[diag_force] lev=0 step=106 t=1.050000e+02 cc_max|F|_global=2.062697e-03 (Fx=2.062697e-03, Fy=1.078352e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.062697e-03 (Fx=2.062697e-03, Fy=1.078352e-03)
+[Level 0 step 106] Advanced 131072 cells
+Coarse STEP 106 ends. TIME = 106 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 107 starts ...
+[Level 0 step 107] ADVANCE with time = 106 dt = 1
+[diag_force] lev=0 step=107 t=1.060000e+02 cc_max|F|_global=2.052556e-03 (Fx=2.052556e-03, Fy=1.091691e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.052556e-03 (Fx=2.052556e-03, Fy=1.091691e-03)
+[Level 0 step 107] Advanced 131072 cells
+Coarse STEP 107 ends. TIME = 107 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 108 starts ...
+[Level 0 step 108] ADVANCE with time = 107 dt = 1
+[diag_force] lev=0 step=108 t=1.070000e+02 cc_max|F|_global=2.056407e-03 (Fx=2.056407e-03, Fy=1.096721e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.056407e-03 (Fx=2.056407e-03, Fy=1.096721e-03)
+[Level 0 step 108] Advanced 131072 cells
+Coarse STEP 108 ends. TIME = 108 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 109 starts ...
+[Level 0 step 109] ADVANCE with time = 108 dt = 1
+[diag_force] lev=0 step=109 t=1.080000e+02 cc_max|F|_global=2.032028e-03 (Fx=2.032028e-03, Fy=1.101128e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.032028e-03 (Fx=2.032028e-03, Fy=1.101128e-03)
+[Level 0 step 109] Advanced 131072 cells
+Coarse STEP 109 ends. TIME = 109 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 110 starts ...
+[Level 0 step 110] ADVANCE with time = 109 dt = 1
+[diag_force] lev=0 step=110 t=1.090000e+02 cc_max|F|_global=2.015548e-03 (Fx=2.015548e-03, Fy=1.091806e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.015548e-03 (Fx=2.015548e-03, Fy=1.091806e-03)
+[Level 0 step 110] Advanced 131072 cells
+Coarse STEP 110 ends. TIME = 110 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 111 starts ...
+[Level 0 step 111] ADVANCE with time = 110 dt = 1
+[diag_force] lev=0 step=111 t=1.100000e+02 cc_max|F|_global=1.964358e-03 (Fx=1.964358e-03, Fy=1.077200e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.964358e-03 (Fx=1.964358e-03, Fy=1.077200e-03)
+[Level 0 step 111] Advanced 131072 cells
+Coarse STEP 111 ends. TIME = 111 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 112 starts ...
+[Level 0 step 112] ADVANCE with time = 111 dt = 1
+[diag_force] lev=0 step=112 t=1.110000e+02 cc_max|F|_global=1.918372e-03 (Fx=1.918372e-03, Fy=1.047670e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.918372e-03 (Fx=1.918372e-03, Fy=1.047670e-03)
+[Level 0 step 112] Advanced 131072 cells
+Coarse STEP 112 ends. TIME = 112 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 113 starts ...
+[Level 0 step 113] ADVANCE with time = 112 dt = 1
+[diag_force] lev=0 step=113 t=1.120000e+02 cc_max|F|_global=1.839612e-03 (Fx=1.839612e-03, Fy=1.015248e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.839612e-03 (Fx=1.839612e-03, Fy=1.015248e-03)
+[Level 0 step 113] Advanced 131072 cells
+Coarse STEP 113 ends. TIME = 113 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 114 starts ...
+[Level 0 step 114] ADVANCE with time = 113 dt = 1
+[diag_force] lev=0 step=114 t=1.130000e+02 cc_max|F|_global=1.775084e-03 (Fx=1.775084e-03, Fy=9.735230e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.775084e-03 (Fx=1.775084e-03, Fy=9.735230e-04)
+[Level 0 step 114] Advanced 131072 cells
+Coarse STEP 114 ends. TIME = 114 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 115 starts ...
+[Level 0 step 115] ADVANCE with time = 114 dt = 1
+[diag_force] lev=0 step=115 t=1.140000e+02 cc_max|F|_global=1.691874e-03 (Fx=1.691874e-03, Fy=9.352769e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.691874e-03 (Fx=1.691874e-03, Fy=9.352769e-04)
+[Level 0 step 115] Advanced 131072 cells
+Coarse STEP 115 ends. TIME = 115 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 116 starts ...
+[Level 0 step 116] ADVANCE with time = 115 dt = 1
+[diag_force] lev=0 step=116 t=1.150000e+02 cc_max|F|_global=1.639946e-03 (Fx=1.639946e-03, Fy=8.944313e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.639946e-03 (Fx=1.639946e-03, Fy=8.944313e-04)
+[Level 0 step 116] Advanced 131072 cells
+Coarse STEP 116 ends. TIME = 116 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 117 starts ...
+[Level 0 step 117] ADVANCE with time = 116 dt = 1
+[diag_force] lev=0 step=117 t=1.160000e+02 cc_max|F|_global=1.583982e-03 (Fx=1.583982e-03, Fy=8.629947e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.583982e-03 (Fx=1.583982e-03, Fy=8.629947e-04)
+[Level 0 step 117] Advanced 131072 cells
+Coarse STEP 117 ends. TIME = 117 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 118 starts ...
+[Level 0 step 118] ADVANCE with time = 117 dt = 1
+[diag_force] lev=0 step=118 t=1.170000e+02 cc_max|F|_global=1.568898e-03 (Fx=1.568898e-03, Fy=8.343181e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.568898e-03 (Fx=1.568898e-03, Fy=8.343181e-04)
+[Level 0 step 118] Advanced 131072 cells
+Coarse STEP 118 ends. TIME = 118 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 119 starts ...
+[Level 0 step 119] ADVANCE with time = 118 dt = 1
+[diag_force] lev=0 step=119 t=1.180000e+02 cc_max|F|_global=1.551964e-03 (Fx=1.551964e-03, Fy=8.182935e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.551964e-03 (Fx=1.551964e-03, Fy=8.182935e-04)
+[Level 0 step 119] Advanced 131072 cells
+Coarse STEP 119 ends. TIME = 119 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 120 starts ...
+[Level 0 step 120] ADVANCE with time = 119 dt = 1
+[diag_force] lev=0 step=120 t=1.190000e+02 cc_max|F|_global=1.571394e-03 (Fx=1.571394e-03, Fy=8.061194e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.571394e-03 (Fx=1.571394e-03, Fy=8.061194e-04)
+[Level 0 step 120] Advanced 131072 cells
+Coarse STEP 120 ends. TIME = 120 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 121 starts ...
+[Level 0 step 121] ADVANCE with time = 120 dt = 1
+[diag_force] lev=0 step=121 t=1.200000e+02 cc_max|F|_global=1.578513e-03 (Fx=1.578513e-03, Fy=8.053242e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.578513e-03 (Fx=1.578513e-03, Fy=8.053242e-04)
+[Level 0 step 121] Advanced 131072 cells
+Coarse STEP 121 ends. TIME = 121 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 122 starts ...
+[Level 0 step 122] ADVANCE with time = 121 dt = 1
+[diag_force] lev=0 step=122 t=1.210000e+02 cc_max|F|_global=1.607979e-03 (Fx=1.607979e-03, Fy=8.060845e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.607979e-03 (Fx=1.607979e-03, Fy=8.060845e-04)
+[Level 0 step 122] Advanced 131072 cells
+Coarse STEP 122 ends. TIME = 122 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 123 starts ...
+[Level 0 step 123] ADVANCE with time = 122 dt = 1
+[diag_force] lev=0 step=123 t=1.220000e+02 cc_max|F|_global=1.610418e-03 (Fx=1.610418e-03, Fy=8.143871e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.610418e-03 (Fx=1.610418e-03, Fy=8.143871e-04)
+[Level 0 step 123] Advanced 131072 cells
+Coarse STEP 123 ends. TIME = 123 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 124 starts ...
+[Level 0 step 124] ADVANCE with time = 123 dt = 1
+[diag_force] lev=0 step=124 t=1.230000e+02 cc_max|F|_global=1.623401e-03 (Fx=1.623401e-03, Fy=8.191186e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.623401e-03 (Fx=1.623401e-03, Fy=8.191186e-04)
+[Level 0 step 124] Advanced 131072 cells
+Coarse STEP 124 ends. TIME = 124 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 125 starts ...
+[Level 0 step 125] ADVANCE with time = 124 dt = 1
+[diag_force] lev=0 step=125 t=1.240000e+02 cc_max|F|_global=1.602817e-03 (Fx=1.602817e-03, Fy=8.249766e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.602817e-03 (Fx=1.602817e-03, Fy=8.249766e-04)
+[Level 0 step 125] Advanced 131072 cells
+Coarse STEP 125 ends. TIME = 125 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 126 starts ...
+[Level 0 step 126] ADVANCE with time = 125 dt = 1
+[diag_force] lev=0 step=126 t=1.250000e+02 cc_max|F|_global=1.592387e-03 (Fx=1.592387e-03, Fy=8.224760e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.592387e-03 (Fx=1.592387e-03, Fy=8.224760e-04)
+[Level 0 step 126] Advanced 131072 cells
+Coarse STEP 126 ends. TIME = 126 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 127 starts ...
+[Level 0 step 127] ADVANCE with time = 126 dt = 1
+[diag_force] lev=0 step=127 t=1.260000e+02 cc_max|F|_global=1.553467e-03 (Fx=1.553467e-03, Fy=8.166458e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.553467e-03 (Fx=1.553467e-03, Fy=8.166458e-04)
+[Level 0 step 127] Advanced 131072 cells
+Coarse STEP 127 ends. TIME = 127 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 128 starts ...
+[Level 0 step 128] ADVANCE with time = 127 dt = 1
+[diag_force] lev=0 step=128 t=1.270000e+02 cc_max|F|_global=1.533783e-03 (Fx=1.533783e-03, Fy=8.033439e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.533783e-03 (Fx=1.533783e-03, Fy=8.033439e-04)
+[Level 0 step 128] Advanced 131072 cells
+Coarse STEP 128 ends. TIME = 128 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 129 starts ...
+[Level 0 step 129] ADVANCE with time = 128 dt = 1
+[diag_force] lev=0 step=129 t=1.280000e+02 cc_max|F|_global=1.496356e-03 (Fx=1.496356e-03, Fy=7.900692e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.496356e-03 (Fx=1.496356e-03, Fy=7.900692e-04)
+[Level 0 step 129] Advanced 131072 cells
+Coarse STEP 129 ends. TIME = 129 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 130 starts ...
+[Level 0 step 130] ADVANCE with time = 129 dt = 1
+[diag_force] lev=0 step=130 t=1.290000e+02 cc_max|F|_global=1.487412e-03 (Fx=1.487412e-03, Fy=7.741216e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.487412e-03 (Fx=1.487412e-03, Fy=7.741216e-04)
+[Level 0 step 130] Advanced 131072 cells
+Coarse STEP 130 ends. TIME = 130 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 131 starts ...
+[Level 0 step 131] ADVANCE with time = 130 dt = 1
+[diag_force] lev=0 step=131 t=1.300000e+02 cc_max|F|_global=1.465367e-03 (Fx=1.465367e-03, Fy=7.629232e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.465367e-03 (Fx=1.465367e-03, Fy=7.629232e-04)
+[Level 0 step 131] Advanced 131072 cells
+Coarse STEP 131 ends. TIME = 131 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 132 starts ...
+[Level 0 step 132] ADVANCE with time = 131 dt = 1
+[diag_force] lev=0 step=132 t=1.310000e+02 cc_max|F|_global=1.470279e-03 (Fx=1.470279e-03, Fy=7.529331e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.470279e-03 (Fx=1.470279e-03, Fy=7.529331e-04)
+[Level 0 step 132] Advanced 131072 cells
+Coarse STEP 132 ends. TIME = 132 DT = 1 Sum(Rho) = 131071.9999
+
+Coarse STEP 133 starts ...
+[Level 0 step 133] ADVANCE with time = 132 dt = 1
+[diag_force] lev=0 step=133 t=1.320000e+02 cc_max|F|_global=1.455634e-03 (Fx=1.455634e-03, Fy=7.489003e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.455634e-03 (Fx=1.455634e-03, Fy=7.489003e-04)
+[Level 0 step 133] Advanced 131072 cells
+Coarse STEP 133 ends. TIME = 133 DT = 1 Sum(Rho) = 131071.9998
+
+Coarse STEP 134 starts ...
+[Level 0 step 134] ADVANCE with time = 133 dt = 1
+[diag_force] lev=0 step=134 t=1.330000e+02 cc_max|F|_global=1.459362e-03 (Fx=1.459362e-03, Fy=7.445182e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.459362e-03 (Fx=1.459362e-03, Fy=7.445182e-04)
+[Level 0 step 134] Advanced 131072 cells
+Coarse STEP 134 ends. TIME = 134 DT = 1 Sum(Rho) = 131071.9996
+
+Coarse STEP 135 starts ...
+[Level 0 step 135] ADVANCE with time = 134 dt = 1
+[diag_force] lev=0 step=135 t=1.340000e+02 cc_max|F|_global=1.436367e-03 (Fx=1.436367e-03, Fy=7.423947e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.436367e-03 (Fx=1.436367e-03, Fy=7.423947e-04)
+[Level 0 step 135] Advanced 131072 cells
+Coarse STEP 135 ends. TIME = 135 DT = 1 Sum(Rho) = 131071.9993
+
+Coarse STEP 136 starts ...
+[Level 0 step 136] ADVANCE with time = 135 dt = 1
+[diag_force] lev=0 step=136 t=1.350000e+02 cc_max|F|_global=1.428128e-03 (Fx=1.428128e-03, Fy=7.364446e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.428128e-03 (Fx=1.428128e-03, Fy=7.364446e-04)
+[Level 0 step 136] Advanced 131072 cells
+Coarse STEP 136 ends. TIME = 136 DT = 1 Sum(Rho) = 131071.9987
+
+Coarse STEP 137 starts ...
+[Level 0 step 137] ADVANCE with time = 136 dt = 1
+[diag_force] lev=0 step=137 t=1.360000e+02 cc_max|F|_global=1.394345e-03 (Fx=1.394345e-03, Fy=7.304025e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.394345e-03 (Fx=1.394345e-03, Fy=7.304025e-04)
+[Level 0 step 137] Advanced 131072 cells
+Coarse STEP 137 ends. TIME = 137 DT = 1 Sum(Rho) = 131071.9977
+
+Coarse STEP 138 starts ...
+[Level 0 step 138] ADVANCE with time = 137 dt = 1
+[diag_force] lev=0 step=138 t=1.370000e+02 cc_max|F|_global=1.380293e-03 (Fx=1.380293e-03, Fy=7.198661e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.380293e-03 (Fx=1.380293e-03, Fy=7.198661e-04)
+[Level 0 step 138] Advanced 131072 cells
+Coarse STEP 138 ends. TIME = 138 DT = 1 Sum(Rho) = 131071.9959
+
+Coarse STEP 139 starts ...
+[Level 0 step 139] ADVANCE with time = 138 dt = 1
+[diag_force] lev=0 step=139 t=1.380000e+02 cc_max|F|_global=1.347468e-03 (Fx=1.347468e-03, Fy=7.095828e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.347468e-03 (Fx=1.347468e-03, Fy=7.095828e-04)
+[Level 0 step 139] Advanced 131072 cells
+Coarse STEP 139 ends. TIME = 139 DT = 1 Sum(Rho) = 131071.993
+
+Coarse STEP 140 starts ...
+[Level 0 step 140] ADVANCE with time = 139 dt = 1
+[diag_force] lev=0 step=140 t=1.390000e+02 cc_max|F|_global=1.339435e-03 (Fx=1.339435e-03, Fy=6.964104e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.339435e-03 (Fx=1.339435e-03, Fy=6.964104e-04)
+[Level 0 step 140] Advanced 131072 cells
+Coarse STEP 140 ends. TIME = 140 DT = 1 Sum(Rho) = 131071.9881
+
+Coarse STEP 141 starts ...
+[Level 0 step 141] ADVANCE with time = 140 dt = 1
+[diag_force] lev=0 step=141 t=1.400000e+02 cc_max|F|_global=1.314051e-03 (Fx=1.314051e-03, Fy=6.856375e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.314051e-03 (Fx=1.314051e-03, Fy=6.856375e-04)
+[Level 0 step 141] Advanced 131072 cells
+Coarse STEP 141 ends. TIME = 141 DT = 1 Sum(Rho) = 131071.9805
+
+Coarse STEP 142 starts ...
+[Level 0 step 142] ADVANCE with time = 141 dt = 1
+[diag_force] lev=0 step=142 t=1.410000e+02 cc_max|F|_global=1.310762e-03 (Fx=1.310762e-03, Fy=6.740914e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.310762e-03 (Fx=1.310762e-03, Fy=6.740914e-04)
+[Level 0 step 142] Advanced 131072 cells
+Coarse STEP 142 ends. TIME = 142 DT = 1 Sum(Rho) = 131071.9688
+
+Coarse STEP 143 starts ...
+[Level 0 step 143] ADVANCE with time = 142 dt = 1
+[diag_force] lev=0 step=143 t=1.420000e+02 cc_max|F|_global=1.285679e-03 (Fx=1.285679e-03, Fy=6.656355e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.285679e-03 (Fx=1.285679e-03, Fy=6.656355e-04)
+[Level 0 step 143] Advanced 131072 cells
+Coarse STEP 143 ends. TIME = 143 DT = 1 Sum(Rho) = 131071.9512
+
+Coarse STEP 144 starts ...
+[Level 0 step 144] ADVANCE with time = 143 dt = 1
+[diag_force] lev=0 step=144 t=1.430000e+02 cc_max|F|_global=1.278567e-03 (Fx=1.278567e-03, Fy=6.558528e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.278567e-03 (Fx=1.278567e-03, Fy=6.558528e-04)
+[Level 0 step 144] Advanced 131072 cells
+Coarse STEP 144 ends. TIME = 144 DT = 1 Sum(Rho) = 131071.9256
+
+Coarse STEP 145 starts ...
+[Level 0 step 145] ADVANCE with time = 144 dt = 1
+[diag_force] lev=0 step=145 t=1.440000e+02 cc_max|F|_global=1.247908e-03 (Fx=1.247908e-03, Fy=6.478274e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.247908e-03 (Fx=1.247908e-03, Fy=6.478274e-04)
+[Level 0 step 145] Advanced 131072 cells
+Coarse STEP 145 ends. TIME = 145 DT = 1 Sum(Rho) = 131071.8894
+
+Coarse STEP 146 starts ...
+[Level 0 step 146] ADVANCE with time = 145 dt = 1
+[diag_force] lev=0 step=146 t=1.450000e+02 cc_max|F|_global=1.235636e-03 (Fx=1.235636e-03, Fy=6.375399e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.235636e-03 (Fx=1.235636e-03, Fy=6.375399e-04)
+[Level 0 step 146] Advanced 131072 cells
+Coarse STEP 146 ends. TIME = 146 DT = 1 Sum(Rho) = 131071.8397
+
+Coarse STEP 147 starts ...
+[Level 0 step 147] ADVANCE with time = 146 dt = 1
+[diag_force] lev=0 step=147 t=1.460000e+02 cc_max|F|_global=1.202282e-03 (Fx=1.202282e-03, Fy=6.283216e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.202282e-03 (Fx=1.202282e-03, Fy=6.283216e-04)
+[Level 0 step 147] Advanced 131072 cells
+Coarse STEP 147 ends. TIME = 147 DT = 1 Sum(Rho) = 131071.7736
+
+Coarse STEP 148 starts ...
+[Level 0 step 148] ADVANCE with time = 147 dt = 1
+[diag_force] lev=0 step=148 t=1.470000e+02 cc_max|F|_global=1.190198e-03 (Fx=1.190198e-03, Fy=6.165502e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.190198e-03 (Fx=1.190198e-03, Fy=6.165502e-04)
+[Level 0 step 148] Advanced 131072 cells
+Coarse STEP 148 ends. TIME = 148 DT = 1 Sum(Rho) = 131071.6886
+
+Coarse STEP 149 starts ...
+[Level 0 step 149] ADVANCE with time = 148 dt = 1
+[diag_force] lev=0 step=149 t=1.480000e+02 cc_max|F|_global=1.159508e-03 (Fx=1.159508e-03, Fy=6.057454e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.159508e-03 (Fx=1.159508e-03, Fy=6.057454e-04)
+[Level 0 step 149] Advanced 131072 cells
+Coarse STEP 149 ends. TIME = 149 DT = 1 Sum(Rho) = 131071.5829
+
+Coarse STEP 150 starts ...
+[Level 0 step 150] ADVANCE with time = 149 dt = 1
+[diag_force] lev=0 step=150 t=1.490000e+02 cc_max|F|_global=1.150609e-03 (Fx=1.150609e-03, Fy=5.930461e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.150609e-03 (Fx=1.150609e-03, Fy=5.930461e-04)
+[Level 0 step 150] Advanced 131072 cells
+Coarse STEP 150 ends. TIME = 150 DT = 1 Sum(Rho) = 131071.4556
+
+Coarse STEP 151 starts ...
+[Level 0 step 151] ADVANCE with time = 150 dt = 1
+[diag_force] lev=0 step=151 t=1.500000e+02 cc_max|F|_global=1.122166e-03 (Fx=1.122166e-03, Fy=5.822967e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.122166e-03 (Fx=1.122166e-03, Fy=5.822967e-04)
+[Level 0 step 151] Advanced 131072 cells
+Coarse STEP 151 ends. TIME = 151 DT = 1 Sum(Rho) = 131071.3077
+
+Coarse STEP 152 starts ...
+[Level 0 step 152] ADVANCE with time = 151 dt = 1
+[diag_force] lev=0 step=152 t=1.510000e+02 cc_max|F|_global=1.113552e-03 (Fx=1.113552e-03, Fy=5.706202e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.113552e-03 (Fx=1.113552e-03, Fy=5.706202e-04)
+[Level 0 step 152] Advanced 131072 cells
+Coarse STEP 152 ends. TIME = 152 DT = 1 Sum(Rho) = 131071.1413
+
+Coarse STEP 153 starts ...
+[Level 0 step 153] ADVANCE with time = 152 dt = 1
+[diag_force] lev=0 step=153 t=1.520000e+02 cc_max|F|_global=1.084254e-03 (Fx=1.084254e-03, Fy=5.611144e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.084254e-03 (Fx=1.084254e-03, Fy=5.611144e-04)
+[Level 0 step 153] Advanced 131072 cells
+Coarse STEP 153 ends. TIME = 153 DT = 1 Sum(Rho) = 131070.9599
+
+Coarse STEP 154 starts ...
+[Level 0 step 154] ADVANCE with time = 153 dt = 1
+[diag_force] lev=0 step=154 t=1.530000e+02 cc_max|F|_global=1.074506e-03 (Fx=1.074506e-03, Fy=5.506381e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.074506e-03 (Fx=1.074506e-03, Fy=5.506381e-04)
+[Level 0 step 154] Advanced 131072 cells
+Coarse STEP 154 ends. TIME = 154 DT = 1 Sum(Rho) = 131070.7675
+
+Coarse STEP 155 starts ...
+[Level 0 step 155] ADVANCE with time = 154 dt = 1
+[diag_force] lev=0 step=155 t=1.540000e+02 cc_max|F|_global=1.045017e-03 (Fx=1.045017e-03, Fy=5.422371e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.045017e-03 (Fx=1.045017e-03, Fy=5.422371e-04)
+[Level 0 step 155] Advanced 131072 cells
+Coarse STEP 155 ends. TIME = 155 DT = 1 Sum(Rho) = 131070.568
+
+Coarse STEP 156 starts ...
+[Level 0 step 156] ADVANCE with time = 155 dt = 1
+[diag_force] lev=0 step=156 t=1.550000e+02 cc_max|F|_global=1.036111e-03 (Fx=1.036111e-03, Fy=5.330750e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.036111e-03 (Fx=1.036111e-03, Fy=5.330750e-04)
+[Level 0 step 156] Advanced 131072 cells
+Coarse STEP 156 ends. TIME = 156 DT = 1 Sum(Rho) = 131070.3649
+
+Coarse STEP 157 starts ...
+[Level 0 step 157] ADVANCE with time = 156 dt = 1
+[diag_force] lev=0 step=157 t=1.560000e+02 cc_max|F|_global=1.008854e-03 (Fx=1.008854e-03, Fy=5.259848e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.008854e-03 (Fx=1.008854e-03, Fy=5.259848e-04)
+[Level 0 step 157] Advanced 131072 cells
+Coarse STEP 157 ends. TIME = 157 DT = 1 Sum(Rho) = 131070.1602
+
+Coarse STEP 158 starts ...
+[Level 0 step 158] ADVANCE with time = 157 dt = 1
+[diag_force] lev=0 step=158 t=1.570000e+02 cc_max|F|_global=1.003128e-03 (Fx=1.003128e-03, Fy=5.180872e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.003128e-03 (Fx=1.003128e-03, Fy=5.180872e-04)
+[Level 0 step 158] Advanced 131072 cells
+Coarse STEP 158 ends. TIME = 158 DT = 1 Sum(Rho) = 131069.9544
+
+Coarse STEP 159 starts ...
+[Level 0 step 159] ADVANCE with time = 158 dt = 1
+[diag_force] lev=0 step=159 t=1.580000e+02 cc_max|F|_global=9.799695e-04 (Fx=9.799695e-04, Fy=5.122378e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.799695e-04 (Fx=9.799695e-04, Fy=5.122378e-04)
+[Level 0 step 159] Advanced 131072 cells
+Coarse STEP 159 ends. TIME = 159 DT = 1 Sum(Rho) = 131069.7471
+
+Coarse STEP 160 starts ...
+[Level 0 step 160] ADVANCE with time = 159 dt = 1
+[diag_force] lev=0 step=160 t=1.590000e+02 cc_max|F|_global=9.784509e-04 (Fx=9.784509e-04, Fy=5.084124e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.784509e-04 (Fx=9.784509e-04, Fy=5.084124e-04)
+[Level 0 step 160] Advanced 131072 cells
+Coarse STEP 160 ends. TIME = 160 DT = 1 Sum(Rho) = 131069.537
+
+Coarse STEP 161 starts ...
+[Level 0 step 161] ADVANCE with time = 160 dt = 1
+[diag_force] lev=0 step=161 t=1.600000e+02 cc_max|F|_global=9.595922e-04 (Fx=9.595922e-04, Fy=5.048755e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.595922e-04 (Fx=9.595922e-04, Fy=5.048755e-04)
+[Level 0 step 161] Advanced 131072 cells
+Coarse STEP 161 ends. TIME = 161 DT = 1 Sum(Rho) = 131069.3226
+
+Coarse STEP 162 starts ...
+[Level 0 step 162] ADVANCE with time = 161 dt = 1
+[diag_force] lev=0 step=162 t=1.610000e+02 cc_max|F|_global=9.621483e-04 (Fx=9.621483e-04, Fy=5.033116e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.621483e-04 (Fx=9.621483e-04, Fy=5.033116e-04)
+[Level 0 step 162] Advanced 131072 cells
+Coarse STEP 162 ends. TIME = 162 DT = 1 Sum(Rho) = 131069.1031
+
+Coarse STEP 163 starts ...
+[Level 0 step 163] ADVANCE with time = 162 dt = 1
+[diag_force] lev=0 step=163 t=1.620000e+02 cc_max|F|_global=9.476672e-04 (Fx=9.476672e-04, Fy=5.012919e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.476672e-04 (Fx=9.476672e-04, Fy=5.012919e-04)
+[Level 0 step 163] Advanced 131072 cells
+Coarse STEP 163 ends. TIME = 163 DT = 1 Sum(Rho) = 131068.8784
+
+Coarse STEP 164 starts ...
+[Level 0 step 164] ADVANCE with time = 163 dt = 1
+[diag_force] lev=0 step=164 t=1.630000e+02 cc_max|F|_global=9.545417e-04 (Fx=9.545417e-04, Fy=5.010176e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.545417e-04 (Fx=9.545417e-04, Fy=5.010176e-04)
+[Level 0 step 164] Advanced 131072 cells
+Coarse STEP 164 ends. TIME = 164 DT = 1 Sum(Rho) = 131068.6494
+
+Coarse STEP 165 starts ...
+[Level 0 step 165] ADVANCE with time = 164 dt = 1
+[diag_force] lev=0 step=165 t=1.640000e+02 cc_max|F|_global=9.443359e-04 (Fx=9.443359e-04, Fy=4.999902e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.443359e-04 (Fx=9.443359e-04, Fy=4.999902e-04)
+[Level 0 step 165] Advanced 131072 cells
+Coarse STEP 165 ends. TIME = 165 DT = 1 Sum(Rho) = 131068.4175
+
+Coarse STEP 166 starts ...
+[Level 0 step 166] ADVANCE with time = 165 dt = 1
+[diag_force] lev=0 step=166 t=1.650000e+02 cc_max|F|_global=9.546928e-04 (Fx=9.546928e-04, Fy=5.002225e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.546928e-04 (Fx=9.546928e-04, Fy=5.002225e-04)
+[Level 0 step 166] Advanced 131072 cells
+Coarse STEP 166 ends. TIME = 166 DT = 1 Sum(Rho) = 131068.1843
+
+Coarse STEP 167 starts ...
+[Level 0 step 167] ADVANCE with time = 166 dt = 1
+[diag_force] lev=0 step=167 t=1.660000e+02 cc_max|F|_global=9.472592e-04 (Fx=9.472592e-04, Fy=4.989908e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.472592e-04 (Fx=9.472592e-04, Fy=4.989908e-04)
+[Level 0 step 167] Advanced 131072 cells
+Coarse STEP 167 ends. TIME = 167 DT = 1 Sum(Rho) = 131067.9508
+
+Coarse STEP 168 starts ...
+[Level 0 step 168] ADVANCE with time = 167 dt = 1
+[diag_force] lev=0 step=168 t=1.670000e+02 cc_max|F|_global=9.590501e-04 (Fx=9.590501e-04, Fy=4.982538e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.590501e-04 (Fx=9.590501e-04, Fy=4.982538e-04)
+[Level 0 step 168] Advanced 131072 cells
+Coarse STEP 168 ends. TIME = 168 DT = 1 Sum(Rho) = 131067.7176
+
+Coarse STEP 169 starts ...
+[Level 0 step 169] ADVANCE with time = 168 dt = 1
+[diag_force] lev=0 step=169 t=1.680000e+02 cc_max|F|_global=9.516046e-04 (Fx=9.516046e-04, Fy=4.954763e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.516046e-04 (Fx=9.516046e-04, Fy=4.954763e-04)
+[Level 0 step 169] Advanced 131072 cells
+Coarse STEP 169 ends. TIME = 169 DT = 1 Sum(Rho) = 131067.4843
+
+Coarse STEP 170 starts ...
+[Level 0 step 170] ADVANCE with time = 169 dt = 1
+[diag_force] lev=0 step=170 t=1.690000e+02 cc_max|F|_global=9.610394e-04 (Fx=9.610394e-04, Fy=4.929157e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.610394e-04 (Fx=9.610394e-04, Fy=4.929157e-04)
+[Level 0 step 170] Advanced 131072 cells
+Coarse STEP 170 ends. TIME = 170 DT = 1 Sum(Rho) = 131067.2505
+
+Coarse STEP 171 starts ...
+[Level 0 step 171] ADVANCE with time = 170 dt = 1
+[diag_force] lev=0 step=171 t=1.700000e+02 cc_max|F|_global=9.490647e-04 (Fx=9.490647e-04, Fy=4.882860e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.490647e-04 (Fx=9.490647e-04, Fy=4.882860e-04)
+[Level 0 step 171] Advanced 131072 cells
+Coarse STEP 171 ends. TIME = 171 DT = 1 Sum(Rho) = 131067.0153
+
+Coarse STEP 172 starts ...
+[Level 0 step 172] ADVANCE with time = 171 dt = 1
+[diag_force] lev=0 step=172 t=1.710000e+02 cc_max|F|_global=9.518497e-04 (Fx=9.518497e-04, Fy=4.840275e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.518497e-04 (Fx=9.518497e-04, Fy=4.840275e-04)
+[Level 0 step 172] Advanced 131072 cells
+Coarse STEP 172 ends. TIME = 172 DT = 1 Sum(Rho) = 131066.7785
+
+Coarse STEP 173 starts ...
+[Level 0 step 173] ADVANCE with time = 172 dt = 1
+[diag_force] lev=0 step=173 t=1.720000e+02 cc_max|F|_global=9.323255e-04 (Fx=9.323255e-04, Fy=4.780237e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.323255e-04 (Fx=9.323255e-04, Fy=4.780237e-04)
+[Level 0 step 173] Advanced 131072 cells
+Coarse STEP 173 ends. TIME = 173 DT = 1 Sum(Rho) = 131066.5404
+
+Coarse STEP 174 starts ...
+[Level 0 step 174] ADVANCE with time = 173 dt = 1
+[diag_force] lev=0 step=174 t=1.730000e+02 cc_max|F|_global=9.273156e-04 (Fx=9.273156e-04, Fy=4.728487e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.273156e-04 (Fx=9.273156e-04, Fy=4.728487e-04)
+[Level 0 step 174] Advanced 131072 cells
+Coarse STEP 174 ends. TIME = 174 DT = 1 Sum(Rho) = 131066.3017
+
+Coarse STEP 175 starts ...
+[Level 0 step 175] ADVANCE with time = 174 dt = 1
+[diag_force] lev=0 step=175 t=1.740000e+02 cc_max|F|_global=9.010803e-04 (Fx=9.010803e-04, Fy=4.663973e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.010803e-04 (Fx=9.010803e-04, Fy=4.663973e-04)
+[Level 0 step 175] Advanced 131072 cells
+Coarse STEP 175 ends. TIME = 175 DT = 1 Sum(Rho) = 131066.0631
+
+Coarse STEP 176 starts ...
+[Level 0 step 176] ADVANCE with time = 175 dt = 1
+[diag_force] lev=0 step=176 t=1.750000e+02 cc_max|F|_global=8.910458e-04 (Fx=8.910458e-04, Fy=4.611484e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.910458e-04 (Fx=8.910458e-04, Fy=4.611484e-04)
+[Level 0 step 176] Advanced 131072 cells
+Coarse STEP 176 ends. TIME = 176 DT = 1 Sum(Rho) = 131065.825
+
+Coarse STEP 177 starts ...
+[Level 0 step 177] ADVANCE with time = 176 dt = 1
+[diag_force] lev=0 step=177 t=1.760000e+02 cc_max|F|_global=8.625784e-04 (Fx=8.625784e-04, Fy=4.549226e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.625784e-04 (Fx=8.625784e-04, Fy=4.549226e-04)
+[Level 0 step 177] Advanced 131072 cells
+Coarse STEP 177 ends. TIME = 177 DT = 1 Sum(Rho) = 131065.5876
+
+Coarse STEP 178 starts ...
+[Level 0 step 178] ADVANCE with time = 177 dt = 1
+[diag_force] lev=0 step=178 t=1.770000e+02 cc_max|F|_global=8.532451e-04 (Fx=8.532451e-04, Fy=4.502360e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.532451e-04 (Fx=8.532451e-04, Fy=4.502360e-04)
+[Level 0 step 178] Advanced 131072 cells
+Coarse STEP 178 ends. TIME = 178 DT = 1 Sum(Rho) = 131065.3506
+
+Coarse STEP 179 starts ...
+[Level 0 step 179] ADVANCE with time = 178 dt = 1
+[diag_force] lev=0 step=179 t=1.780000e+02 cc_max|F|_global=8.281152e-04 (Fx=8.281152e-04, Fy=4.449803e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.281152e-04 (Fx=8.281152e-04, Fy=4.449803e-04)
+[Level 0 step 179] Advanced 131072 cells
+Coarse STEP 179 ends. TIME = 179 DT = 1 Sum(Rho) = 131065.1136
+
+Coarse STEP 180 starts ...
+[Level 0 step 180] ADVANCE with time = 179 dt = 1
+[diag_force] lev=0 step=180 t=1.790000e+02 cc_max|F|_global=8.242153e-04 (Fx=8.242153e-04, Fy=4.416363e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.242153e-04 (Fx=8.242153e-04, Fy=4.416363e-04)
+[Level 0 step 180] Advanced 131072 cells
+Coarse STEP 180 ends. TIME = 180 DT = 1 Sum(Rho) = 131064.8762
+
+Coarse STEP 181 starts ...
+[Level 0 step 181] ADVANCE with time = 180 dt = 1
+[diag_force] lev=0 step=181 t=1.800000e+02 cc_max|F|_global=8.057245e-04 (Fx=8.057245e-04, Fy=4.379041e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.057245e-04 (Fx=8.057245e-04, Fy=4.379041e-04)
+[Level 0 step 181] Advanced 131072 cells
+Coarse STEP 181 ends. TIME = 181 DT = 1 Sum(Rho) = 131064.6384
+
+Coarse STEP 182 starts ...
+[Level 0 step 182] ADVANCE with time = 181 dt = 1
+[diag_force] lev=0 step=182 t=1.810000e+02 cc_max|F|_global=8.084862e-04 (Fx=8.084862e-04, Fy=4.360129e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.084862e-04 (Fx=8.084862e-04, Fy=4.360129e-04)
+[Level 0 step 182] Advanced 131072 cells
+Coarse STEP 182 ends. TIME = 182 DT = 1 Sum(Rho) = 131064.4004
+
+Coarse STEP 183 starts ...
+[Level 0 step 183] ADVANCE with time = 182 dt = 1
+[diag_force] lev=0 step=183 t=1.820000e+02 cc_max|F|_global=7.960338e-04 (Fx=7.960338e-04, Fy=4.334366e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.960338e-04 (Fx=7.960338e-04, Fy=4.334366e-04)
+[Level 0 step 183] Advanced 131072 cells
+Coarse STEP 183 ends. TIME = 183 DT = 1 Sum(Rho) = 131064.1626
+
+Coarse STEP 184 starts ...
+[Level 0 step 184] ADVANCE with time = 183 dt = 1
+[diag_force] lev=0 step=184 t=1.830000e+02 cc_max|F|_global=8.025969e-04 (Fx=8.025969e-04, Fy=4.322347e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.025969e-04 (Fx=8.025969e-04, Fy=4.322347e-04)
+[Level 0 step 184] Advanced 131072 cells
+Coarse STEP 184 ends. TIME = 184 DT = 1 Sum(Rho) = 131063.9252
+
+Coarse STEP 185 starts ...
+[Level 0 step 185] ADVANCE with time = 184 dt = 1
+[diag_force] lev=0 step=185 t=1.840000e+02 cc_max|F|_global=7.916301e-04 (Fx=7.916301e-04, Fy=4.297731e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.916301e-04 (Fx=7.916301e-04, Fy=4.297731e-04)
+[Level 0 step 185] Advanced 131072 cells
+Coarse STEP 185 ends. TIME = 185 DT = 1 Sum(Rho) = 131063.6881
+
+Coarse STEP 186 starts ...
+[Level 0 step 186] ADVANCE with time = 185 dt = 1
+[diag_force] lev=0 step=186 t=1.850000e+02 cc_max|F|_global=7.970670e-04 (Fx=7.970670e-04, Fy=4.281442e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.970670e-04 (Fx=7.970670e-04, Fy=4.281442e-04)
+[Level 0 step 186] Advanced 131072 cells
+Coarse STEP 186 ends. TIME = 186 DT = 1 Sum(Rho) = 131063.451
+
+Coarse STEP 187 starts ...
+[Level 0 step 187] ADVANCE with time = 186 dt = 1
+[diag_force] lev=0 step=187 t=1.860000e+02 cc_max|F|_global=7.831824e-04 (Fx=7.831824e-04, Fy=4.249280e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.831824e-04 (Fx=7.831824e-04, Fy=4.249280e-04)
+[Level 0 step 187] Advanced 131072 cells
+Coarse STEP 187 ends. TIME = 187 DT = 1 Sum(Rho) = 131063.2136
+
+Coarse STEP 188 starts ...
+[Level 0 step 188] ADVANCE with time = 187 dt = 1
+[diag_force] lev=0 step=188 t=1.870000e+02 cc_max|F|_global=7.850445e-04 (Fx=7.850445e-04, Fy=4.226301e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.850445e-04 (Fx=7.850445e-04, Fy=4.226301e-04)
+[Level 0 step 188] Advanced 131072 cells
+Coarse STEP 188 ends. TIME = 188 DT = 1 Sum(Rho) = 131062.9753
+
+Coarse STEP 189 starts ...
+[Level 0 step 189] ADVANCE with time = 188 dt = 1
+[diag_force] lev=0 step=189 t=1.880000e+02 cc_max|F|_global=7.678644e-04 (Fx=7.678644e-04, Fy=4.206579e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.678644e-04 (Fx=7.678644e-04, Fy=4.206579e-04)
+[Level 0 step 189] Advanced 131072 cells
+Coarse STEP 189 ends. TIME = 189 DT = 1 Sum(Rho) = 131062.7362
+
+Coarse STEP 190 starts ...
+[Level 0 step 190] ADVANCE with time = 189 dt = 1
+[diag_force] lev=0 step=190 t=1.890000e+02 cc_max|F|_global=7.676561e-04 (Fx=7.676561e-04, Fy=4.192745e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.676561e-04 (Fx=7.676561e-04, Fy=4.192745e-04)
+[Level 0 step 190] Advanced 131072 cells
+Coarse STEP 190 ends. TIME = 190 DT = 1 Sum(Rho) = 131062.496
+
+Coarse STEP 191 starts ...
+[Level 0 step 191] ADVANCE with time = 190 dt = 1
+[diag_force] lev=0 step=191 t=1.900000e+02 cc_max|F|_global=7.504819e-04 (Fx=7.504819e-04, Fy=4.174891e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.504819e-04 (Fx=7.504819e-04, Fy=4.174891e-04)
+[Level 0 step 191] Advanced 131072 cells
+Coarse STEP 191 ends. TIME = 191 DT = 1 Sum(Rho) = 131062.2547
+
+Coarse STEP 192 starts ...
+[Level 0 step 192] ADVANCE with time = 191 dt = 1
+[diag_force] lev=0 step=192 t=1.910000e+02 cc_max|F|_global=7.519004e-04 (Fx=7.519004e-04, Fy=4.164089e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.519004e-04 (Fx=7.519004e-04, Fy=4.164089e-04)
+[Level 0 step 192] Advanced 131072 cells
+Coarse STEP 192 ends. TIME = 192 DT = 1 Sum(Rho) = 131062.012
+
+Coarse STEP 193 starts ...
+[Level 0 step 193] ADVANCE with time = 192 dt = 1
+[diag_force] lev=0 step=193 t=1.920000e+02 cc_max|F|_global=7.379271e-04 (Fx=7.379271e-04, Fy=4.150033e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.379271e-04 (Fx=7.379271e-04, Fy=4.150033e-04)
+[Level 0 step 193] Advanced 131072 cells
+Coarse STEP 193 ends. TIME = 193 DT = 1 Sum(Rho) = 131061.7673
+
+Coarse STEP 194 starts ...
+[Level 0 step 194] ADVANCE with time = 193 dt = 1
+[diag_force] lev=0 step=194 t=1.930000e+02 cc_max|F|_global=7.426003e-04 (Fx=7.426003e-04, Fy=4.141806e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.426003e-04 (Fx=7.426003e-04, Fy=4.141806e-04)
+[Level 0 step 194] Advanced 131072 cells
+Coarse STEP 194 ends. TIME = 194 DT = 1 Sum(Rho) = 131061.52
+
+Coarse STEP 195 starts ...
+[Level 0 step 195] ADVANCE with time = 194 dt = 1
+[diag_force] lev=0 step=195 t=1.940000e+02 cc_max|F|_global=7.312578e-04 (Fx=7.312578e-04, Fy=4.130375e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.312578e-04 (Fx=7.312578e-04, Fy=4.130375e-04)
+[Level 0 step 195] Advanced 131072 cells
+Coarse STEP 195 ends. TIME = 195 DT = 1 Sum(Rho) = 131061.2694
+
+Coarse STEP 196 starts ...
+[Level 0 step 196] ADVANCE with time = 195 dt = 1
+[diag_force] lev=0 step=196 t=1.950000e+02 cc_max|F|_global=7.373128e-04 (Fx=7.373128e-04, Fy=4.124605e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.373128e-04 (Fx=7.373128e-04, Fy=4.124605e-04)
+[Level 0 step 196] Advanced 131072 cells
+Coarse STEP 196 ends. TIME = 196 DT = 1 Sum(Rho) = 131061.0148
+
+Coarse STEP 197 starts ...
+[Level 0 step 197] ADVANCE with time = 196 dt = 1
+[diag_force] lev=0 step=197 t=1.960000e+02 cc_max|F|_global=7.259858e-04 (Fx=7.259858e-04, Fy=4.115919e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.259858e-04 (Fx=7.259858e-04, Fy=4.115919e-04)
+[Level 0 step 197] Advanced 131072 cells
+Coarse STEP 197 ends. TIME = 197 DT = 1 Sum(Rho) = 131060.7556
+
+Coarse STEP 198 starts ...
+[Level 0 step 198] ADVANCE with time = 197 dt = 1
+[diag_force] lev=0 step=198 t=1.970000e+02 cc_max|F|_global=7.307833e-04 (Fx=7.307833e-04, Fy=4.111139e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.307833e-04 (Fx=7.307833e-04, Fy=4.111139e-04)
+[Level 0 step 198] Advanced 131072 cells
+Coarse STEP 198 ends. TIME = 198 DT = 1 Sum(Rho) = 131060.4912
+
+Coarse STEP 199 starts ...
+[Level 0 step 199] ADVANCE with time = 198 dt = 1
+[diag_force] lev=0 step=199 t=1.980000e+02 cc_max|F|_global=7.178286e-04 (Fx=7.178286e-04, Fy=4.102166e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.178286e-04 (Fx=7.178286e-04, Fy=4.102166e-04)
+[Level 0 step 199] Advanced 131072 cells
+Coarse STEP 199 ends. TIME = 199 DT = 1 Sum(Rho) = 131060.2211
+
+Coarse STEP 200 starts ...
+[Level 0 step 200] ADVANCE with time = 199 dt = 1
+[diag_force] lev=0 step=200 t=1.990000e+02 cc_max|F|_global=7.210570e-04 (Fx=7.210570e-04, Fy=4.096043e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.210570e-04 (Fx=7.210570e-04, Fy=4.096043e-04)
+[Level 0 step 200] Advanced 131072 cells
+Coarse STEP 200 ends. TIME = 200 DT = 1 Sum(Rho) = 131059.9448
+Preparing plotfile data at level 0
+m_use_cylinder = 1, m_ls = not null, phi_written = yes
+PlotFileVarNames: total vars = 16
+Unused ParmParse Variables:
+  [TOP]::amr.blocking_factor_z(nvals = 1)  :: [8]
+  [TOP]::amr.ref_ratio(nvals = 4)  :: [2, 2, 2, 2]
+
+AMReX (25.03-6-g5da47374715c) finalized

@@ -1,0 +1,54 @@
+# BC reference cavity flow (moving lid via physical BCs)
+max_step  = 1200
+stop_time = 1200
+
+geometry.prob_lo     = 0.0 0.0 0.0
+geometry.prob_hi     = 64.0 64.0 8.0
+geometry.is_periodic = 0 0 1
+
+amr.v = 1
+amr.n_cell = 64 64 8
+amr.max_level = 0
+amr.max_grid_size = 64
+amr.blocking_factor_x = 8
+amr.blocking_factor_y = 8
+amr.blocking_factor_z = 8
+amr.regrid_int = 100
+
+amr.plot_file = out_bc/plt
+amr.plot_int  = 400
+amr.chk_file  = chk
+amr.chk_int   = -1
+
+lbmPhysicalParameters.nu   = 0.02
+lbmPhysicalParameters.nmac = 6
+
+lbm2d.ndir   = 9
+lbm2d.wis    = 4.0  1.0  1.0  1.0   1.0  1.0  1.0  1.0  1.0
+lbm2d.wim    = 9.0  9.0  9.0  9.0   9.0  36.0 36.0 36.0 36.0
+lbm2d.dirx   = 0.0  1.0  0.0  -1.0  0.0  1.0  -1.0 -1.0 1.0
+lbm2d.diry   = 0.0  0.0  1.0  0.0   -1.0 1.0  1.0  -1.0 -1.0
+lbm2d.dirz   = 0.0  0.0  0.0  0.0   0.0  0.0  0.0  0.0  0.0
+
+# ext_dir on all sides
+amrbc.bc_lo = 3 3
+amrbc.bc_hi = 3 3
+
+# x-lo / x-hi walls (stationary)
+amrbc.bc_lo_0_rho_val = 1.0
+amrbc.bc_lo_0_ux_val  = 0.0
+amrbc.bc_lo_0_uy_val  = 0.0
+amrbc.bc_hi_0_rho_val = 1.0
+amrbc.bc_hi_0_ux_val  = 0.0
+amrbc.bc_hi_0_uy_val  = 0.0
+
+# y-lo wall stationary, y-hi lid moving
+amrbc.bc_lo_1_rho_val = 1.0
+amrbc.bc_lo_1_ux_val  = 0.0
+amrbc.bc_lo_1_uy_val  = 0.0
+amrbc.bc_hi_1_rho_val = 1.0
+amrbc.bc_hi_1_ux_val  = 0.05
+amrbc.bc_hi_1_uy_val  = 0.0
+
+ibm.use_cylinder = 0
+ibm.method = none

@@ -1,0 +1,1629 @@
+Initializing AMReX (25.03-6-g5da47374715c)...
+MPI initialized with 12 MPI processes
+MPI initialized with thread support level 0
+OMP initialized with 1 OMP threads
+AMReX (25.03-6-g5da47374715c) initialized
+Successfully read inputs file ... 
+ max_step = 200
+ stop_time = 200
+IBM parameters: use_cylinder = 1, method = iamr_marker
+               x0 = 96, y0 = 127.9, z0 = 0, R = 16, alpha = 0.1
+               force_eval_method = momentum_exchange (2)
+               marker_coupling = ivc (ivc_diag_reg=1.3, ivc_rebuild_matrix=0)
+Number signed distance functions = 1
+Total number of variables = 16
+Using IBM with method = 3
+AmrCoreLBM::AmrCoreLBM() finished.
+Creating new distribution map on level: 0
+Making new level 0
+BuildLevelSetOnLevel: level 0 (nghost = 3)
+LevelSetManager: built cylinder level-set on level 0 with R = 16
+BuildLevelSetOnLevel: level 0 (|BA| = 16, R = 16)
+BuildLevelSetOnLevel: level 0 (nghost = 3)
+LevelSetManager: built cylinder level-set on level 0 with R = 16
+BuildLevelSetOnLevel: level 0 (|BA| = 16, R = 16)
+
+Coarse STEP 1 starts ...
+[Level 0 step 1] ADVANCE with time = 0 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-1.796549347,0,0) euler(sum(f*dV))=(-1.796549347,0,0)
+[diag_force] lev=0 step=1 t=0.000000e+00 cc_max|F|_global=9.379640e-03 (Fx=9.379640e-03, Fy=0.000000e+00) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.379640e-03 (Fx=9.379640e-03, Fy=0.000000e+00)
+[Level 0 step 1] Advanced 131072 cells
+[force_eval] step=1 primary(2): Cd=124.7603713 Cl=-0 (raw Cd,Cl)=(124.7603713,-0) | eulerian(Cd,Cl)=(124.7603713,-0) marker=(124.7603713,-0) me=(124.7603713,-0)
+Coarse STEP 1 ends. TIME = 1 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 2 starts ...
+[Level 0 step 2] ADVANCE with time = 1 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-1.585153137,-1.684886305e-07,0) euler(sum(f*dV))=(-1.585153137,-1.684886305e-07,0)
+[diag_force] lev=0 step=2 t=1.000000e+00 cc_max|F|_global=8.270636e-03 (Fx=8.270636e-03, Fy=5.687648e-06) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.270636e-03 (Fx=8.270636e-03, Fy=5.687648e-06)
+[Level 0 step 2] Advanced 131072 cells
+[force_eval] step=2 primary(2): Cd=117.4202251 Cl=5.85029967e-06 (raw Cd,Cl)=(110.0800789,1.170059934e-05) | eulerian(Cd,Cl)=(110.0802897,1.170075838e-05) marker=(110.0800789,1.170059934e-05) me=(110.0800789,1.170059934e-05)
+Coarse STEP 2 ends. TIME = 2 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 3 starts ...
+[Level 0 step 3] ADVANCE with time = 2 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-1.297711272,-6.335956598e-06,0) euler(sum(f*dV))=(-1.297711272,-6.335956598e-06,0)
+[diag_force] lev=0 step=3 t=2.000000e+00 cc_max|F|_global=6.864292e-03 (Fx=6.864292e-03, Fy=2.131878e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=6.864292e-03 (Fx=6.864292e-03, Fy=2.131878e-04)
+[Level 0 step 3] Advanced 131072 cells
+[force_eval] step=3 primary(2): Cd=100.0994586 Cl=0.0002258487927 (raw Cd,Cl)=(90.11883834,0.000439996986) | eulerian(Cd,Cl)=(90.12493982,0.0004401939729) marker=(90.11883834,0.000439996986) me=(90.11883834,0.000439996986)
+Coarse STEP 3 ends. TIME = 3 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 4 starts ...
+[Level 0 step 4] ADVANCE with time = 3 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-1.055735213,-1.781250986e-05,0) euler(sum(f*dV))=(-1.055735213,-1.781250986e-05,0)
+[diag_force] lev=0 step=4 t=3.000000e+00 cc_max|F|_global=5.689741e-03 (Fx=5.689741e-03, Fy=5.619130e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.689741e-03 (Fx=5.689741e-03, Fy=5.619130e-04)
+[Level 0 step 4] Advanced 131072 cells
+[force_eval] step=4 primary(2): Cd=81.71689184 Cl=0.0008384884186 (raw Cd,Cl)=(73.31494535,0.001236979851) | eulerian(Cd,Cl)=(73.32847308,0.001236904259) marker=(73.31494535,0.001236979851) me=(73.31494535,0.001236979851)
+Coarse STEP 4 ends. TIME = 4 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 5 starts ...
+[Level 0 step 5] ADVANCE with time = 4 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.9311028286,-1.140504046e-05,0) euler(sum(f*dV))=(-0.9311028286,-1.140504046e-05,0)
+[diag_force] lev=0 step=5 t=4.000000e+00 cc_max|F|_global=5.490998e-03 (Fx=5.490998e-03, Fy=1.018741e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.490998e-03 (Fx=5.490998e-03, Fy=1.018741e-03)
+[Level 0 step 5] Advanced 131072 cells
+[force_eval] step=5 primary(2): Cd=68.987432 Cl=0.001014498275 (raw Cd,Cl)=(64.65991865,0.0007920166983) | eulerian(Cd,Cl)=(64.68201068,0.0007901252744) marker=(64.65991865,0.0007920166983) me=(64.65991865,0.0007920166983)
+Coarse STEP 5 ends. TIME = 5 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 6 starts ...
+[Level 0 step 6] ADVANCE with time = 5 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.8329859631,-1.640234901e-05,0) euler(sum(f*dV))=(-0.8329859631,-1.640234901e-05,0)
+[diag_force] lev=0 step=6 t=5.000000e+00 cc_max|F|_global=5.386464e-03 (Fx=5.386464e-03, Fy=1.341048e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.386464e-03 (Fx=5.386464e-03, Fy=1.341048e-03)
+[Level 0 step 6] Advanced 131072 cells
+[force_eval] step=6 primary(2): Cd=61.25308304 Cl=0.0009655343566 (raw Cd,Cl)=(57.84624743,0.001139052015) | eulerian(Cd,Cl)=(57.87282067,0.001138161072) marker=(57.84624743,0.001139052015) me=(57.84624743,0.001139052015)
+Coarse STEP 6 ends. TIME = 6 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 7 starts ...
+[Level 0 step 7] ADVANCE with time = 6 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.8054325483,-2.583556459e-06,0) euler(sum(f*dV))=(-0.8054325483,-2.583556459e-06,0)
+[diag_force] lev=0 step=7 t=6.000000e+00 cc_max|F|_global=5.744343e-03 (Fx=5.744343e-03, Fy=1.783043e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.744343e-03 (Fx=5.744343e-03, Fy=1.783043e-03)
+[Level 0 step 7] Advanced 131072 cells
+[force_eval] step=7 primary(2): Cd=56.88953165 Cl=0.0006592328289 (raw Cd,Cl)=(55.93281586,0.000179413643) | eulerian(Cd,Cl)=(55.96206693,0.0001836605852) marker=(55.93281586,0.000179413643) me=(55.93281586,0.000179413643)
+Coarse STEP 7 ends. TIME = 7 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 8 starts ...
+[Level 0 step 8] ADVANCE with time = 7 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.7603467982,1.168732689e-06,0) euler(sum(f*dV))=(-0.7603467982,1.168732689e-06,0)
+[diag_force] lev=0 step=8 t=7.000000e+00 cc_max|F|_global=5.687554e-03 (Fx=5.687554e-03, Fy=2.135032e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.687554e-03 (Fx=5.687554e-03, Fy=2.135032e-03)
+[Level 0 step 8] Advanced 131072 cells
+[force_eval] step=8 primary(2): Cd=54.36733842 Cl=4.912582535e-05 (raw Cd,Cl)=(52.80186099,-8.116199228e-05) | eulerian(Cd,Cl)=(52.8280183,-7.638547691e-05) marker=(52.80186099,-8.116199228e-05) me=(52.80186099,-8.116199228e-05)
+Coarse STEP 8 ends. TIME = 8 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 9 starts ...
+[Level 0 step 9] ADVANCE with time = 8 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.7502594973,-2.538143552e-06,0) euler(sum(f*dV))=(-0.7502594973,-2.538143552e-06,0)
+[diag_force] lev=0 step=9 t=8.000000e+00 cc_max|F|_global=5.857401e-03 (Fx=5.857401e-03, Fy=2.448932e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.857401e-03 (Fx=5.857401e-03, Fy=2.448932e-03)
+[Level 0 step 9] Advanced 131072 cells
+[force_eval] step=9 primary(2): Cd=52.45160748 Cl=4.754898832e-05 (raw Cd,Cl)=(52.10135398,0.0001762599689) | eulerian(Cd,Cl)=(52.12422628,0.0001754188842) marker=(52.10135398,0.0001762599689) me=(52.10135398,0.0001762599689)
+Coarse STEP 9 ends. TIME = 9 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 10 starts ...
+[Level 0 step 10] ADVANCE with time = 9 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.6987030104,-8.866820804e-06,0) euler(sum(f*dV))=(-0.6987030104,-8.866820805e-06,0)
+[diag_force] lev=0 step=10 t=9.000000e+00 cc_max|F|_global=5.621500e-03 (Fx=5.621500e-03, Fy=2.533341e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.621500e-03 (Fx=5.621500e-03, Fy=2.533341e-03)
+[Level 0 step 10] Advanced 131072 cells
+[force_eval] step=10 primary(2): Cd=50.31119818 Cl=0.0003960057068 (raw Cd,Cl)=(48.52104239,0.0006157514448) | eulerian(Cd,Cl)=(48.53922526,0.0006123806423) marker=(48.52104239,0.0006157514448) me=(48.52104239,0.0006157514448)
+Coarse STEP 10 ends. TIME = 10 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 11 starts ...
+[Level 0 step 11] ADVANCE with time = 10 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.679672531,-7.374235818e-06,0) euler(sum(f*dV))=(-0.679672531,-7.374235818e-06,0)
+[diag_force] lev=0 step=11 t=1.000000e+01 cc_max|F|_global=5.686778e-03 (Fx=5.686778e-03, Fy=2.559122e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.686778e-03 (Fx=5.686778e-03, Fy=2.559122e-03)
+[Level 0 step 11] Advanced 131072 cells
+[force_eval] step=11 primary(2): Cd=47.86026185 Cl=0.0005639255772 (raw Cd,Cl)=(47.19948132,0.0005120997096) | eulerian(Cd,Cl)=(47.21722683,0.0005132870092) marker=(47.19948132,0.0005120997096) me=(47.19948132,0.0005120997096)
+Coarse STEP 11 ends. TIME = 11 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 12 starts ...
+[Level 0 step 12] ADVANCE with time = 11 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.6377957998,-8.511875039e-06,0) euler(sum(f*dV))=(-0.6377957998,-8.511875039e-06,0)
+[diag_force] lev=0 step=12 t=1.100000e+01 cc_max|F|_global=5.489788e-03 (Fx=5.489788e-03, Fy=2.541320e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.489788e-03 (Fx=5.489788e-03, Fy=2.541320e-03)
+[Level 0 step 12] Advanced 131072 cells
+[force_eval] step=12 primary(2): Cd=45.74542815 Cl=0.0005516010714 (raw Cd,Cl)=(44.29137498,0.0005911024333) | eulerian(Cd,Cl)=(44.31028823,0.0005950650918) marker=(44.29137498,0.0005911024333) me=(44.29137498,0.0005911024333)
+Coarse STEP 12 ends. TIME = 12 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 13 starts ...
+[Level 0 step 13] ADVANCE with time = 12 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.6410035555,-3.994037622e-06,0) euler(sum(f*dV))=(-0.6410035555,-3.994037622e-06,0)
+[diag_force] lev=0 step=13 t=1.200000e+01 cc_max|F|_global=5.642357e-03 (Fx=5.642357e-03, Fy=2.634448e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.642357e-03 (Fx=5.642357e-03, Fy=2.634448e-03)
+[Level 0 step 13] Advanced 131072 cells
+[force_eval] step=13 primary(2): Cd=44.40275539 Cl=0.0004342330785 (raw Cd,Cl)=(44.5141358,0.0002773637237) | eulerian(Cd,Cl)=(44.53696894,0.0002819803903) marker=(44.5141358,0.0002773637237) me=(44.5141358,0.0002773637237)
+Coarse STEP 13 ends. TIME = 13 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 14 starts ...
+[Level 0 step 14] ADVANCE with time = 13 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.6216993903,-1.479169835e-05,0) euler(sum(f*dV))=(-0.6216993903,-1.479169835e-05,0)
+[diag_force] lev=0 step=14 t=1.300000e+01 cc_max|F|_global=5.527073e-03 (Fx=5.527073e-03, Fy=2.697076e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.527073e-03 (Fx=5.527073e-03, Fy=2.697076e-03)
+[Level 0 step 14] Advanced 131072 cells
+[force_eval] step=14 primary(2): Cd=43.84385228 Cl=0.0006522824989 (raw Cd,Cl)=(43.17356877,0.001027201274) | eulerian(Cd,Cl)=(43.19762212,0.0010389274) marker=(43.17356877,0.001027201274) me=(43.17356877,0.001027201274)
+Coarse STEP 14 ends. TIME = 14 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 15 starts ...
+[Level 0 step 15] ADVANCE with time = 14 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.631817387,-1.760081499e-05,0) euler(sum(f*dV))=(-0.631817387,-1.760081499e-05,0)
+[diag_force] lev=0 step=15 t=1.400000e+01 cc_max|F|_global=5.693165e-03 (Fx=5.693165e-03, Fy=2.774427e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.693165e-03 (Fx=5.693165e-03, Fy=2.774427e-03)
+[Level 0 step 15] Advanced 131072 cells
+[force_eval] step=15 primary(2): Cd=43.5248881 Cl=0.001124740046 (raw Cd,Cl)=(43.87620743,0.001222278819) | eulerian(Cd,Cl)=(43.9006854,0.00124540314) marker=(43.87620743,0.001222278819) me=(43.87620743,0.001222278819)
+Coarse STEP 15 ends. TIME = 15 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 16 starts ...
+[Level 0 step 16] ADVANCE with time = 15 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.6112246071,-1.682318866e-05,0) euler(sum(f*dV))=(-0.6112246071,-1.682318866e-05,0)
+[diag_force] lev=0 step=16 t=1.500000e+01 cc_max|F|_global=5.551333e-03 (Fx=5.551333e-03, Fy=2.776091e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.551333e-03 (Fx=5.551333e-03, Fy=2.776091e-03)
+[Level 0 step 16] Advanced 131072 cells
+[force_eval] step=16 primary(2): Cd=43.16118035 Cl=0.001195277904 (raw Cd,Cl)=(42.44615327,0.00116827699) | eulerian(Cd,Cl)=(42.46801632,0.00119706523) marker=(42.44615327,0.00116827699) me=(42.44615327,0.00116827699)
+Coarse STEP 16 ends. TIME = 16 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 17 starts ...
+[Level 0 step 17] ADVANCE with time = 16 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.6178893268,-6.942739404e-06,0) euler(sum(f*dV))=(-0.6178893268,-6.942739404e-06,0)
+[diag_force] lev=0 step=17 t=1.600000e+01 cc_max|F|_global=5.649721e-03 (Fx=5.649721e-03, Fy=2.826491e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.649721e-03 (Fx=5.649721e-03, Fy=2.826491e-03)
+[Level 0 step 17] Advanced 131072 cells
+[force_eval] step=17 primary(2): Cd=42.67756715 Cl=0.0008252058354 (raw Cd,Cl)=(42.90898103,0.0004821346808) | eulerian(Cd,Cl)=(42.92964433,0.000510984098) marker=(42.90898103,0.0004821346808) me=(42.90898103,0.0004821346808)
+Coarse STEP 17 ends. TIME = 17 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 18 starts ...
+[Level 0 step 18] ADVANCE with time = 17 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5994203044,-1.092403409e-05,0) euler(sum(f*dV))=(-0.5994203044,-1.092403409e-05,0)
+[diag_force] lev=0 step=18 t=1.700000e+01 cc_max|F|_global=5.494144e-03 (Fx=5.494144e-03, Fy=2.840237e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.494144e-03 (Fx=5.494144e-03, Fy=2.840237e-03)
+[Level 0 step 18] Advanced 131072 cells
+[force_eval] step=18 primary(2): Cd=42.26769553 Cl=0.0006203740798 (raw Cd,Cl)=(41.62641003,0.0007586134787) | eulerian(Cd,Cl)=(41.64572101,0.0007875618974) marker=(41.62641003,0.0007586134787) me=(41.62641003,0.0007586134787)
+Coarse STEP 18 ends. TIME = 18 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 19 starts ...
+[Level 0 step 19] ADVANCE with time = 18 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.606315026,-1.387032322e-05,0) euler(sum(f*dV))=(-0.606315026,-1.387032322e-05,0)
+[diag_force] lev=0 step=19 t=1.800000e+01 cc_max|F|_global=5.591601e-03 (Fx=5.591601e-03, Fy=2.864047e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.591601e-03 (Fx=5.591601e-03, Fy=2.864047e-03)
+[Level 0 step 19] Advanced 131072 cells
+[force_eval] step=19 primary(2): Cd=41.86581009 Cl=0.0008609151845 (raw Cd,Cl)=(42.10521014,0.0009632168904) | eulerian(Cd,Cl)=(42.12545694,0.0009911989339) marker=(42.10521014,0.0009632168904) me=(42.10521014,0.0009632168904)
+Coarse STEP 19 ends. TIME = 19 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 20 starts ...
+[Level 0 step 20] ADVANCE with time = 19 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5881418228,-1.863390119e-05,0) euler(sum(f*dV))=(-0.5881418228,-1.863390119e-05,0)
+[diag_force] lev=0 step=20 t=1.900000e+01 cc_max|F|_global=5.479367e-03 (Fx=5.479367e-03, Fy=2.806641e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.479367e-03 (Fx=5.479367e-03, Fy=2.806641e-03)
+[Level 0 step 20] Advanced 131072 cells
+[force_eval] step=20 primary(2): Cd=41.47419614 Cl=0.001128618903 (raw Cd,Cl)=(40.84318214,0.001294020916) | eulerian(Cd,Cl)=(40.86402114,0.001319007755) marker=(40.84318214,0.001294020916) me=(40.84318214,0.001294020916)
+Coarse STEP 20 ends. TIME = 20 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 21 starts ...
+[Level 0 step 21] ADVANCE with time = 20 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5947587193,-1.352102423e-05,0) euler(sum(f*dV))=(-0.5947587193,-1.352102423e-05,0)
+[diag_force] lev=0 step=21 t=2.000000e+01 cc_max|F|_global=5.588235e-03 (Fx=5.588235e-03, Fy=2.790832e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.588235e-03 (Fx=5.588235e-03, Fy=2.790832e-03)
+[Level 0 step 21] Advanced 131072 cells
+[force_eval] step=21 primary(2): Cd=41.07293549 Cl=0.001116490466 (raw Cd,Cl)=(41.30268884,0.000938960016) | eulerian(Cd,Cl)=(41.32558882,0.0009637162158) marker=(41.30268884,0.000938960016) me=(41.30268884,0.000938960016)
+Coarse STEP 21 ends. TIME = 21 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 22 starts ...
+[Level 0 step 22] ADVANCE with time = 21 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5817925581,-1.553682186e-05,0) euler(sum(f*dV))=(-0.5817925581,-1.553682186e-05,0)
+[diag_force] lev=0 step=22 t=2.100000e+01 cc_max|F|_global=5.485766e-03 (Fx=5.485766e-03, Fy=2.785483e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.485766e-03 (Fx=5.485766e-03, Fy=2.785483e-03)
+[Level 0 step 22] Advanced 131072 cells
+[force_eval] step=22 primary(2): Cd=40.85247491 Cl=0.001008952989 (raw Cd,Cl)=(40.40226098,0.001078945963) | eulerian(Cd,Cl)=(40.4258461,0.001103221386) marker=(40.40226098,0.001078945963) me=(40.40226098,0.001078945963)
+Coarse STEP 22 ends. TIME = 22 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 23 starts ...
+[Level 0 step 23] ADVANCE with time = 22 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5923309224,-1.424573882e-05,0) euler(sum(f*dV))=(-0.5923309224,-1.424573882e-05,0)
+[diag_force] lev=0 step=23 t=2.200000e+01 cc_max|F|_global=5.574061e-03 (Fx=5.574061e-03, Fy=2.847406e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.574061e-03 (Fx=5.574061e-03, Fy=2.847406e-03)
+[Level 0 step 23] Advanced 131072 cells
+[force_eval] step=23 primary(2): Cd=40.76817641 Cl=0.00103411669 (raw Cd,Cl)=(41.13409184,0.0009892874178) | eulerian(Cd,Cl)=(41.15838609,0.001006169122) marker=(41.13409184,0.0009892874178) me=(41.13409184,0.0009892874178)
+Coarse STEP 23 ends. TIME = 23 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 24 starts ...
+[Level 0 step 24] ADVANCE with time = 23 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5808035713,-1.916478983e-05,0) euler(sum(f*dV))=(-0.5808035713,-1.916478983e-05,0)
+[diag_force] lev=0 step=24 t=2.300000e+01 cc_max|F|_global=5.461814e-03 (Fx=5.461814e-03, Fy=2.858690e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.461814e-03 (Fx=5.461814e-03, Fy=2.858690e-03)
+[Level 0 step 24] Advanced 131072 cells
+[force_eval] step=24 primary(2): Cd=40.73383659 Cl=0.0011600878 (raw Cd,Cl)=(40.33358134,0.001330888183) | eulerian(Cd,Cl)=(40.35638705,0.001337797851) marker=(40.33358134,0.001330888183) me=(40.33358134,0.001330888183)
+Coarse STEP 24 ends. TIME = 24 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 25 starts ...
+[Level 0 step 25] ADVANCE with time = 24 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5866248267,-1.424800391e-05,0) euler(sum(f*dV))=(-0.5866248267,-1.424800391e-05,0)
+[diag_force] lev=0 step=25 t=2.400000e+01 cc_max|F|_global=5.531918e-03 (Fx=5.531918e-03, Fy=2.863634e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.531918e-03 (Fx=5.531918e-03, Fy=2.863634e-03)
+[Level 0 step 25] Advanced 131072 cells
+[force_eval] step=25 primary(2): Cd=40.53570826 Cl=0.00116016645 (raw Cd,Cl)=(40.73783518,0.0009894447161) | eulerian(Cd,Cl)=(40.75952772,0.0009957933965) marker=(40.73783518,0.0009894447161) me=(40.73783518,0.0009894447161)
+Coarse STEP 25 ends. TIME = 25 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 26 starts ...
+[Level 0 step 26] ADVANCE with time = 25 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5723461953,-1.076333659e-05,0) euler(sum(f*dV))=(-0.5723461953,-1.076333659e-05,0)
+[diag_force] lev=0 step=26 t=2.500000e+01 cc_max|F|_global=5.420036e-03 (Fx=5.420036e-03, Fy=2.822571e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.420036e-03 (Fx=5.420036e-03, Fy=2.822571e-03)
+[Level 0 step 26] Advanced 131072 cells
+[force_eval] step=26 primary(2): Cd=40.24204937 Cl=0.0008684493231 (raw Cd,Cl)=(39.74626356,0.0007474539301) | eulerian(Cd,Cl)=(39.7665235,0.000762106749) marker=(39.74626356,0.0007474539301) me=(39.74626356,0.0007474539301)
+Coarse STEP 26 ends. TIME = 26 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 27 starts ...
+[Level 0 step 27] ADVANCE with time = 26 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5773738815,-3.781978394e-06,0) euler(sum(f*dV))=(-0.5773738815,-3.781978394e-06,0)
+[diag_force] lev=0 step=27 t=2.600000e+01 cc_max|F|_global=5.466745e-03 (Fx=5.466745e-03, Fy=2.820108e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.466745e-03 (Fx=5.466745e-03, Fy=2.820108e-03)
+[Level 0 step 27] Advanced 131072 cells
+[force_eval] step=27 primary(2): Cd=39.920836 Cl=0.0005050456593 (raw Cd,Cl)=(40.09540844,0.0002626373885) | eulerian(Cd,Cl)=(40.11594301,0.0002843375223) marker=(40.09540844,0.0002626373885) me=(40.09540844,0.0002626373885)
+Coarse STEP 27 ends. TIME = 27 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 28 starts ...
+[Level 0 step 28] ADVANCE with time = 27 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5655719598,-8.914536227e-06,0) euler(sum(f*dV))=(-0.5655719598,-8.914536227e-06,0)
+[diag_force] lev=0 step=28 t=2.700000e+01 cc_max|F|_global=5.378846e-03 (Fx=5.378846e-03, Fy=2.798007e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.378846e-03 (Fx=5.378846e-03, Fy=2.798007e-03)
+[Level 0 step 28] Advanced 131072 cells
+[force_eval] step=28 primary(2): Cd=39.68561949 Cl=0.0004408512021 (raw Cd,Cl)=(39.27583054,0.0006190650157) | eulerian(Cd,Cl)=(39.29655523,0.000639236465) marker=(39.27583054,0.0006190650157) me=(39.27583054,0.0006190650157)
+Coarse STEP 28 ends. TIME = 28 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 29 starts ...
+[Level 0 step 29] ADVANCE with time = 28 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5707629382,-1.072851165e-05,0) euler(sum(f*dV))=(-0.5707629382,-1.072851165e-05,0)
+[diag_force] lev=0 step=29 t=2.800000e+01 cc_max|F|_global=5.435134e-03 (Fx=5.435134e-03, Fy=2.802239e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.435134e-03 (Fx=5.435134e-03, Fy=2.802239e-03)
+[Level 0 step 29] Advanced 131072 cells
+[force_eval] step=29 primary(2): Cd=39.45607285 Cl=0.0006820502735 (raw Cd,Cl)=(39.63631516,0.0007450355312) | eulerian(Cd,Cl)=(39.65799919,0.0007606166796) marker=(39.63631516,0.0007450355312) me=(39.63631516,0.0007450355312)
+Coarse STEP 29 ends. TIME = 29 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 30 starts ...
+[Level 0 step 30] ADVANCE with time = 29 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.559461028,-1.632706727e-05,0) euler(sum(f*dV))=(-0.559461028,-1.632706727e-05,0)
+[diag_force] lev=0 step=30 t=2.900000e+01 cc_max|F|_global=5.356481e-03 (Fx=5.356481e-03, Fy=2.763960e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.356481e-03 (Fx=5.356481e-03, Fy=2.763960e-03)
+[Level 0 step 30] Advanced 131072 cells
+[force_eval] step=30 primary(2): Cd=39.24388772 Cl=0.0009394298235 (raw Cd,Cl)=(38.85146028,0.001133824116) | eulerian(Cd,Cl)=(38.87323397,0.001150462267) marker=(38.85146028,0.001133824116) me=(38.85146028,0.001133824116)
+Coarse STEP 30 ends. TIME = 30 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 31 starts ...
+[Level 0 step 31] ADVANCE with time = 30 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5633389683,-1.145142628e-05,0) euler(sum(f*dV))=(-0.5633389683,-1.145142628e-05,0)
+[diag_force] lev=0 step=31 t=3.000000e+01 cc_max|F|_global=5.395817e-03 (Fx=5.395817e-03, Fy=2.761649e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.395817e-03 (Fx=5.395817e-03, Fy=2.761649e-03)
+[Level 0 step 31] Advanced 131072 cells
+[force_eval] step=31 primary(2): Cd=38.98611098 Cl=0.000964531026 (raw Cd,Cl)=(39.12076169,0.0007952379362) | eulerian(Cd,Cl)=(39.14269106,0.0008200196803) marker=(39.12076169,0.0007952379362) me=(39.12076169,0.0007952379362)
+Coarse STEP 31 ends. TIME = 31 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 32 starts ...
+[Level 0 step 32] ADVANCE with time = 31 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5538200566,-9.511622002e-06,0) euler(sum(f*dV))=(-0.5538200566,-9.511622002e-06,0)
+[diag_force] lev=0 step=32 t=3.100000e+01 cc_max|F|_global=5.304803e-03 (Fx=5.304803e-03, Fy=2.766191e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.304803e-03 (Fx=5.304803e-03, Fy=2.766191e-03)
+[Level 0 step 32] Advanced 131072 cells
+[force_eval] step=32 primary(2): Cd=38.79024392 Cl=0.0007278836209 (raw Cd,Cl)=(38.45972615,0.0006605293057) | eulerian(Cd,Cl)=(38.48060721,0.0006891902646) marker=(38.45972615,0.0006605293057) me=(38.45972615,0.0006605293057)
+Coarse STEP 32 ends. TIME = 32 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 33 starts ...
+[Level 0 step 33] ADVANCE with time = 32 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5578942728,-4.640900022e-06,0) euler(sum(f*dV))=(-0.5578942728,-4.640900022e-06,0)
+[diag_force] lev=0 step=33 t=3.200000e+01 cc_max|F|_global=5.314006e-03 (Fx=5.314006e-03, Fy=2.789881e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.314006e-03 (Fx=5.314006e-03, Fy=2.789881e-03)
+[Level 0 step 33] Advanced 131072 cells
+[force_eval] step=33 primary(2): Cd=38.60119199 Cl=0.0004914070147 (raw Cd,Cl)=(38.74265783,0.0003222847238) | eulerian(Cd,Cl)=(38.76228181,0.0003445459529) marker=(38.74265783,0.0003222847238) me=(38.74265783,0.0003222847238)
+Coarse STEP 33 ends. TIME = 33 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 34 starts ...
+[Level 0 step 34] ADVANCE with time = 33 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5469359217,-1.010127194e-05,0) euler(sum(f*dV))=(-0.5469359217,-1.010127194e-05,0)
+[diag_force] lev=0 step=34 t=3.300000e+01 cc_max|F|_global=5.224330e-03 (Fx=5.224330e-03, Fy=2.755144e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.224330e-03 (Fx=5.224330e-03, Fy=2.755144e-03)
+[Level 0 step 34] Advanced 131072 cells
+[force_eval] step=34 primary(2): Cd=38.36215953 Cl=0.0005118809708 (raw Cd,Cl)=(37.98166123,0.0007014772178) | eulerian(Cd,Cl)=(37.9993052,0.0007151742044) marker=(37.98166123,0.0007014772178) me=(37.98166123,0.0007014772178)
+Coarse STEP 34 ends. TIME = 34 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 35 starts ...
+[Level 0 step 35] ADVANCE with time = 34 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5471614323,-1.098567422e-05,0) euler(sum(f*dV))=(-0.5471614323,-1.098567422e-05,0)
+[diag_force] lev=0 step=35 t=3.400000e+01 cc_max|F|_global=5.228190e-03 (Fx=5.228190e-03, Fy=2.724573e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.228190e-03 (Fx=5.228190e-03, Fy=2.724573e-03)
+[Level 0 step 35] Advanced 131072 cells
+[force_eval] step=35 primary(2): Cd=37.98949146 Cl=0.0007321856304 (raw Cd,Cl)=(37.99732169,0.000762894043) | eulerian(Cd,Cl)=(38.01363336,0.0007770680213) marker=(37.99732169,0.000762894043) me=(37.99732169,0.000762894043)
+Coarse STEP 35 ends. TIME = 35 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 36 starts ...
+[Level 0 step 36] ADVANCE with time = 35 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5360454892,-1.398238475e-05,0) euler(sum(f*dV))=(-0.5360454892,-1.398238475e-05,0)
+[diag_force] lev=0 step=36 t=3.500000e+01 cc_max|F|_global=5.146553e-03 (Fx=5.146553e-03, Fy=2.683608e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.146553e-03 (Fx=5.146553e-03, Fy=2.683608e-03)
+[Level 0 step 36] Advanced 131072 cells
+[force_eval] step=36 primary(2): Cd=37.61135144 Cl=0.000866946492 (raw Cd,Cl)=(37.2253812,0.000970998941) | eulerian(Cd,Cl)=(37.24076898,0.0009901735939) marker=(37.2253812,0.000970998941) me=(37.2253812,0.000970998941)
+Coarse STEP 36 ends. TIME = 36 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 37 starts ...
+[Level 0 step 37] ADVANCE with time = 36 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5370263906,-8.78662435e-06,0) euler(sum(f*dV))=(-0.5370263906,-8.78662435e-06,0)
+[diag_force] lev=0 step=37 t=3.600000e+01 cc_max|F|_global=5.139365e-03 (Fx=5.139365e-03, Fy=2.672481e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.139365e-03 (Fx=5.139365e-03, Fy=2.672481e-03)
+[Level 0 step 37] Advanced 131072 cells
+[force_eval] step=37 primary(2): Cd=37.25944027 Cl=0.0007905905938 (raw Cd,Cl)=(37.29349935,0.0006101822465) | eulerian(Cd,Cl)=(37.30866053,0.0006286100296) marker=(37.29349935,0.0006101822465) me=(37.29349935,0.0006101822465)
+Coarse STEP 37 ends. TIME = 37 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 38 starts ...
+[Level 0 step 38] ADVANCE with time = 37 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5273348619,-1.228269813e-05,0) euler(sum(f*dV))=(-0.5273348619,-1.228269813e-05,0)
+[diag_force] lev=0 step=38 t=3.700000e+01 cc_max|F|_global=5.059126e-03 (Fx=5.059126e-03, Fy=2.641990e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.059126e-03 (Fx=5.059126e-03, Fy=2.641990e-03)
+[Level 0 step 38] Advanced 131072 cells
+[force_eval] step=38 primary(2): Cd=36.95698794 Cl=0.0007315736973 (raw Cd,Cl)=(36.62047652,0.0008529651481) | eulerian(Cd,Cl)=(36.63503117,0.0008631480012) marker=(36.62047652,0.0008529651481) me=(36.62047652,0.0008529651481)
+Coarse STEP 38 ends. TIME = 38 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 39 starts ...
+[Level 0 step 39] ADVANCE with time = 38 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5269723738,-1.208714441e-05,0) euler(sum(f*dV))=(-0.5269723738,-1.208714441e-05,0)
+[diag_force] lev=0 step=39 t=3.800000e+01 cc_max|F|_global=5.035011e-03 (Fx=5.035011e-03, Fy=2.627130e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=5.035011e-03 (Fx=5.035011e-03, Fy=2.627130e-03)
+[Level 0 step 39] Advanced 131072 cells
+[force_eval] step=39 primary(2): Cd=36.60789013 Cl=0.0008461750884 (raw Cd,Cl)=(36.59530374,0.0008393850288) | eulerian(Cd,Cl)=(36.6086859,0.0008429935187) marker=(36.59530374,0.0008393850288) me=(36.59530374,0.0008393850288)
+Coarse STEP 39 ends. TIME = 39 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 40 starts ...
+[Level 0 step 40] ADVANCE with time = 39 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5166754737,-1.519563059e-05,0) euler(sum(f*dV))=(-0.5166754737,-1.519563059e-05,0)
+[diag_force] lev=0 step=40 t=3.900000e+01 cc_max|F|_global=4.943308e-03 (Fx=4.943308e-03, Fy=2.593532e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.943308e-03 (Fx=4.943308e-03, Fy=2.593532e-03)
+[Level 0 step 40] Advanced 131072 cells
+[force_eval] step=40 primary(2): Cd=36.23777248 Cl=0.0009473185766 (raw Cd,Cl)=(35.88024123,0.001055252124) | eulerian(Cd,Cl)=(35.89154787,0.00105900493) marker=(35.88024123,0.001055252124) me=(35.88024123,0.001055252124)
+Coarse STEP 40 ends. TIME = 40 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 41 starts ...
+[Level 0 step 41] ADVANCE with time = 40 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5151075651,-8.890643723e-06,0) euler(sum(f*dV))=(-0.5151075651,-8.890643723e-06,0)
+[diag_force] lev=0 step=41 t=4.000000e+01 cc_max|F|_global=4.888982e-03 (Fx=4.888982e-03, Fy=2.577695e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.888982e-03 (Fx=4.888982e-03, Fy=2.577695e-03)
+[Level 0 step 41] Advanced 131072 cells
+[force_eval] step=41 primary(2): Cd=35.82579996 Cl=0.0008363289692 (raw Cd,Cl)=(35.77135869,0.0006174058141) | eulerian(Cd,Cl)=(35.78008769,0.000624821439) marker=(35.77135869,0.0006174058141) me=(35.77135869,0.0006174058141)
+Coarse STEP 41 ends. TIME = 41 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 42 starts ...
+[Level 0 step 42] ADVANCE with time = 41 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5043682217,-8.006423255e-06,0) euler(sum(f*dV))=(-0.5043682217,-8.006423255e-06,0)
+[diag_force] lev=0 step=42 t=4.100000e+01 cc_max|F|_global=4.781858e-03 (Fx=4.781858e-03, Fy=2.534469e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.781858e-03 (Fx=4.781858e-03, Fy=2.534469e-03)
+[Level 0 step 42] Advanced 131072 cells
+[force_eval] step=42 primary(2): Cd=35.39846482 Cl=0.0005867037145 (raw Cd,Cl)=(35.02557095,0.0005560016149) | eulerian(Cd,Cl)=(35.03136272,0.0005635995864) marker=(35.02557095,0.0005560016149) me=(35.02557095,0.0005560016149)
+Coarse STEP 42 ends. TIME = 42 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 43 starts ...
+[Level 0 step 43] ADVANCE with time = 42 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.5004993372,-4.668176939e-06,0) euler(sum(f*dV))=(-0.5004993372,-4.668176939e-06,0)
+[diag_force] lev=0 step=43 t=4.200000e+01 cc_max|F|_global=4.709689e-03 (Fx=4.709689e-03, Fy=2.493792e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.709689e-03 (Fx=4.709689e-03, Fy=2.493792e-03)
+[Level 0 step 43] Advanced 131072 cells
+[force_eval] step=43 primary(2): Cd=34.89123468 Cl=0.0004400902845 (raw Cd,Cl)=(34.75689841,0.0003241789541) | eulerian(Cd,Cl)=(34.75958494,0.0003280634292) marker=(34.75689841,0.0003241789541) me=(34.75689841,0.0003241789541)
+Coarse STEP 43 ends. TIME = 43 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 44 starts ...
+[Level 0 step 44] ADVANCE with time = 43 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.4882607471,-9.597383885e-06,0) euler(sum(f*dV))=(-0.4882607471,-9.597383885e-06,0)
+[diag_force] lev=0 step=44 t=4.300000e+01 cc_max|F|_global=4.601927e-03 (Fx=4.601927e-03, Fy=2.425525e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.601927e-03 (Fx=4.601927e-03, Fy=2.425525e-03)
+[Level 0 step 44] Advanced 131072 cells
+[force_eval] step=44 primary(2): Cd=34.33194737 Cl=0.0004953319731 (raw Cd,Cl)=(33.90699633,0.000666484992) | eulerian(Cd,Cl)=(33.9066957,0.0006664108915) marker=(33.90699633,0.000666484992) me=(33.90699633,0.000666484992)
+Coarse STEP 44 ends. TIME = 44 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 45 starts ...
+[Level 0 step 45] ADVANCE with time = 44 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.4823357085,-9.180431879e-06,0) euler(sum(f*dV))=(-0.4823357085,-9.180431879e-06,0)
+[diag_force] lev=0 step=45 t=4.400000e+01 cc_max|F|_global=4.512576e-03 (Fx=4.512576e-03, Fy=2.368743e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.512576e-03 (Fx=4.512576e-03, Fy=2.368743e-03)
+[Level 0 step 45] Advanced 131072 cells
+[force_eval] step=45 primary(2): Cd=33.70126582 Cl=0.0006520074918 (raw Cd,Cl)=(33.49553531,0.0006375299916) | eulerian(Cd,Cl)=(33.49218504,0.0006358819048) marker=(33.49553531,0.0006375299916) me=(33.49553531,0.0006375299916)
+Coarse STEP 45 ends. TIME = 45 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 46 starts ...
+[Level 0 step 46] ADVANCE with time = 45 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.469419821,-1.176300767e-05,0) euler(sum(f*dV))=(-0.469419821,-1.176300767e-05,0)
+[diag_force] lev=0 step=46 t=4.500000e+01 cc_max|F|_global=4.380243e-03 (Fx=4.380243e-03, Fy=2.296666e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.380243e-03 (Fx=4.380243e-03, Fy=2.296666e-03)
+[Level 0 step 46] Advanced 131072 cells
+[force_eval] step=46 primary(2): Cd=33.047067 Cl=0.000727202762 (raw Cd,Cl)=(32.59859868,0.0008168755324) | eulerian(Cd,Cl)=(32.59205845,0.0008138400959) marker=(32.59859868,0.0008168755324) me=(32.59859868,0.0008168755324)
+Coarse STEP 46 ends. TIME = 46 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 47 starts ...
+[Level 0 step 47] ADVANCE with time = 46 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.4615848778,-6.040001017e-06,0) euler(sum(f*dV))=(-0.4615848778,-6.040001017e-06,0)
+[diag_force] lev=0 step=47 t=4.600000e+01 cc_max|F|_global=4.288710e-03 (Fx=4.288710e-03, Fy=2.233002e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.288710e-03 (Fx=4.288710e-03, Fy=2.233002e-03)
+[Level 0 step 47] Advanced 131072 cells
+[force_eval] step=47 primary(2): Cd=32.32655204 Cl=0.0006181600237 (raw Cd,Cl)=(32.0545054,0.0004194445151) | eulerian(Cd,Cl)=(32.04389337,0.0004137008127) marker=(32.0545054,0.0004194445151) me=(32.0545054,0.0004194445151)
+Coarse STEP 47 ends. TIME = 47 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 48 starts ...
+[Level 0 step 48] ADVANCE with time = 47 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.4464073903,-6.542396966e-06,0) euler(sum(f*dV))=(-0.4464073903,-6.542396967e-06,0)
+[diag_force] lev=0 step=48 t=4.700000e+01 cc_max|F|_global=4.164846e-03 (Fx=4.164846e-03, Fy=2.146061e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.164846e-03 (Fx=4.164846e-03, Fy=2.146061e-03)
+[Level 0 step 48] Advanced 131072 cells
+[force_eval] step=48 primary(2): Cd=31.52750931 Cl=0.0004368888189 (raw Cd,Cl)=(31.00051321,0.0004543331227) | eulerian(Cd,Cl)=(30.98521827,0.0004451664336) marker=(31.00051321,0.0004543331227) me=(31.00051321,0.0004543331227)
+Coarse STEP 48 ends. TIME = 48 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 49 starts ...
+[Level 0 step 49] ADVANCE with time = 48 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.4347297823,-2.56332989e-06,0) euler(sum(f*dV))=(-0.4347297823,-2.56332989e-06,0)
+[diag_force] lev=0 step=49 t=4.800000e+01 cc_max|F|_global=4.087086e-03 (Fx=4.087086e-03, Fy=2.053061e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=4.087086e-03 (Fx=4.087086e-03, Fy=2.053061e-03)
+[Level 0 step 49] Advanced 131072 cells
+[force_eval] step=49 primary(2): Cd=30.59504071 Cl=0.0003161710714 (raw Cd,Cl)=(30.18956822,0.0001780090201) | eulerian(Cd,Cl)=(30.16897181,0.0001670799801) marker=(30.18956822,0.0001780090201) me=(30.18956822,0.0001780090201)
+Coarse STEP 49 ends. TIME = 49 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 50 starts ...
+[Level 0 step 50] ADVANCE with time = 49 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.4161105636,-6.013420666e-06,0) euler(sum(f*dV))=(-0.4161105636,-6.013420666e-06,0)
+[diag_force] lev=0 step=50 t=4.900000e+01 cc_max|F|_global=3.932740e-03 (Fx=3.932740e-03, Fy=1.941955e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.932740e-03 (Fx=3.932740e-03, Fy=1.941955e-03)
+[Level 0 step 50] Advanced 131072 cells
+[force_eval] step=50 primary(2): Cd=29.54306757 Cl=0.0002978038387 (raw Cd,Cl)=(28.89656692,0.0004175986573) | eulerian(Cd,Cl)=(28.87135005,0.000406836641) marker=(28.89656692,0.0004175986573) me=(28.89656692,0.0004175986573)
+Coarse STEP 50 ends. TIME = 50 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 51 starts ...
+[Level 0 step 51] ADVANCE with time = 50 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.4001783993,-3.059016813e-06,0) euler(sum(f*dV))=(-0.4001783993,-3.059016813e-06,0)
+[diag_force] lev=0 step=51 t=5.000000e+01 cc_max|F|_global=3.808472e-03 (Fx=3.808472e-03, Fy=1.857634e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.808472e-03 (Fx=3.808472e-03, Fy=1.857634e-03)
+[Level 0 step 51] Advanced 131072 cells
+[force_eval] step=51 primary(2): Cd=28.34336677 Cl=0.0003150151902 (raw Cd,Cl)=(27.79016662,0.0002124317231) | eulerian(Cd,Cl)=(27.76137575,0.0002023015078) marker=(27.79016662,0.0002124317231) me=(27.79016662,0.0002124317231)
+Coarse STEP 51 ends. TIME = 51 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 52 starts ...
+[Level 0 step 52] ADVANCE with time = 51 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3783461149,-4.369714654e-06,0) euler(sum(f*dV))=(-0.3783461149,-4.369714654e-06,0)
+[diag_force] lev=0 step=52 t=5.100000e+01 cc_max|F|_global=3.614070e-03 (Fx=3.614070e-03, Fy=1.732160e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.614070e-03 (Fx=3.614070e-03, Fy=1.732160e-03)
+[Level 0 step 52] Advanced 131072 cells
+[force_eval] step=52 primary(2): Cd=27.03210119 Cl=0.0002579420648 (raw Cd,Cl)=(26.27403576,0.0003034524065) | eulerian(Cd,Cl)=(26.24420735,0.0002926324487) marker=(26.27403576,0.0003034524065) me=(26.27403576,0.0003034524065)
+Coarse STEP 52 ends. TIME = 52 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 53 starts ...
+[Level 0 step 53] ADVANCE with time = 52 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3597989109,-1.202653792e-06,0) euler(sum(f*dV))=(-0.3597989109,-1.202653792e-06,0)
+[diag_force] lev=0 step=53 t=5.200000e+01 cc_max|F|_global=3.442216e-03 (Fx=3.442216e-03, Fy=1.619026e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.442216e-03 (Fx=3.442216e-03, Fy=1.619026e-03)
+[Level 0 step 53] Advanced 131072 cells
+[force_eval] step=53 primary(2): Cd=25.63003562 Cl=0.0001934850155 (raw Cd,Cl)=(24.98603548,8.351762442e-05) | eulerian(Cd,Cl)=(24.95769389,7.138087081e-05) marker=(24.98603548,8.351762442e-05) me=(24.98603548,8.351762442e-05)
+Coarse STEP 53 ends. TIME = 53 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 54 starts ...
+[Level 0 step 54] ADVANCE with time = 53 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3379797856,-5.870583619e-06,0) euler(sum(f*dV))=(-0.3379797856,-5.870583619e-06,0)
+[diag_force] lev=0 step=54 t=5.300000e+01 cc_max|F|_global=3.206197e-03 (Fx=3.206197e-03, Fy=1.470818e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.206197e-03 (Fx=3.206197e-03, Fy=1.470818e-03)
+[Level 0 step 54] Advanced 131072 cells
+[force_eval] step=54 primary(2): Cd=24.22842696 Cl=0.0002455985212 (raw Cd,Cl)=(23.47081845,0.000407679418) | eulerian(Cd,Cl)=(23.44696522,0.0003951907745) marker=(23.47081845,0.000407679418) me=(23.47081845,0.000407679418)
+Coarse STEP 54 ends. TIME = 54 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 55 starts ...
+[Level 0 step 55] ADVANCE with time = 54 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3218559419,-5.245924092e-06,0) euler(sum(f*dV))=(-0.3218559419,-5.245924092e-06,0)
+[diag_force] lev=0 step=55 t=5.400000e+01 cc_max|F|_global=2.988930e-03 (Fx=2.988930e-03, Fy=1.342296e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.988930e-03 (Fx=2.988930e-03, Fy=1.342296e-03)
+[Level 0 step 55] Advanced 131072 cells
+[force_eval] step=55 primary(2): Cd=22.91096276 Cl=0.0003859898511 (raw Cd,Cl)=(22.35110708,0.0003643002841) | eulerian(Cd,Cl)=(22.33325695,0.0003519869245) marker=(22.35110708,0.0003643002841) me=(22.35110708,0.0003643002841)
+Coarse STEP 55 ends. TIME = 55 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 56 starts ...
+[Level 0 step 56] ADVANCE with time = 55 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3065619677,-9.357988017e-06,0) euler(sum(f*dV))=(-0.3065619677,-9.357988017e-06,0)
+[diag_force] lev=0 step=56 t=5.500000e+01 cc_max|F|_global=2.731844e-03 (Fx=2.731844e-03, Fy=1.203380e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.731844e-03 (Fx=2.731844e-03, Fy=1.203380e-03)
+[Level 0 step 56] Advanced 131072 cells
+[force_eval] step=56 primary(2): Cd=21.82006631 Cl=0.0005070802816 (raw Cd,Cl)=(21.28902554,0.000649860279) | eulerian(Cd,Cl)=(21.27761567,0.0006381888286) marker=(21.28902554,0.000649860279) me=(21.28902554,0.000649860279)
+Coarse STEP 56 ends. TIME = 56 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 57 starts ...
+[Level 0 step 57] ADVANCE with time = 56 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3001459519,-6.50116408e-06,0) euler(sum(f*dV))=(-0.3001459519,-6.50116408e-06,0)
+[diag_force] lev=0 step=57 t=5.600000e+01 cc_max|F|_global=2.527659e-03 (Fx=2.527659e-03, Fy=1.190440e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.527659e-03 (Fx=2.527659e-03, Fy=1.190440e-03)
+[Level 0 step 57] Advanced 131072 cells
+[force_eval] step=57 primary(2): Cd=21.06624721 Cl=0.0005506650034 (raw Cd,Cl)=(20.84346888,0.0004514697278) | eulerian(Cd,Cl)=(20.83816237,0.0004399268338) marker=(20.84346888,0.0004514697278) me=(20.84346888,0.0004514697278)
+Coarse STEP 57 ends. TIME = 57 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 58 starts ...
+[Level 0 step 58] ADVANCE with time = 57 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2977174208,-1.108026863e-05,0) euler(sum(f*dV))=(-0.2977174208,-1.108026863e-05,0)
+[diag_force] lev=0 step=58 t=5.700000e+01 cc_max|F|_global=2.623387e-03 (Fx=2.623387e-03, Fy=1.210013e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.623387e-03 (Fx=2.623387e-03, Fy=1.210013e-03)
+[Level 0 step 58] Advanced 131072 cells
+[force_eval] step=58 primary(2): Cd=20.75914488 Cl=0.0006104664134 (raw Cd,Cl)=(20.67482089,0.0007694630991) | eulerian(Cd,Cl)=(20.67583943,0.0007588747793) marker=(20.67482089,0.0007694630991) me=(20.67482089,0.0007694630991)
+Coarse STEP 58 ends. TIME = 58 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 59 starts ...
+[Level 0 step 59] ADVANCE with time = 58 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3047334922,-1.160254149e-05,0) euler(sum(f*dV))=(-0.3047334922,-1.160254149e-05,0)
+[diag_force] lev=0 step=59 t=5.800000e+01 cc_max|F|_global=2.778037e-03 (Fx=2.778037e-03, Fy=1.272488e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.778037e-03 (Fx=2.778037e-03, Fy=1.272488e-03)
+[Level 0 step 59] Advanced 131072 cells
+[force_eval] step=59 primary(2): Cd=20.91843448 Cl=0.0007875975736 (raw Cd,Cl)=(21.16204807,0.0008057320481) | eulerian(Cd,Cl)=(21.17175094,0.0007961892617) marker=(21.16204807,0.0008057320481) me=(21.16204807,0.0008057320481)
+Coarse STEP 59 ends. TIME = 59 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 60 starts ...
+[Level 0 step 60] ADVANCE with time = 59 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3147535883,-1.771522725e-05,0) euler(sum(f*dV))=(-0.3147535883,-1.771522725e-05,0)
+[diag_force] lev=0 step=60 t=5.900000e+01 cc_max|F|_global=2.977090e-03 (Fx=2.977090e-03, Fy=1.346782e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.977090e-03 (Fx=2.977090e-03, Fy=1.346782e-03)
+[Level 0 step 60] Advanced 131072 cells
+[force_eval] step=60 primary(2): Cd=21.50996807 Cl=0.001017978081 (raw Cd,Cl)=(21.85788807,0.001230224115) | eulerian(Cd,Cl)=(21.87870342,0.001222670092) marker=(21.85788807,0.001230224115) me=(21.85788807,0.001230224115)
+Coarse STEP 60 ends. TIME = 60 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 61 starts ...
+[Level 0 step 61] ADVANCE with time = 60 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3298246796,-1.542153896e-05,0) euler(sum(f*dV))=(-0.3298246796,-1.542153896e-05,0)
+[diag_force] lev=0 step=61 t=6.000000e+01 cc_max|F|_global=3.138565e-03 (Fx=3.138565e-03, Fy=1.435640e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.138565e-03 (Fx=3.138565e-03, Fy=1.435640e-03)
+[Level 0 step 61] Advanced 131072 cells
+[force_eval] step=61 primary(2): Cd=22.38118986 Cl=0.00115058216 (raw Cd,Cl)=(22.90449164,0.001070940206) | eulerian(Cd,Cl)=(22.93757992,0.001064501753) marker=(22.90449164,0.001070940206) me=(22.90449164,0.001070940206)
+Coarse STEP 61 ends. TIME = 61 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 62 starts ...
+[Level 0 step 62] ADVANCE with time = 61 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3420563381,-1.681650305e-05,0) euler(sum(f*dV))=(-0.3420563381,-1.681650305e-05,0)
+[diag_force] lev=0 step=62 t=6.100000e+01 cc_max|F|_global=3.246311e-03 (Fx=3.246311e-03, Fy=1.501668e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.246311e-03 (Fx=3.246311e-03, Fy=1.501668e-03)
+[Level 0 step 62] Advanced 131072 cells
+[force_eval] step=62 primary(2): Cd=23.32920201 Cl=0.001119376459 (raw Cd,Cl)=(23.75391237,0.001167812712) | eulerian(Cd,Cl)=(23.79491901,0.001161847734) marker=(23.75391237,0.001167812712) me=(23.75391237,0.001167812712)
+Coarse STEP 62 ends. TIME = 62 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 63 starts ...
+[Level 0 step 63] ADVANCE with time = 62 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3520334549,-1.156932204e-05,0) euler(sum(f*dV))=(-0.3520334549,-1.156932204e-05,0)
+[diag_force] lev=0 step=63 t=6.200000e+01 cc_max|F|_global=3.229966e-03 (Fx=3.229966e-03, Fy=1.545548e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.229966e-03 (Fx=3.229966e-03, Fy=1.545548e-03)
+[Level 0 step 63] Advanced 131072 cells
+[force_eval] step=63 primary(2): Cd=24.10034004 Cl=0.0009856189268 (raw Cd,Cl)=(24.4467677,0.0008034251418) | eulerian(Cd,Cl)=(24.48767891,0.0007967688264) marker=(24.4467677,0.0008034251418) me=(24.4467677,0.0008034251418)
+Coarse STEP 63 ends. TIME = 63 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 64 starts ...
+[Level 0 step 64] ADVANCE with time = 63 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3539571219,-1.283209419e-05,0) euler(sum(f*dV))=(-0.3539571219,-1.283209419e-05,0)
+[diag_force] lev=0 step=64 t=6.300000e+01 cc_max|F|_global=3.137508e-03 (Fx=3.137508e-03, Fy=1.542837e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.137508e-03 (Fx=3.137508e-03, Fy=1.542837e-03)
+[Level 0 step 64] Advanced 131072 cells
+[force_eval] step=64 primary(2): Cd=24.51356169 Cl=0.0008472713968 (raw Cd,Cl)=(24.58035569,0.0008911176519) | eulerian(Cd,Cl)=(24.61192551,0.0008841381669) marker=(24.58035569,0.0008911176519) me=(24.58035569,0.0008911176519)
+Coarse STEP 64 ends. TIME = 64 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 65 starts ...
+[Level 0 step 65] ADVANCE with time = 64 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3507975561,-7.692583968e-06,0) euler(sum(f*dV))=(-0.3507975561,-7.692583968e-06,0)
+[diag_force] lev=0 step=65 t=6.400000e+01 cc_max|F|_global=3.018119e-03 (Fx=3.018119e-03, Fy=1.514468e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.018119e-03 (Fx=3.018119e-03, Fy=1.514468e-03)
+[Level 0 step 65] Advanced 131072 cells
+[force_eval] step=65 primary(2): Cd=24.47064854 Cl=0.0007126624359 (raw Cd,Cl)=(24.36094139,0.00053420722) | eulerian(Cd,Cl)=(24.37833907,0.0005270241657) marker=(24.36094139,0.00053420722) me=(24.36094139,0.00053420722)
+Coarse STEP 65 ends. TIME = 65 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 66 starts ...
+[Level 0 step 66] ADVANCE with time = 65 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3410324555,-8.578253456e-06,0) euler(sum(f*dV))=(-0.3410324555,-8.578253456e-06,0)
+[diag_force] lev=0 step=66 t=6.500000e+01 cc_max|F|_global=3.014627e-03 (Fx=3.014627e-03, Fy=1.456089e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=3.014627e-03 (Fx=3.014627e-03, Fy=1.456089e-03)
+[Level 0 step 66] Advanced 131072 cells
+[force_eval] step=66 primary(2): Cd=24.0218754 Cl=0.0005649596328 (raw Cd,Cl)=(23.68280941,0.0005957120455) | eulerian(Cd,Cl)=(23.68687986,0.0005886619544) marker=(23.68280941,0.0005957120455) me=(23.68280941,0.0005957120455)
+Coarse STEP 66 ends. TIME = 66 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 67 starts ...
+[Level 0 step 67] ADVANCE with time = 66 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3298476266,-4.210525995e-06,0) euler(sum(f*dV))=(-0.3298476266,-4.210525995e-06,0)
+[diag_force] lev=0 step=67 t=6.600000e+01 cc_max|F|_global=2.938048e-03 (Fx=2.938048e-03, Fy=1.397334e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.938048e-03 (Fx=2.938048e-03, Fy=1.397334e-03)
+[Level 0 step 67] Advanced 131072 cells
+[force_eval] step=67 primary(2): Cd=23.2944473 Cl=0.000444054842 (raw Cd,Cl)=(22.90608518,0.0002923976385) | eulerian(Cd,Cl)=(22.90217746,0.0002856979598) marker=(22.90608518,0.0002923976385) me=(22.90608518,0.0002923976385)
+Coarse STEP 67 ends. TIME = 67 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 68 starts ...
+[Level 0 step 68] ADVANCE with time = 67 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3176646968,-7.959024912e-06,0) euler(sum(f*dV))=(-0.3176646968,-7.959024912e-06,0)
+[diag_force] lev=0 step=68 t=6.700000e+01 cc_max|F|_global=2.800550e-03 (Fx=2.800550e-03, Fy=1.336700e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.800550e-03 (Fx=2.800550e-03, Fy=1.336700e-03)
+[Level 0 step 68] Advanced 131072 cells
+[force_eval] step=68 primary(2): Cd=22.48306678 Cl=0.0004225538509 (raw Cd,Cl)=(22.06004839,0.0005527100633) | eulerian(Cd,Cl)=(22.05434732,0.0005467644585) marker=(22.06004839,0.0005527100633) me=(22.06004839,0.0005527100633)
+Coarse STEP 68 ends. TIME = 68 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 69 starts ...
+[Level 0 step 69] ADVANCE with time = 68 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3087442424,-6.726286508e-06,0) euler(sum(f*dV))=(-0.3087442424,-6.726286508e-06,0)
+[diag_force] lev=0 step=69 t=6.800000e+01 cc_max|F|_global=2.662940e-03 (Fx=2.662940e-03, Fy=1.301014e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.662940e-03 (Fx=2.662940e-03, Fy=1.301014e-03)
+[Level 0 step 69] Advanced 131072 cells
+[force_eval] step=69 primary(2): Cd=21.75031039 Cl=0.0005099066465 (raw Cd,Cl)=(21.44057239,0.0004671032297) | eulerian(Cd,Cl)=(21.43791787,0.0004621154382) marker=(21.44057239,0.0004671032297) me=(21.44057239,0.0004671032297)
+Coarse STEP 69 ends. TIME = 69 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 70 starts ...
+[Level 0 step 70] ADVANCE with time = 69 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.3022980805,-1.114271623e-05,0) euler(sum(f*dV))=(-0.3022980805,-1.114271623e-05,0)
+[diag_force] lev=0 step=70 t=6.900000e+01 cc_max|F|_global=2.664094e-03 (Fx=2.664094e-03, Fy=1.281275e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.664094e-03 (Fx=2.664094e-03, Fy=1.281275e-03)
+[Level 0 step 70] Advanced 131072 cells
+[force_eval] step=70 primary(2): Cd=21.21674732 Cl=0.0006204514839 (raw Cd,Cl)=(20.99292226,0.0007737997381) | eulerian(Cd,Cl)=(20.99563581,0.0007698404668) marker=(20.99292226,0.0007737997381) me=(20.99292226,0.0007737997381)
+Coarse STEP 70 ends. TIME = 70 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 71 starts ...
+[Level 0 step 71] ADVANCE with time = 70 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2995112112,-7.746904713e-06,0) euler(sum(f*dV))=(-0.2995112112,-7.746904713e-06,0)
+[diag_force] lev=0 step=71 t=7.000000e+01 cc_max|F|_global=2.662213e-03 (Fx=2.662213e-03, Fy=1.287293e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.662213e-03 (Fx=2.662213e-03, Fy=1.287293e-03)
+[Level 0 step 71] Advanced 131072 cells
+[force_eval] step=71 primary(2): Cd=20.89615596 Cl=0.000655889616 (raw Cd,Cl)=(20.79938966,0.0005379794939) | eulerian(Cd,Cl)=(20.80745874,0.0005349036472) marker=(20.79938966,0.0005379794939) me=(20.79938966,0.0005379794939)
+Coarse STEP 71 ends. TIME = 71 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 72 starts ...
+[Level 0 step 72] ADVANCE with time = 71 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2977194418,-1.054548722e-05,0) euler(sum(f*dV))=(-0.2977194418,-1.054548722e-05,0)
+[diag_force] lev=0 step=72 t=7.100000e+01 cc_max|F|_global=2.651907e-03 (Fx=2.651907e-03, Fy=1.292927e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.651907e-03 (Fx=2.651907e-03, Fy=1.292927e-03)
+[Level 0 step 72] Advanced 131072 cells
+[force_eval] step=72 primary(2): Cd=20.73717545 Cl=0.0006351524976 (raw Cd,Cl)=(20.67496123,0.0007323255012) | eulerian(Cd,Cl)=(20.68627325,0.0007301254712) marker=(20.67496123,0.0007323255012) me=(20.67496123,0.0007323255012)
+Coarse STEP 72 ends. TIME = 72 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 73 starts ...
+[Level 0 step 73] ADVANCE with time = 72 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2964061063,-7.926394211e-06,0) euler(sum(f*dV))=(-0.2964061063,-7.926394211e-06,0)
+[diag_force] lev=0 step=73 t=7.200000e+01 cc_max|F|_global=2.567383e-03 (Fx=2.567383e-03, Fy=1.299337e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.567383e-03 (Fx=2.567383e-03, Fy=1.299337e-03)
+[Level 0 step 73] Advanced 131072 cells
+[force_eval] step=73 primary(2): Cd=20.62935931 Cl=0.0006413847718 (raw Cd,Cl)=(20.58375738,0.0005504440424) | eulerian(Cd,Cl)=(20.59525283,0.0005487843076) marker=(20.58375738,0.0005504440424) me=(20.58375738,0.0005504440424)
+Coarse STEP 73 ends. TIME = 73 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 74 starts ...
+[Level 0 step 74] ADVANCE with time = 73 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2936040501,-1.217137458e-05,0) euler(sum(f*dV))=(-0.2936040501,-1.217137458e-05,0)
+[diag_force] lev=0 step=74 t=7.300000e+01 cc_max|F|_global=2.536543e-03 (Fx=2.536543e-03, Fy=1.286653e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.536543e-03 (Fx=2.536543e-03, Fy=1.286653e-03)
+[Level 0 step 74] Advanced 131072 cells
+[force_eval] step=74 primary(2): Cd=20.48646376 Cl=0.000697839194 (raw Cd,Cl)=(20.38917014,0.0008452343455) | eulerian(Cd,Cl)=(20.39816462,0.0008434050771) marker=(20.38917014,0.0008452343455) me=(20.38917014,0.0008452343455)
+Coarse STEP 74 ends. TIME = 74 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 75 starts ...
+[Level 0 step 75] ADVANCE with time = 74 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.289603787,-9.29399038e-06,0) euler(sum(f*dV))=(-0.289603787,-9.29399038e-06,0)
+[diag_force] lev=0 step=75 t=7.400000e+01 cc_max|F|_global=2.522713e-03 (Fx=2.522713e-03, Fy=1.266912e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.522713e-03 (Fx=2.522713e-03, Fy=1.266912e-03)
+[Level 0 step 75] Advanced 131072 cells
+[force_eval] step=75 primary(2): Cd=20.25027212 Cl=0.000745325172 (raw Cd,Cl)=(20.1113741,0.0006454159986) | eulerian(Cd,Cl)=(20.11683156,0.0006428117014) marker=(20.1113741,0.0006454159986) me=(20.1113741,0.0006454159986)
+Coarse STEP 75 ends. TIME = 75 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 76 starts ...
+[Level 0 step 76] ADVANCE with time = 75 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2842239791,-1.202506739e-05,0) euler(sum(f*dV))=(-0.2842239791,-1.202506739e-05,0)
+[diag_force] lev=0 step=76 t=7.500000e+01 cc_max|F|_global=2.479044e-03 (Fx=2.479044e-03, Fy=1.230008e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.479044e-03 (Fx=2.479044e-03, Fy=1.230008e-03)
+[Level 0 step 76] Advanced 131072 cells
+[force_eval] step=76 primary(2): Cd=19.92457521 Cl=0.0007402450614 (raw Cd,Cl)=(19.73777633,0.0008350741242) | eulerian(Cd,Cl)=(19.74022155,0.0008315241126) marker=(19.73777633,0.0008350741242) me=(19.73777633,0.0008350741242)
+Coarse STEP 76 ends. TIME = 76 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 77 starts ...
+[Level 0 step 77] ADVANCE with time = 76 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2783645482,-8.092521495e-06,0) euler(sum(f*dV))=(-0.2783645482,-8.092521495e-06,0)
+[diag_force] lev=0 step=77 t=7.600000e+01 cc_max|F|_global=2.412709e-03 (Fx=2.412709e-03, Fy=1.193777e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.412709e-03 (Fx=2.412709e-03, Fy=1.193777e-03)
+[Level 0 step 77] Advanced 131072 cells
+[force_eval] step=77 primary(2): Cd=19.53432386 Cl=0.0006985273918 (raw Cd,Cl)=(19.3308714,0.0005619806594) | eulerian(Cd,Cl)=(19.33201499,0.0005581944553) marker=(19.3308714,0.0005619806594) me=(19.3308714,0.0005619806594)
+Coarse STEP 77 ends. TIME = 77 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 78 starts ...
+[Level 0 step 78] ADVANCE with time = 77 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.27269216,-1.132698055e-05,0) euler(sum(f*dV))=(-0.27269216,-1.132698055e-05,0)
+[diag_force] lev=0 step=78 t=7.700000e+01 cc_max|F|_global=2.349195e-03 (Fx=2.349195e-03, Fy=1.154879e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.349195e-03 (Fx=2.349195e-03, Fy=1.154879e-03)
+[Level 0 step 78] Advanced 131072 cells
+[force_eval] step=78 primary(2): Cd=19.13391348 Cl=0.0006742882653 (raw Cd,Cl)=(18.93695556,0.0007865958712) | eulerian(Cd,Cl)=(18.93847811,0.0007832859115) marker=(18.93695556,0.0007865958712) me=(18.93695556,0.0007865958712)
+Coarse STEP 78 ends. TIME = 78 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 79 starts ...
+[Level 0 step 79] ADVANCE with time = 78 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2677368427,-8.124690797e-06,0) euler(sum(f*dV))=(-0.2677368427,-8.124690797e-06,0)
+[diag_force] lev=0 step=79 t=7.800000e+01 cc_max|F|_global=2.293293e-03 (Fx=2.293293e-03, Fy=1.133055e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.293293e-03 (Fx=2.293293e-03, Fy=1.133055e-03)
+[Level 0 step 79] Advanced 131072 cells
+[force_eval] step=79 primary(2): Cd=18.76489593 Cl=0.000675405255 (raw Cd,Cl)=(18.5928363,0.0005642146387) | eulerian(Cd,Cl)=(18.59580555,0.0005619377157) marker=(18.5928363,0.0005642146387) me=(18.5928363,0.0005642146387)
+Coarse STEP 79 ends. TIME = 79 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 80 starts ...
+[Level 0 step 80] ADVANCE with time = 79 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2639461458,-1.144953023e-05,0) euler(sum(f*dV))=(-0.2639461458,-1.144953023e-05,0)
+[diag_force] lev=0 step=80 t=7.900000e+01 cc_max|F|_global=2.261907e-03 (Fx=2.261907e-03, Fy=1.119054e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.261907e-03 (Fx=2.261907e-03, Fy=1.119054e-03)
+[Level 0 step 80] Advanced 131072 cells
+[force_eval] step=80 primary(2): Cd=18.46121488 Cl=0.0006796604524 (raw Cd,Cl)=(18.32959346,0.0007951062662) | eulerian(Cd,Cl)=(18.33408136,0.0007938268244) marker=(18.32959346,0.0007951062662) me=(18.32959346,0.0007951062662)
+Coarse STEP 80 ends. TIME = 80 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 81 starts ...
+[Level 0 step 81] ADVANCE with time = 80 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2606841865,-8.423131047e-06,0) euler(sum(f*dV))=(-0.2606841865,-8.423131047e-06,0)
+[diag_force] lev=0 step=81 t=8.000000e+01 cc_max|F|_global=2.236506e-03 (Fx=2.236506e-03, Fy=1.118817e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.236506e-03 (Fx=2.236506e-03, Fy=1.118817e-03)
+[Level 0 step 81] Advanced 131072 cells
+[force_eval] step=81 primary(2): Cd=18.21633098 Cl=0.0006900229611 (raw Cd,Cl)=(18.10306851,0.0005849396561) | eulerian(Cd,Cl)=(18.10845088,0.0005844611366) marker=(18.10306851,0.0005849396561) me=(18.10306851,0.0005849396561)
+Coarse STEP 81 ends. TIME = 81 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 82 starts ...
+[Level 0 step 82] ADVANCE with time = 81 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2580349084,-1.26786301e-05,0) euler(sum(f*dV))=(-0.2580349084,-1.26786301e-05,0)
+[diag_force] lev=0 step=82 t=8.100000e+01 cc_max|F|_global=2.222430e-03 (Fx=2.222430e-03, Fy=1.113864e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.222430e-03 (Fx=2.222430e-03, Fy=1.113864e-03)
+[Level 0 step 82] Advanced 131072 cells
+[force_eval] step=82 primary(2): Cd=18.01107968 Cl=0.0007327000399 (raw Cd,Cl)=(17.91909086,0.0008804604238) | eulerian(Cd,Cl)=(17.92455801,0.0008800238563) marker=(17.91909086,0.0008804604238) me=(17.91909086,0.0008804604238)
+Coarse STEP 82 ends. TIME = 82 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 83 starts ...
+[Level 0 step 83] ADVANCE with time = 82 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2549194298,-1.009795108e-05,0) euler(sum(f*dV))=(-0.2549194298,-1.009795108e-05,0)
+[diag_force] lev=0 step=83 t=8.200000e+01 cc_max|F|_global=2.195673e-03 (Fx=2.195673e-03, Fy=1.109587e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.195673e-03 (Fx=2.195673e-03, Fy=1.109587e-03)
+[Level 0 step 83] Advanced 131072 cells
+[force_eval] step=83 primary(2): Cd=17.81091452 Cl=0.0007908535135 (raw Cd,Cl)=(17.70273818,0.0007012466031) | eulerian(Cd,Cl)=(17.70768475,0.0007006695404) marker=(17.70273818,0.0007012466031) me=(17.70273818,0.0007012466031)
+Coarse STEP 83 ends. TIME = 83 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 84 starts ...
+[Level 0 step 84] ADVANCE with time = 83 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2519820814,-1.341633113e-05,0) euler(sum(f*dV))=(-0.2519820814,-1.341633113e-05,0)
+[diag_force] lev=0 step=84 t=8.300000e+01 cc_max|F|_global=2.173301e-03 (Fx=2.173301e-03, Fy=1.093816e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.173301e-03 (Fx=2.173301e-03, Fy=1.093816e-03)
+[Level 0 step 84] Advanced 131072 cells
+[force_eval] step=84 primary(2): Cd=17.60074691 Cl=0.0008164681323 (raw Cd,Cl)=(17.49875565,0.0009316896616) | eulerian(Cd,Cl)=(17.50285158,0.0009304908217) marker=(17.49875565,0.0009316896616) me=(17.49875565,0.0009316896616)
+Coarse STEP 84 ends. TIME = 84 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 85 starts ...
+[Level 0 step 85] ADVANCE with time = 84 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2482652275,-9.013464622e-06,0) euler(sum(f*dV))=(-0.2482652275,-9.013464622e-06,0)
+[diag_force] lev=0 step=85 t=8.400000e+01 cc_max|F|_global=2.139036e-03 (Fx=2.139036e-03, Fy=1.077120e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.139036e-03 (Fx=2.139036e-03, Fy=1.077120e-03)
+[Level 0 step 85] Advanced 131072 cells
+[force_eval] step=85 primary(2): Cd=17.36969822 Cl=0.0007788123524 (raw Cd,Cl)=(17.2406408,0.0006259350432) | eulerian(Cd,Cl)=(17.24392934,0.0006246373352) marker=(17.2406408,0.0006259350432) me=(17.2406408,0.0006259350432)
+Coarse STEP 85 ends. TIME = 85 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 86 starts ...
+[Level 0 step 86] ADVANCE with time = 85 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2449390969,-1.146496677e-05,0) euler(sum(f*dV))=(-0.2449390969,-1.146496677e-05,0)
+[diag_force] lev=0 step=86 t=8.500000e+01 cc_max|F|_global=2.116634e-03 (Fx=2.116634e-03, Fy=1.051605e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.116634e-03 (Fx=2.116634e-03, Fy=1.051605e-03)
+[Level 0 step 86] Advanced 131072 cells
+[force_eval] step=86 primary(2): Cd=17.12515015 Cl=0.0007110566454 (raw Cd,Cl)=(17.00965951,0.0007961782476) | eulerian(Cd,Cl)=(17.01239774,0.0007949169727) marker=(17.00965951,0.0007961782476) me=(17.00965951,0.0007961782476)
+Coarse STEP 86 ends. TIME = 86 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 87 starts ...
+[Level 0 step 87] ADVANCE with time = 86 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2410453167,-7.549508041e-06,0) euler(sum(f*dV))=(-0.2410453167,-7.549508041e-06,0)
+[diag_force] lev=0 step=87 t=8.600000e+01 cc_max|F|_global=2.083658e-03 (Fx=2.083658e-03, Fy=1.032118e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.083658e-03 (Fx=2.083658e-03, Fy=1.032118e-03)
+[Level 0 step 87] Advanced 131072 cells
+[force_eval] step=87 primary(2): Cd=16.87445881 Cl=0.0006602248197 (raw Cd,Cl)=(16.7392581,0.0005242713917) | eulerian(Cd,Cl)=(16.74184935,0.0005236266225) marker=(16.7392581,0.0005242713917) me=(16.7392581,0.0005242713917)
+Coarse STEP 87 ends. TIME = 87 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 88 starts ...
+[Level 0 step 88] ADVANCE with time = 87 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2381144152,-1.099083822e-05,0) euler(sum(f*dV))=(-0.2381144152,-1.099083822e-05,0)
+[diag_force] lev=0 step=88 t=8.700000e+01 cc_max|F|_global=2.062654e-03 (Fx=2.062654e-03, Fy=1.014145e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.062654e-03 (Fx=2.062654e-03, Fy=1.014145e-03)
+[Level 0 step 88] Advanced 131072 cells
+[force_eval] step=88 primary(2): Cd=16.63749069 Cl=0.0006437620229 (raw Cd,Cl)=(16.53572328,0.0007632526542) | eulerian(Cd,Cl)=(16.53853168,0.0007630161659) marker=(16.53572328,0.0007632526542) me=(16.53572328,0.0007632526542)
+Coarse STEP 88 ends. TIME = 88 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 89 starts ...
+[Level 0 step 89] ADVANCE with time = 88 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2349752338,-7.427723667e-06,0) euler(sum(f*dV))=(-0.2349752338,-7.427723667e-06,0)
+[diag_force] lev=0 step=89 t=8.800000e+01 cc_max|F|_global=2.028938e-03 (Fx=2.028938e-03, Fy=1.009827e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.028938e-03 (Fx=2.028938e-03, Fy=1.009827e-03)
+[Level 0 step 89] Advanced 131072 cells
+[force_eval] step=89 primary(2): Cd=16.42672392 Cl=0.0006395333989 (raw Cd,Cl)=(16.31772457,0.0005158141436) | eulerian(Cd,Cl)=(16.32090655,0.0005162667792) marker=(16.31772457,0.0005158141436) me=(16.31772457,0.0005158141436)
+Coarse STEP 89 ends. TIME = 89 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 90 starts ...
+[Level 0 step 90] ADVANCE with time = 89 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.233070342,-1.132066446e-05,0) euler(sum(f*dV))=(-0.233070342,-1.132066446e-05,0)
+[diag_force] lev=0 step=90 t=8.900000e+01 cc_max|F|_global=2.011783e-03 (Fx=2.011783e-03, Fy=1.007396e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.011783e-03 (Fx=2.011783e-03, Fy=1.007396e-03)
+[Level 0 step 90] Advanced 131072 cells
+[force_eval] step=90 primary(2): Cd=16.25158249 Cl=0.0006509856989 (raw Cd,Cl)=(16.18544042,0.0007861572542) | eulerian(Cd,Cl)=(16.18899176,0.0007865051606) marker=(16.18544042,0.0007861572542) me=(16.18544042,0.0007861572542)
+Coarse STEP 90 ends. TIME = 90 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 91 starts ...
+[Level 0 step 91] ADVANCE with time = 90 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2307163865,-8.589521561e-06,0) euler(sum(f*dV))=(-0.2307163865,-8.589521561e-06,0)
+[diag_force] lev=0 step=91 t=9.000000e+01 cc_max|F|_global=1.987177e-03 (Fx=1.987177e-03, Fy=1.011326e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.987177e-03 (Fx=1.987177e-03, Fy=1.011326e-03)
+[Level 0 step 91] Advanced 131072 cells
+[force_eval] step=91 primary(2): Cd=16.10370585 Cl=0.0006913259035 (raw Cd,Cl)=(16.02197128,0.0005964945529) | eulerian(Cd,Cl)=(16.02566748,0.0005968285328) marker=(16.02197128,0.0005964945529) me=(16.02197128,0.0005964945529)
+Coarse STEP 91 ends. TIME = 91 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 92 starts ...
+[Level 0 step 92] ADVANCE with time = 91 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2293342137,-1.306978274e-05,0) euler(sum(f*dV))=(-0.2293342137,-1.306978274e-05,0)
+[diag_force] lev=0 step=92 t=9.100000e+01 cc_max|F|_global=1.985063e-03 (Fx=1.985063e-03, Fy=1.008905e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.985063e-03 (Fx=1.985063e-03, Fy=1.008905e-03)
+[Level 0 step 92] Advanced 131072 cells
+[force_eval] step=92 primary(2): Cd=15.97397917 Cl=0.000752059177 (raw Cd,Cl)=(15.92598706,0.0009076238011) | eulerian(Cd,Cl)=(15.92953937,0.0009071959761) marker=(15.92598706,0.0009076238011) me=(15.92598706,0.0009076238011)
+Coarse STEP 92 ends. TIME = 92 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 93 starts ...
+[Level 0 step 93] ADVANCE with time = 92 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2271270975,-9.735683488e-06,0) euler(sum(f*dV))=(-0.2271270975,-9.735683488e-06,0)
+[diag_force] lev=0 step=93 t=9.200000e+01 cc_max|F|_global=1.974259e-03 (Fx=1.974259e-03, Fy=1.007262e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.974259e-03 (Fx=1.974259e-03, Fy=1.007262e-03)
+[Level 0 step 93] Advanced 131072 cells
+[force_eval] step=93 primary(2): Cd=15.84935109 Cl=0.0007918564661 (raw Cd,Cl)=(15.77271511,0.0006760891311) | eulerian(Cd,Cl)=(15.77580098,0.0006756049566) marker=(15.77271511,0.0006760891311) me=(15.77271511,0.0006760891311)
+Coarse STEP 93 ends. TIME = 93 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 94 starts ...
+[Level 0 step 94] ADVANCE with time = 93 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.225855615,-1.290027659e-05,0) euler(sum(f*dV))=(-0.225855615,-1.290027659e-05,0)
+[diag_force] lev=0 step=94 t=9.300000e+01 cc_max|F|_global=1.980635e-03 (Fx=1.980635e-03, Fy=9.984928e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.980635e-03 (Fx=1.980635e-03, Fy=9.984928e-04)
+[Level 0 step 94] Advanced 131072 cells
+[force_eval] step=94 primary(2): Cd=15.72856641 Cl=0.000785970836 (raw Cd,Cl)=(15.68441771,0.0008958525408) | eulerian(Cd,Cl)=(15.68690653,0.0008951489739) marker=(15.68441771,0.0008958525408) me=(15.68441771,0.0008958525408)
+Coarse STEP 94 ends. TIME = 94 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 95 starts ...
+[Level 0 step 95] ADVANCE with time = 94 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2237319242,-8.604247065e-06,0) euler(sum(f*dV))=(-0.2237319242,-8.604247065e-06,0)
+[diag_force] lev=0 step=95 t=9.400000e+01 cc_max|F|_global=1.969037e-03 (Fx=1.969037e-03, Fy=9.928232e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.969037e-03 (Fx=1.969037e-03, Fy=9.928232e-04)
+[Level 0 step 95] Advanced 131072 cells
+[force_eval] step=95 primary(2): Cd=15.61067844 Cl=0.0007466848491 (raw Cd,Cl)=(15.53693918,0.0005975171573) | eulerian(Cd,Cl)=(15.538855,0.0005974020997) marker=(15.53693918,0.0005975171573) me=(15.53693918,0.0005975171573)
+Coarse STEP 95 ends. TIME = 95 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 96 starts ...
+[Level 0 step 96] ADVANCE with time = 95 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2227669729,-1.221274615e-05,0) euler(sum(f*dV))=(-0.2227669729,-1.221274615e-05,0)
+[diag_force] lev=0 step=96 t=9.500000e+01 cc_max|F|_global=1.970086e-03 (Fx=1.970086e-03, Fy=9.850097e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.970086e-03 (Fx=1.970086e-03, Fy=9.850097e-04)
+[Level 0 step 96] Advanced 131072 cells
+[force_eval] step=96 primary(2): Cd=15.50343393 Cl=0.0007228122643 (raw Cd,Cl)=(15.46992868,0.0008481073713) | eulerian(Cd,Cl)=(15.47153473,0.0008479053172) marker=(15.46992868,0.0008481073713) me=(15.46992868,0.0008481073713)
+Coarse STEP 96 ends. TIME = 96 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 97 starts ...
+[Level 0 step 97] ADVANCE with time = 96 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2210960288,-8.821121006e-06,0) euler(sum(f*dV))=(-0.2210960288,-8.821121006e-06,0)
+[diag_force] lev=0 step=97 t=9.600000e+01 cc_max|F|_global=1.953749e-03 (Fx=1.953749e-03, Fy=9.861768e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.953749e-03 (Fx=1.953749e-03, Fy=9.861768e-04)
+[Level 0 step 97] Advanced 131072 cells
+[force_eval] step=97 primary(2): Cd=15.41190978 Cl=0.0007303426095 (raw Cd,Cl)=(15.35389089,0.0006125778477) | eulerian(Cd,Cl)=(15.35538229,0.0006127189667) marker=(15.35389089,0.0006125778477) me=(15.35389089,0.0006125778477)
+Coarse STEP 97 ends. TIME = 97 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 98 starts ...
+[Level 0 step 98] ADVANCE with time = 97 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2208374564,-1.307471663e-05,0) euler(sum(f*dV))=(-0.2208374564,-1.307471663e-05,0)
+[diag_force] lev=0 step=98 t=9.700000e+01 cc_max|F|_global=1.958590e-03 (Fx=1.958590e-03, Fy=9.894087e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.958590e-03 (Fx=1.958590e-03, Fy=9.894087e-04)
+[Level 0 step 98] Advanced 131072 cells
+[force_eval] step=98 primary(2): Cd=15.34491268 Cl=0.0007602721403 (raw Cd,Cl)=(15.33593447,0.000907966433) | eulerian(Cd,Cl)=(15.33748057,0.0009077539691) marker=(15.33593447,0.000907966433) me=(15.33593447,0.000907966433)
+Coarse STEP 98 ends. TIME = 98 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 99 starts ...
+[Level 0 step 99] ADVANCE with time = 98 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2199077906,-9.63547015e-06,0) euler(sum(f*dV))=(-0.2199077906,-9.63547015e-06,0)
+[diag_force] lev=0 step=99 t=9.800000e+01 cc_max|F|_global=1.954635e-03 (Fx=1.954635e-03, Fy=1.001340e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.954635e-03 (Fx=1.954635e-03, Fy=1.001340e-03)
+[Level 0 step 99] Advanced 131072 cells
+[force_eval] step=99 primary(2): Cd=15.30365441 Cl=0.0007885481522 (raw Cd,Cl)=(15.27137435,0.0006691298715) | eulerian(Cd,Cl)=(15.27285169,0.0006693358214) marker=(15.27137435,0.0006691298715) me=(15.27137435,0.0006691298715)
+Coarse STEP 99 ends. TIME = 99 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 100 starts ...
+[Level 0 step 100] ADVANCE with time = 99 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.220362635,-1.377442948e-05,0) euler(sum(f*dV))=(-0.220362635,-1.377442948e-05,0)
+[diag_force] lev=0 step=100 t=9.900000e+01 cc_max|F|_global=1.977460e-03 (Fx=1.977460e-03, Fy=1.011290e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.977460e-03 (Fx=1.977460e-03, Fy=1.011290e-03)
+[Level 0 step 100] Advanced 131072 cells
+[force_eval] step=100 primary(2): Cd=15.28716755 Cl=0.0008128437373 (raw Cd,Cl)=(15.30296076,0.0009565576031) | eulerian(Cd,Cl)=(15.30422317,0.0009563870766) marker=(15.30296076,0.0009565576031) me=(15.30296076,0.0009565576031)
+Coarse STEP 100 ends. TIME = 100 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 101 starts ...
+[Level 0 step 101] ADVANCE with time = 100 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2198875804,-1.000913319e-05,0) euler(sum(f*dV))=(-0.2198875804,-1.000913319e-05,0)
+[diag_force] lev=0 step=101 t=1.000000e+02 cc_max|F|_global=1.988730e-03 (Fx=1.988730e-03, Fy=1.025888e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.988730e-03 (Fx=1.988730e-03, Fy=1.025888e-03)
+[Level 0 step 101] Advanced 131072 cells
+[force_eval] step=101 primary(2): Cd=15.28646581 Cl=0.0008258181486 (raw Cd,Cl)=(15.26997086,0.0006950786941) | eulerian(Cd,Cl)=(15.27072375,0.0006950747267) marker=(15.26997086,0.0006950786941) me=(15.26997086,0.0006950786941)
+Coarse STEP 101 ends. TIME = 101 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 102 starts ...
+[Level 0 step 102] ADVANCE with time = 101 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2206187754,-1.386843738e-05,0) euler(sum(f*dV))=(-0.2206187754,-1.386843738e-05,0)
+[diag_force] lev=0 step=102 t=1.010000e+02 cc_max|F|_global=2.019390e-03 (Fx=2.019390e-03, Fy=1.034341e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.019390e-03 (Fx=2.019390e-03, Fy=1.034341e-03)
+[Level 0 step 102] Advanced 131072 cells
+[force_eval] step=102 primary(2): Cd=15.29535958 Cl=0.0008290823118 (raw Cd,Cl)=(15.32074829,0.0009630859294) | eulerian(Cd,Cl)=(15.32088221,0.0009623741542) marker=(15.32074829,0.0009630859294) me=(15.32074829,0.0009630859294)
+Coarse STEP 102 ends. TIME = 102 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 103 starts ...
+[Level 0 step 103] ADVANCE with time = 102 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2202031957,-9.442385212e-06,0) euler(sum(f*dV))=(-0.2202031957,-9.442385212e-06,0)
+[diag_force] lev=0 step=103 t=1.020000e+02 cc_max|F|_global=2.028576e-03 (Fx=2.028576e-03, Fy=1.047750e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.028576e-03 (Fx=2.028576e-03, Fy=1.047750e-03)
+[Level 0 step 103] Advanced 131072 cells
+[force_eval] step=103 primary(2): Cd=15.30631844 Cl=0.0008094035623 (raw Cd,Cl)=(15.29188859,0.0006557211953) | eulerian(Cd,Cl)=(15.29131131,0.0006552135701) marker=(15.29188859,0.0006557211953) me=(15.29188859,0.0006557211953)
+Coarse STEP 103 ends. TIME = 103 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 104 starts ...
+[Level 0 step 104] ADVANCE with time = 103 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2209096451,-1.303227601e-05,0) euler(sum(f*dV))=(-0.2209096451,-1.303227601e-05,0)
+[diag_force] lev=0 step=104 t=1.030000e+02 cc_max|F|_global=2.051109e-03 (Fx=2.051109e-03, Fy=1.055519e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.051109e-03 (Fx=2.051109e-03, Fy=1.055519e-03)
+[Level 0 step 104] Advanced 131072 cells
+[force_eval] step=104 primary(2): Cd=15.31641808 Cl=0.0007803701813 (raw Cd,Cl)=(15.34094758,0.0009050191673) | eulerian(Cd,Cl)=(15.33984827,0.0009042198924) marker=(15.34094758,0.0009050191673) me=(15.34094758,0.0009050191673)
+Coarse STEP 104 ends. TIME = 104 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 105 starts ...
+[Level 0 step 105] ADVANCE with time = 104 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2202629326,-8.677870658e-06,0) euler(sum(f*dV))=(-0.2202629326,-8.677870658e-06,0)
+[diag_force] lev=0 step=105 t=1.040000e+02 cc_max|F|_global=2.049488e-03 (Fx=2.049488e-03, Fy=1.069542e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.049488e-03 (Fx=2.049488e-03, Fy=1.069542e-03)
+[Level 0 step 105] Advanced 131072 cells
+[force_eval] step=105 primary(2): Cd=15.31849228 Cl=0.000753824537 (raw Cd,Cl)=(15.29603699,0.0006026299068) | eulerian(Cd,Cl)=(15.29458736,0.0006024152396) marker=(15.29603699,0.0006026299068) me=(15.29603699,0.0006026299068)
+Coarse STEP 105 ends. TIME = 105 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 106 starts ...
+[Level 0 step 106] ADVANCE with time = 105 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2205194223,-1.25994144e-05,0) euler(sum(f*dV))=(-0.2205194223,-1.25994144e-05,0)
+[diag_force] lev=0 step=106 t=1.050000e+02 cc_max|F|_global=2.062697e-03 (Fx=2.062697e-03, Fy=1.078352e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.062697e-03 (Fx=2.062697e-03, Fy=1.078352e-03)
+[Level 0 step 106] Advanced 131072 cells
+[force_eval] step=106 primary(2): Cd=15.30494288 Cl=0.0007387946202 (raw Cd,Cl)=(15.31384877,0.0008749593337) | eulerian(Cd,Cl)=(15.31240841,0.0008745291572) marker=(15.31384877,0.0008749593337) me=(15.31384877,0.0008749593337)
+Coarse STEP 106 ends. TIME = 106 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 107 starts ...
+[Level 0 step 107] ADVANCE with time = 106 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.21903987,-8.316145031e-06,0) euler(sum(f*dV))=(-0.21903987,-8.316145031e-06,0)
+[diag_force] lev=0 step=107 t=1.060000e+02 cc_max|F|_global=2.052556e-03 (Fx=2.052556e-03, Fy=1.091691e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.052556e-03 (Fx=2.052556e-03, Fy=1.091691e-03)
+[Level 0 step 107] Advanced 131072 cells
+[force_eval] step=107 primary(2): Cd=15.26247543 Cl=0.0007262347026 (raw Cd,Cl)=(15.21110208,0.0005775100716) | eulerian(Cd,Cl)=(15.20982938,0.0005777115137) marker=(15.21110208,0.0005775100716) me=(15.21110208,0.0005775100716)
+Coarse STEP 107 ends. TIME = 107 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 108 starts ...
+[Level 0 step 108] ADVANCE with time = 107 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.218088873,-1.19626702e-05,0) euler(sum(f*dV))=(-0.218088873,-1.19626702e-05,0)
+[diag_force] lev=0 step=108 t=1.070000e+02 cc_max|F|_global=2.056407e-03 (Fx=2.056407e-03, Fy=1.096721e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.056407e-03 (Fx=2.056407e-03, Fy=1.096721e-03)
+[Level 0 step 108] Advanced 131072 cells
+[force_eval] step=108 primary(2): Cd=15.17808135 Cl=0.0007041255288 (raw Cd,Cl)=(15.14506063,0.000830740986) | eulerian(Cd,Cl)=(15.14418409,0.0008307626998) marker=(15.14506063,0.000830740986) me=(15.14506063,0.000830740986)
+Coarse STEP 108 ends. TIME = 108 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 109 starts ...
+[Level 0 step 109] ADVANCE with time = 108 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2149234625,-7.130533844e-06,0) euler(sum(f*dV))=(-0.2149234625,-7.130533844e-06,0)
+[diag_force] lev=0 step=109 t=1.080000e+02 cc_max|F|_global=2.032028e-03 (Fx=2.032028e-03, Fy=1.101128e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.032028e-03 (Fx=2.032028e-03, Fy=1.101128e-03)
+[Level 0 step 109] Advanced 131072 cells
+[force_eval] step=109 primary(2): Cd=15.03515054 Cl=0.0006629584737 (raw Cd,Cl)=(14.92524045,0.0004951759614) | eulerian(Cd,Cl)=(14.92472054,0.0004957200175) marker=(14.92524045,0.0004951759614) me=(14.92524045,0.0004951759614)
+Coarse STEP 109 ends. TIME = 109 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 110 starts ...
+[Level 0 step 110] ADVANCE with time = 109 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2118885413,-1.05761266e-05,0) euler(sum(f*dV))=(-0.2118885413,-1.05761266e-05,0)
+[diag_force] lev=0 step=110 t=1.090000e+02 cc_max|F|_global=2.015548e-03 (Fx=2.015548e-03, Fy=1.091806e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=2.015548e-03 (Fx=2.015548e-03, Fy=1.091806e-03)
+[Level 0 step 110] Advanced 131072 cells
+[force_eval] step=110 primary(2): Cd=14.81986124 Cl=0.0006148145986 (raw Cd,Cl)=(14.71448204,0.0007344532359) | eulerian(Cd,Cl)=(14.71439157,0.0007343481321) marker=(14.71448204,0.0007344532359) me=(14.71448204,0.0007344532359)
+Coarse STEP 110 ends. TIME = 110 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 111 starts ...
+[Level 0 step 111] ADVANCE with time = 110 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2063103814,-5.583336604e-06,0) euler(sum(f*dV))=(-0.2063103814,-5.583336604e-06,0)
+[diag_force] lev=0 step=111 t=1.100000e+02 cc_max|F|_global=1.964358e-03 (Fx=1.964358e-03, Fy=1.077200e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.964358e-03 (Fx=1.964358e-03, Fy=1.077200e-03)
+[Level 0 step 111] Advanced 131072 cells
+[force_eval] step=111 primary(2): Cd=14.52079593 Cl=0.0005610924723 (raw Cd,Cl)=(14.32710982,0.0003877317086) | eulerian(Cd,Cl)=(14.32731632,0.0003876370959) marker=(14.32710982,0.0003877317086) me=(14.32710982,0.0003877317086)
+Coarse STEP 111 ends. TIME = 111 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 112 starts ...
+[Level 0 step 112] ADVANCE with time = 111 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.2008694442,-9.266626444e-06,0) euler(sum(f*dV))=(-0.2008694442,-9.266626444e-06,0)
+[diag_force] lev=0 step=112 t=1.110000e+02 cc_max|F|_global=1.918372e-03 (Fx=1.918372e-03, Fy=1.047670e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.918372e-03 (Fx=1.918372e-03, Fy=1.047670e-03)
+[Level 0 step 112] Advanced 131072 cells
+[force_eval] step=112 primary(2): Cd=14.13818839 Cl=0.0005156237169 (raw Cd,Cl)=(13.94926696,0.0006435157253) | eulerian(Cd,Cl)=(13.94983621,0.0006426927397) marker=(13.94926696,0.0006435157253) me=(13.94926696,0.0006435157253)
+Coarse STEP 112 ends. TIME = 112 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 113 starts ...
+[Level 0 step 113] ADVANCE with time = 112 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1932180044,-4.599859351e-06,0) euler(sum(f*dV))=(-0.1932180044,-4.599859351e-06,0)
+[diag_force] lev=0 step=113 t=1.120000e+02 cc_max|F|_global=1.839612e-03 (Fx=1.839612e-03, Fy=1.015248e-03) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.839612e-03 (Fx=1.839612e-03, Fy=1.015248e-03)
+[Level 0 step 113] Advanced 131072 cells
+[force_eval] step=113 primary(2): Cd=13.68359196 Cl=0.0004814752012 (raw Cd,Cl)=(13.41791697,0.0003194346772) | eulerian(Cd,Cl)=(13.4187205,0.0003189628045) marker=(13.41791697,0.0003194346772) me=(13.41791697,0.0003194346772)
+Coarse STEP 113 ends. TIME = 113 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 114 starts ...
+[Level 0 step 114] ADVANCE with time = 113 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1864496018,-8.901748841e-06,0) euler(sum(f*dV))=(-0.1864496018,-8.901748841e-06,0)
+[diag_force] lev=0 step=114 t=1.130000e+02 cc_max|F|_global=1.775084e-03 (Fx=1.775084e-03, Fy=9.735230e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.775084e-03 (Fx=1.775084e-03, Fy=9.735230e-04)
+[Level 0 step 114] Advanced 131072 cells
+[force_eval] step=114 primary(2): Cd=13.18290299 Cl=0.00046880584 (raw Cd,Cl)=(12.94788901,0.0006181770028) | eulerian(Cd,Cl)=(12.94896296,0.0006172353295) marker=(12.94788901,0.0006181770028) me=(12.94788901,0.0006181770028)
+Coarse STEP 114 ends. TIME = 114 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 115 starts ...
+[Level 0 step 115] ADVANCE with time = 114 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1784507589,-4.815699821e-06,0) euler(sum(f*dV))=(-0.1784507589,-4.815699821e-06,0)
+[diag_force] lev=0 step=115 t=1.140000e+02 cc_max|F|_global=1.691874e-03 (Fx=1.691874e-03, Fy=9.352769e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.691874e-03 (Fx=1.691874e-03, Fy=9.352769e-04)
+[Level 0 step 115] Advanced 131072 cells
+[force_eval] step=115 primary(2): Cd=12.67015141 Cl=0.0004763003008 (raw Cd,Cl)=(12.39241381,0.0003344235987) | eulerian(Cd,Cl)=(12.39352881,0.0003338546775) marker=(12.39241381,0.0003344235987) me=(12.39241381,0.0003344235987)
+Coarse STEP 115 ends. TIME = 115 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 116 starts ...
+[Level 0 step 116] ADVANCE with time = 115 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1725063917,-9.888999205e-06,0) euler(sum(f*dV))=(-0.1725063917,-9.888999205e-06,0)
+[diag_force] lev=0 step=116 t=1.150000e+02 cc_max|F|_global=1.639946e-03 (Fx=1.639946e-03, Fy=8.944313e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.639946e-03 (Fx=1.639946e-03, Fy=8.944313e-04)
+[Level 0 step 116] Advanced 131072 cells
+[force_eval] step=116 primary(2): Cd=12.18601217 Cl=0.0005105798273 (raw Cd,Cl)=(11.97961053,0.0006867360559) | eulerian(Cd,Cl)=(11.98065443,0.0006855197219) marker=(11.97961053,0.0006867360559) me=(11.97961053,0.0006867360559)
+Coarse STEP 116 ends. TIME = 116 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 117 starts ...
+[Level 0 step 117] ADVANCE with time = 116 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1664760118,-6.189505285e-06,0) euler(sum(f*dV))=(-0.1664760118,-6.189505285e-06,0)
+[diag_force] lev=0 step=117 t=1.160000e+02 cc_max|F|_global=1.583982e-03 (Fx=1.583982e-03, Fy=8.629947e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.583982e-03 (Fx=1.583982e-03, Fy=8.629947e-04)
+[Level 0 step 117] Advanced 131072 cells
+[force_eval] step=117 primary(2): Cd=11.77022234 Cl=0.0005582814059 (raw Cd,Cl)=(11.56083415,0.0004298267559) | eulerian(Cd,Cl)=(11.56148871,0.0004290146881) marker=(11.56083415,0.0004298267559) me=(11.56083415,0.0004298267559)
+Coarse STEP 117 ends. TIME = 117 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 118 starts ...
+[Level 0 step 118] ADVANCE with time = 117 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1634798936,-1.153466093e-05,0) euler(sum(f*dV))=(-0.1634798936,-1.153466093e-05,0)
+[diag_force] lev=0 step=118 t=1.170000e+02 cc_max|F|_global=1.568898e-03 (Fx=1.568898e-03, Fy=8.343181e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.568898e-03 (Fx=1.568898e-03, Fy=8.343181e-04)
+[Level 0 step 118] Advanced 131072 cells
+[force_eval] step=118 primary(2): Cd=11.45680227 Cl=0.0006154224381 (raw Cd,Cl)=(11.35277039,0.0008010181202) | eulerian(Cd,Cl)=(11.35286757,0.0007996080496) marker=(11.35277039,0.0008010181202) me=(11.35277039,0.0008010181202)
+Coarse STEP 118 ends. TIME = 118 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 119 starts ...
+[Level 0 step 119] ADVANCE with time = 118 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.160926505,-7.664665322e-06,0) euler(sum(f*dV))=(-0.160926505,-7.664665322e-06,0)
+[diag_force] lev=0 step=119 t=1.180000e+02 cc_max|F|_global=1.551964e-03 (Fx=1.551964e-03, Fy=8.182935e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.551964e-03 (Fx=1.551964e-03, Fy=8.182935e-04)
+[Level 0 step 119] Advanced 131072 cells
+[force_eval] step=119 primary(2): Cd=11.26411106 Cl=0.0006666432727 (raw Cd,Cl)=(11.17545173,0.0005322684251) | eulerian(Cd,Cl)=(11.17473615,0.0005313364241) marker=(11.17545173,0.0005322684251) me=(11.17545173,0.0005322684251)
+Coarse STEP 119 ends. TIME = 119 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 120 starts ...
+[Level 0 step 120] ADVANCE with time = 119 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1613635697,-1.281062402e-05,0) euler(sum(f*dV))=(-0.1613635697,-1.281062402e-05,0)
+[diag_force] lev=0 step=120 t=1.190000e+02 cc_max|F|_global=1.571394e-03 (Fx=1.571394e-03, Fy=8.061194e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.571394e-03 (Fx=1.571394e-03, Fy=8.061194e-04)
+[Level 0 step 120] Advanced 131072 cells
+[force_eval] step=120 primary(2): Cd=11.19062759 Cl=0.0007109475467 (raw Cd,Cl)=(11.20580345,0.0008896266683) | eulerian(Cd,Cl)=(11.20418321,0.000888019781) marker=(11.20580345,0.0008896266683) me=(11.20580345,0.0008896266683)
+Coarse STEP 120 ends. TIME = 120 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 121 starts ...
+[Level 0 step 121] ADVANCE with time = 120 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1615748592,-8.389956277e-06,0) euler(sum(f*dV))=(-0.1615748592,-8.389956277e-06,0)
+[diag_force] lev=0 step=121 t=1.200000e+02 cc_max|F|_global=1.578513e-03 (Fx=1.578513e-03, Fy=8.053242e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.578513e-03 (Fx=1.578513e-03, Fy=8.053242e-04)
+[Level 0 step 121] Advanced 131072 cells
+[force_eval] step=121 primary(2): Cd=11.21313989 Cl=0.0007361312604 (raw Cd,Cl)=(11.22047633,0.0005826358526) | eulerian(Cd,Cl)=(11.21789949,0.000581535869) marker=(11.22047633,0.0005826358526) me=(11.22047633,0.0005826358526)
+Coarse STEP 121 ends. TIME = 121 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 122 starts ...
+[Level 0 step 122] ADVANCE with time = 121 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1636627298,-1.308935877e-05,0) euler(sum(f*dV))=(-0.1636627298,-1.308935877e-05,0)
+[diag_force] lev=0 step=122 t=1.210000e+02 cc_max|F|_global=1.607979e-03 (Fx=1.607979e-03, Fy=8.060845e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.607979e-03 (Fx=1.607979e-03, Fy=8.060845e-04)
+[Level 0 step 122] Advanced 131072 cells
+[force_eval] step=122 primary(2): Cd=11.29297184 Cl=0.0007458095503 (raw Cd,Cl)=(11.36546735,0.000908983248) | eulerian(Cd,Cl)=(11.36209415,0.0009073704569) marker=(11.36546735,0.000908983248) me=(11.36546735,0.000908983248)
+Coarse STEP 122 ends. TIME = 122 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 123 starts ...
+[Level 0 step 123] ADVANCE with time = 122 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1641654505,-7.885172932e-06,0) euler(sum(f*dV))=(-0.1641654505,-7.885172932e-06,0)
+[diag_force] lev=0 step=123 t=1.220000e+02 cc_max|F|_global=1.610418e-03 (Fx=1.610418e-03, Fy=8.143871e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.610418e-03 (Fx=1.610418e-03, Fy=8.143871e-04)
+[Level 0 step 123] Advanced 131072 cells
+[force_eval] step=123 primary(2): Cd=11.38292293 Cl=0.0007282823508 (raw Cd,Cl)=(11.40037851,0.0005475814536) | eulerian(Cd,Cl)=(11.39646798,0.0005468232342) marker=(11.40037851,0.0005475814536) me=(11.40037851,0.0005475814536)
+Coarse STEP 123 ends. TIME = 123 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 124 starts ...
+[Level 0 step 124] ADVANCE with time = 123 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1652335786,-1.196594728e-05,0) euler(sum(f*dV))=(-0.1652335786,-1.196594728e-05,0)
+[diag_force] lev=0 step=124 t=1.230000e+02 cc_max|F|_global=1.623401e-03 (Fx=1.623401e-03, Fy=8.191186e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.623401e-03 (Fx=1.623401e-03, Fy=8.191186e-04)
+[Level 0 step 124] Advanced 131072 cells
+[force_eval] step=124 primary(2): Cd=11.43746629 Cl=0.0006892750074 (raw Cd,Cl)=(11.47455407,0.0008309685612) | eulerian(Cd,Cl)=(11.47049338,0.0008298629017) marker=(11.47455407,0.0008309685612) me=(11.47455407,0.0008309685612)
+Coarse STEP 124 ends. TIME = 124 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 125 starts ...
+[Level 0 step 125] ADVANCE with time = 124 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1637033527,-6.181571542e-06,0) euler(sum(f*dV))=(-0.1637033527,-6.181571542e-06,0)
+[diag_force] lev=0 step=125 t=1.240000e+02 cc_max|F|_global=1.602817e-03 (Fx=1.602817e-03, Fy=8.249766e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.602817e-03 (Fx=1.602817e-03, Fy=8.249766e-04)
+[Level 0 step 125] Advanced 131072 cells
+[force_eval] step=125 primary(2): Cd=11.42142122 Cl=0.0006301221814 (raw Cd,Cl)=(11.36828838,0.0004292758016) | eulerian(Cd,Cl)=(11.36436465,0.0004289760635) marker=(11.36828838,0.0004292758016) me=(11.36828838,0.0004292758016)
+Coarse STEP 125 ends. TIME = 125 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 126 starts ...
+[Level 0 step 126] ADVANCE with time = 125 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1622912039,-1.042249809e-05,0) euler(sum(f*dV))=(-0.1622912039,-1.042249809e-05,0)
+[diag_force] lev=0 step=126 t=1.250000e+02 cc_max|F|_global=1.592387e-03 (Fx=1.592387e-03, Fy=8.224760e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.592387e-03 (Fx=1.592387e-03, Fy=8.224760e-04)
+[Level 0 step 126] Advanced 131072 cells
+[force_eval] step=126 primary(2): Cd=11.31925544 Cl=0.0005765301954 (raw Cd,Cl)=(11.27022249,0.0007237845893) | eulerian(Cd,Cl)=(11.26664811,0.0007228600093) marker=(11.27022249,0.0007237845893) me=(11.27022249,0.0007237845893)
+Coarse STEP 126 ends. TIME = 126 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 127 starts ...
+[Level 0 step 127] ADVANCE with time = 126 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1584903653,-4.959635716e-06,0) euler(sum(f*dV))=(-0.1584903653,-4.959635716e-06,0)
+[diag_force] lev=0 step=127 t=1.260000e+02 cc_max|F|_global=1.553467e-03 (Fx=1.553467e-03, Fy=8.166458e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.553467e-03 (Fx=1.553467e-03, Fy=8.166458e-04)
+[Level 0 step 127] Advanced 131072 cells
+[force_eval] step=127 primary(2): Cd=11.13824893 Cl=0.0005341018681 (raw Cd,Cl)=(11.00627537,0.0003444191469) | eulerian(Cd,Cl)=(11.00300545,0.0003440505191) marker=(11.00627537,0.0003444191469) me=(11.00627537,0.0003444191469)
+Coarse STEP 127 ends. TIME = 127 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 128 starts ...
+[Level 0 step 128] ADVANCE with time = 127 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.155592037,-9.843114435e-06,0) euler(sum(f*dV))=(-0.155592037,-9.843114435e-06,0)
+[diag_force] lev=0 step=128 t=1.270000e+02 cc_max|F|_global=1.533783e-03 (Fx=1.533783e-03, Fy=8.033439e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.533783e-03 (Fx=1.533783e-03, Fy=8.033439e-04)
+[Level 0 step 128] Advanced 131072 cells
+[force_eval] step=128 primary(2): Cd=10.90563897 Cl=0.0005139843803 (raw Cd,Cl)=(10.80500257,0.0006835496136) | eulerian(Cd,Cl)=(10.80194924,0.0006823571745) marker=(10.80500257,0.0006835496136) me=(10.80500257,0.0006835496136)
+Coarse STEP 128 ends. TIME = 128 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 129 starts ...
+[Level 0 step 129] ADVANCE with time = 128 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1513661293,-4.708569767e-06,0) euler(sum(f*dV))=(-0.1513661293,-4.708569767e-06,0)
+[diag_force] lev=0 step=129 t=1.280000e+02 cc_max|F|_global=1.496356e-03 (Fx=1.496356e-03, Fy=7.900692e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.496356e-03 (Fx=1.496356e-03, Fy=7.900692e-04)
+[Level 0 step 129] Advanced 131072 cells
+[force_eval] step=129 primary(2): Cd=10.65826966 Cl=0.0005052668126 (raw Cd,Cl)=(10.51153676,0.0003269840116) | eulerian(Cd,Cl)=(10.50846612,0.0003262678368) marker=(10.51153676,0.0003269840116) me=(10.51153676,0.0003269840116)
+Coarse STEP 129 ends. TIME = 129 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 130 starts ...
+[Level 0 step 130] ADVANCE with time = 129 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1490537664,-1.011172637e-05,0) euler(sum(f*dV))=(-0.1490537664,-1.011172637e-05,0)
+[diag_force] lev=0 step=130 t=1.290000e+02 cc_max|F|_global=1.487412e-03 (Fx=1.487412e-03, Fy=7.741216e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.487412e-03 (Fx=1.487412e-03, Fy=7.741216e-04)
+[Level 0 step 130] Advanced 131072 cells
+[force_eval] step=130 primary(2): Cd=10.43124638 Cl=0.0005145936159 (raw Cd,Cl)=(10.350956,0.0007022032203) | eulerian(Cd,Cl)=(10.34774187,0.0007006427416) marker=(10.350956,0.0007022032203) me=(10.350956,0.0007022032203)
+Coarse STEP 130 ends. TIME = 130 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 131 starts ...
+[Level 0 step 131] ADVANCE with time = 130 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1460932033,-5.19495709e-06,0) euler(sum(f*dV))=(-0.1460932033,-5.19495709e-06,0)
+[diag_force] lev=0 step=131 t=1.300000e+02 cc_max|F|_global=1.465367e-03 (Fx=1.465367e-03, Fy=7.629232e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.465367e-03 (Fx=1.465367e-03, Fy=7.629232e-04)
+[Level 0 step 131] Advanced 131072 cells
+[force_eval] step=131 primary(2): Cd=10.24815867 Cl=0.0005314820647 (raw Cd,Cl)=(10.14536134,0.0003607609091) | eulerian(Cd,Cl)=(10.14185554,0.0003598427714) marker=(10.14536134,0.0003607609091) me=(10.14536134,0.0003607609091)
+Coarse STEP 131 ends. TIME = 131 DT = 1 Sum(Rho) = 131072
+
+Coarse STEP 132 starts ...
+[Level 0 step 132] ADVANCE with time = 131 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1452449212,-1.088999415e-05,0) euler(sum(f*dV))=(-0.1452449212,-1.088999415e-05,0)
+[diag_force] lev=0 step=132 t=1.310000e+02 cc_max|F|_global=1.470279e-03 (Fx=1.470279e-03, Fy=7.529331e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.470279e-03 (Fx=1.470279e-03, Fy=7.529331e-04)
+[Level 0 step 132] Advanced 131072 cells
+[force_eval] step=132 primary(2): Cd=10.1159071 Cl=0.0005585052516 (raw Cd,Cl)=(10.08645286,0.0007562495941) | eulerian(Cd,Cl)=(10.08265537,0.0007546448374) marker=(10.08645286,0.0007562495941) me=(10.08645286,0.0007562495941)
+Coarse STEP 132 ends. TIME = 132 DT = 1 Sum(Rho) = 131071.9999
+
+Coarse STEP 133 starts ...
+[Level 0 step 133] ADVANCE with time = 132 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1434501082,-5.656376612e-06,0) euler(sum(f*dV))=(-0.1434501082,-5.656376612e-06,0)
+[diag_force] lev=0 step=133 t=1.320000e+02 cc_max|F|_global=1.455634e-03 (Fx=1.455634e-03, Fy=7.489003e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.455634e-03 (Fx=1.455634e-03, Fy=7.489003e-04)
+[Level 0 step 133] Advanced 131072 cells
+[force_eval] step=133 primary(2): Cd=10.02413296 Cl=0.0005745267627 (raw Cd,Cl)=(9.961813067,0.0003928039314) | eulerian(Cd,Cl)=(9.957739554,0.0003920465417) marker=(9.961813067,0.0003928039314) me=(9.961813067,0.0003928039314)
+Coarse STEP 133 ends. TIME = 133 DT = 1 Sum(Rho) = 131071.9998
+
+Coarse STEP 134 starts ...
+[Level 0 step 134] ADVANCE with time = 133 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1431065599,-1.101639319e-05,0) euler(sum(f*dV))=(-0.1431065599,-1.101639319e-05,0)
+[diag_force] lev=0 step=134 t=1.330000e+02 cc_max|F|_global=1.459362e-03 (Fx=1.459362e-03, Fy=7.445182e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.459362e-03 (Fx=1.459362e-03, Fy=7.445182e-04)
+[Level 0 step 134] Advanced 131072 cells
+[force_eval] step=134 primary(2): Cd=9.949884309 Cl=0.000578915618 (raw Cd,Cl)=(9.93795555,0.0007650273046) | eulerian(Cd,Cl)=(9.933735719,0.0007636194482) marker=(9.93795555,0.0007650273046) me=(9.93795555,0.0007650273046)
+Coarse STEP 134 ends. TIME = 134 DT = 1 Sum(Rho) = 131071.9996
+
+Coarse STEP 135 starts ...
+[Level 0 step 135] ADVANCE with time = 134 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1410644475,-5.184134165e-06,0) euler(sum(f*dV))=(-0.1410644475,-5.184134165e-06,0)
+[diag_force] lev=0 step=135 t=1.340000e+02 cc_max|F|_global=1.436367e-03 (Fx=1.436367e-03, Fy=7.423947e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.436367e-03 (Fx=1.436367e-03, Fy=7.423947e-04)
+[Level 0 step 135] Advanced 131072 cells
+[force_eval] step=135 primary(2): Cd=9.867048869 Cl=0.0005625183108 (raw Cd,Cl)=(9.796142188,0.000360009317) | eulerian(Cd,Cl)=(9.791875216,0.000359458894) marker=(9.796142188,0.000360009317) me=(9.796142188,0.000360009317)
+Coarse STEP 135 ends. TIME = 135 DT = 1 Sum(Rho) = 131071.9993
+
+Coarse STEP 136 starts ...
+[Level 0 step 136] ADVANCE with time = 135 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1399195891,-1.04861881e-05,0) euler(sum(f*dV))=(-0.1399195891,-1.04861881e-05,0)
+[diag_force] lev=0 step=136 t=1.350000e+02 cc_max|F|_global=1.428128e-03 (Fx=1.428128e-03, Fy=7.364446e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.428128e-03 (Fx=1.428128e-03, Fy=7.364446e-04)
+[Level 0 step 136] Advanced 131072 cells
+[force_eval] step=136 primary(2): Cd=9.756390161 Cl=0.000544108412 (raw Cd,Cl)=(9.716638135,0.0007282075071) | eulerian(Cd,Cl)=(9.712454162,0.0007269494357) marker=(9.716638135,0.0007282075071) me=(9.716638135,0.0007282075071)
+Coarse STEP 136 ends. TIME = 136 DT = 1 Sum(Rho) = 131071.9987
+
+Coarse STEP 137 starts ...
+[Level 0 step 137] ADVANCE with time = 136 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1369063788,-4.552500207e-06,0) euler(sum(f*dV))=(-0.1369063788,-4.552500207e-06,0)
+[diag_force] lev=0 step=137 t=1.360000e+02 cc_max|F|_global=1.394345e-03 (Fx=1.394345e-03, Fy=7.304025e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.394345e-03 (Fx=1.394345e-03, Fy=7.304025e-04)
+[Level 0 step 137] Advanced 131072 cells
+[force_eval] step=137 primary(2): Cd=9.612012776 Cl=0.0005221766774 (raw Cd,Cl)=(9.507387418,0.0003161458477) | eulerian(Cd,Cl)=(9.503303682,0.0003157298779) marker=(9.507387418,0.0003161458477) me=(9.507387418,0.0003161458477)
+Coarse STEP 137 ends. TIME = 137 DT = 1 Sum(Rho) = 131071.9977
+
+Coarse STEP 138 starts ...
+[Level 0 step 138] ADVANCE with time = 137 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1349855653,-1.011945197e-05,0) euler(sum(f*dV))=(-0.1349855653,-1.011945197e-05,0)
+[diag_force] lev=0 step=138 t=1.370000e+02 cc_max|F|_global=1.380293e-03 (Fx=1.380293e-03, Fy=7.198661e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.380293e-03 (Fx=1.380293e-03, Fy=7.198661e-04)
+[Level 0 step 138] Advanced 131072 cells
+[force_eval] step=138 primary(2): Cd=9.440692503 Cl=0.0005094427841 (raw Cd,Cl)=(9.373997589,0.0007027397205) | eulerian(Cd,Cl)=(9.370035313,0.0007015437425) marker=(9.373997589,0.0007027397205) me=(9.373997589,0.0007027397205)
+Coarse STEP 138 ends. TIME = 138 DT = 1 Sum(Rho) = 131071.9959
+
+Coarse STEP 139 starts ...
+[Level 0 step 139] ADVANCE with time = 138 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1316171253,-4.155526575e-06,0) euler(sum(f*dV))=(-0.1316171253,-4.155526575e-06,0)
+[diag_force] lev=0 step=139 t=1.380000e+02 cc_max|F|_global=1.347468e-03 (Fx=1.347468e-03, Fy=7.095828e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.347468e-03 (Fx=1.347468e-03, Fy=7.095828e-04)
+[Level 0 step 139] Advanced 131072 cells
+[force_eval] step=139 primary(2): Cd=9.257037866 Cl=0.0004956589774 (raw Cd,Cl)=(9.140078144,0.0002885782344) | eulerian(Cd,Cl)=(9.136160968,0.0002881903046) marker=(9.140078144,0.0002885782344) me=(9.140078144,0.0002885782344)
+Coarse STEP 139 ends. TIME = 139 DT = 1 Sum(Rho) = 131071.993
+
+Coarse STEP 140 starts ...
+[Level 0 step 140] ADVANCE with time = 139 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1297852236,-1.007120096e-05,0) euler(sum(f*dV))=(-0.1297852236,-1.007120096e-05,0)
+[diag_force] lev=0 step=140 t=1.390000e+02 cc_max|F|_global=1.339435e-03 (Fx=1.339435e-03, Fy=6.964104e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.339435e-03 (Fx=1.339435e-03, Fy=6.964104e-04)
+[Level 0 step 140] Advanced 131072 cells
+[force_eval] step=140 primary(2): Cd=9.076470446 Cl=0.0004939835951 (raw Cd,Cl)=(9.012862748,0.0006993889559) | eulerian(Cd,Cl)=(9.008967574,0.0006981304231) marker=(9.012862748,0.0006993889559) me=(9.012862748,0.0006993889559)
+Coarse STEP 140 ends. TIME = 140 DT = 1 Sum(Rho) = 131071.9881
+
+Coarse STEP 141 starts ...
+[Level 0 step 141] ADVANCE with time = 140 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1268335941,-4.206669501e-06,0) euler(sum(f*dV))=(-0.1268335941,-4.206669501e-06,0)
+[diag_force] lev=0 step=141 t=1.400000e+02 cc_max|F|_global=1.314051e-03 (Fx=1.314051e-03, Fy=6.856375e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.314051e-03 (Fx=1.314051e-03, Fy=6.856375e-04)
+[Level 0 step 141] Advanced 131072 cells
+[force_eval] step=141 primary(2): Cd=8.910375614 Cl=0.0004957593912 (raw Cd,Cl)=(8.80788848,0.0002921298265) | eulerian(Cd,Cl)=(8.803955913,0.0002917102743) marker=(8.80788848,0.0002921298265) me=(8.80788848,0.0002921298265)
+Coarse STEP 141 ends. TIME = 141 DT = 1 Sum(Rho) = 131071.9805
+
+Coarse STEP 142 starts ...
+[Level 0 step 142] ADVANCE with time = 141 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1255172939,-1.038851665e-05,0) euler(sum(f*dV))=(-0.1255172939,-1.038851665e-05,0)
+[diag_force] lev=0 step=142 t=1.410000e+02 cc_max|F|_global=1.310762e-03 (Fx=1.310762e-03, Fy=6.740914e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.310762e-03 (Fx=1.310762e-03, Fy=6.740914e-04)
+[Level 0 step 142] Advanced 131072 cells
+[force_eval] step=142 primary(2): Cd=8.762183612 Cl=0.000506777297 (raw Cd,Cl)=(8.716478743,0.0007214247675) | eulerian(Cd,Cl)=(8.712523319,0.0007201050613) marker=(8.716478743,0.0007214247675) me=(8.716478743,0.0007214247675)
+Coarse STEP 142 ends. TIME = 142 DT = 1 Sum(Rho) = 131071.9688
+
+Coarse STEP 143 starts ...
+[Level 0 step 143] ADVANCE with time = 142 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1229537393,-4.222405214e-06,0) euler(sum(f*dV))=(-0.1229537393,-4.222405214e-06,0)
+[diag_force] lev=0 step=143 t=1.420000e+02 cc_max|F|_global=1.285679e-03 (Fx=1.285679e-03, Fy=6.656355e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.285679e-03 (Fx=1.285679e-03, Fy=6.656355e-04)
+[Level 0 step 143] Advanced 131072 cells
+[force_eval] step=143 primary(2): Cd=8.62746643 Cl=0.0005073236759 (raw Cd,Cl)=(8.538454117,0.0002932225843) | eulerian(Cd,Cl)=(8.534476649,0.0002927908762) marker=(8.538454117,0.0002932225843) me=(8.538454117,0.0002932225843)
+Coarse STEP 143 ends. TIME = 143 DT = 1 Sum(Rho) = 131071.9512
+
+Coarse STEP 144 starts ...
+[Level 0 step 144] ADVANCE with time = 143 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1217339222,-1.028416282e-05,0) euler(sum(f*dV))=(-0.1217339222,-1.028416282e-05,0)
+[diag_force] lev=0 step=144 t=1.430000e+02 cc_max|F|_global=1.278567e-03 (Fx=1.278567e-03, Fy=6.558528e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.278567e-03 (Fx=1.278567e-03, Fy=6.558528e-04)
+[Level 0 step 144] Advanced 131072 cells
+[force_eval] step=144 primary(2): Cd=8.496099358 Cl=0.0005037002788 (raw Cd,Cl)=(8.453744598,0.0007141779733) | eulerian(Cd,Cl)=(8.44979847,0.000712825311) marker=(8.453744598,0.0007141779733) me=(8.453744598,0.0007141779733)
+Coarse STEP 144 ends. TIME = 144 DT = 1 Sum(Rho) = 131071.9256
+
+Coarse STEP 145 starts ...
+[Level 0 step 145] ADVANCE with time = 144 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.118984531,-3.773105018e-06,0) euler(sum(f*dV))=(-0.118984531,-3.773105018e-06,0)
+[diag_force] lev=0 step=145 t=1.440000e+02 cc_max|F|_global=1.247908e-03 (Fx=1.247908e-03, Fy=6.478274e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.247908e-03 (Fx=1.247908e-03, Fy=6.478274e-04)
+[Level 0 step 145] Advanced 131072 cells
+[force_eval] step=145 primary(2): Cd=8.358279627 Cl=0.0004880995776 (raw Cd,Cl)=(8.262814656,0.0002620211818) | eulerian(Cd,Cl)=(8.258919327,0.0002616022136) marker=(8.262814656,0.0002620211818) me=(8.262814656,0.0002620211818)
+Coarse STEP 145 ends. TIME = 145 DT = 1 Sum(Rho) = 131071.8894
+
+Coarse STEP 146 starts ...
+[Level 0 step 146] ADVANCE with time = 145 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1174159697,-9.945034343e-06,0) euler(sum(f*dV))=(-0.1174159697,-9.945034343e-06,0)
+[diag_force] lev=0 step=146 t=1.450000e+02 cc_max|F|_global=1.235636e-03 (Fx=1.235636e-03, Fy=6.375399e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.235636e-03 (Fx=1.235636e-03, Fy=6.375399e-04)
+[Level 0 step 146] Advanced 131072 cells
+[force_eval] step=146 primary(2): Cd=8.208350721 Cl=0.0004763242834 (raw Cd,Cl)=(8.153886786,0.0006906273849) | eulerian(Cd,Cl)=(8.15008761,0.0006892945137) marker=(8.153886786,0.0006906273849) me=(8.153886786,0.0006906273849)
+Coarse STEP 146 ends. TIME = 146 DT = 1 Sum(Rho) = 131071.8397
+
+Coarse STEP 147 starts ...
+[Level 0 step 147] ADVANCE with time = 146 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.114337418,-3.237170348e-06,0) euler(sum(f*dV))=(-0.114337418,-3.237170348e-06,0)
+[diag_force] lev=0 step=147 t=1.460000e+02 cc_max|F|_global=1.202282e-03 (Fx=1.202282e-03, Fy=6.283216e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.202282e-03 (Fx=1.202282e-03, Fy=6.283216e-04)
+[Level 0 step 147] Advanced 131072 cells
+[force_eval] step=147 primary(2): Cd=8.04699263 Cl=0.0004577154406 (raw Cd,Cl)=(7.940098473,0.0002248034964) | eulerian(Cd,Cl)=(7.936392166,0.000224454771) marker=(7.940098473,0.0002248034964) me=(7.940098473,0.0002248034964)
+Coarse STEP 147 ends. TIME = 147 DT = 1 Sum(Rho) = 131071.7736
+
+Coarse STEP 148 starts ...
+[Level 0 step 148] ADVANCE with time = 147 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1125630189,-9.539112583e-06,0) euler(sum(f*dV))=(-0.1125630189,-9.539112583e-06,0)
+[diag_force] lev=0 step=148 t=1.470000e+02 cc_max|F|_global=1.190198e-03 (Fx=1.190198e-03, Fy=6.165502e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.190198e-03 (Fx=1.190198e-03, Fy=6.165502e-04)
+[Level 0 step 148] Advanced 131072 cells
+[force_eval] step=148 primary(2): Cd=7.878487394 Cl=0.0004436209351 (raw Cd,Cl)=(7.816876315,0.0006624383738) | eulerian(Cd,Cl)=(7.813282735,0.0006611392328) marker=(7.816876315,0.0006624383738) me=(7.816876315,0.0006624383738)
+Coarse STEP 148 ends. TIME = 148 DT = 1 Sum(Rho) = 131071.6886
+
+Coarse STEP 149 starts ...
+[Level 0 step 149] ADVANCE with time = 148 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1094496179,-2.688908149e-06,0) euler(sum(f*dV))=(-0.1094496179,-2.688908149e-06,0)
+[diag_force] lev=0 step=149 t=1.480000e+02 cc_max|F|_global=1.159508e-03 (Fx=1.159508e-03, Fy=6.057454e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.159508e-03 (Fx=1.159508e-03, Fy=6.057454e-04)
+[Level 0 step 149] Advanced 131072 cells
+[force_eval] step=149 primary(2): Cd=7.708772113 Cl=0.0004245840532 (raw Cd,Cl)=(7.600667911,0.0001867297326) | eulerian(Cd,Cl)=(7.597170918,0.0001864203205) marker=(7.600667911,0.0001867297326) me=(7.600667911,0.0001867297326)
+Coarse STEP 149 ends. TIME = 149 DT = 1 Sum(Rho) = 131071.5829
+
+Coarse STEP 150 starts ...
+[Level 0 step 150] ADVANCE with time = 149 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1077740075,-9.360946144e-06,0) euler(sum(f*dV))=(-0.1077740075,-9.360946144e-06,0)
+[diag_force] lev=0 step=150 t=1.490000e+02 cc_max|F|_global=1.150609e-03 (Fx=1.150609e-03, Fy=5.930461e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.150609e-03 (Fx=1.150609e-03, Fy=5.930461e-04)
+[Level 0 step 150] Advanced 131072 cells
+[force_eval] step=150 primary(2): Cd=7.542486992 Cl=0.0004183977185 (raw Cd,Cl)=(7.484306073,0.0006500657044) | eulerian(Cd,Cl)=(7.480911369,0.0006487276247) marker=(7.484306073,0.0006500657044) me=(7.484306073,0.0006500657044)
+Coarse STEP 150 ends. TIME = 150 DT = 1 Sum(Rho) = 131071.4556
+
+Coarse STEP 151 starts ...
+[Level 0 step 151] ADVANCE with time = 150 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1048537356,-2.561224575e-06,0) euler(sum(f*dV))=(-0.1048537356,-2.561224575e-06,0)
+[diag_force] lev=0 step=151 t=1.500000e+02 cc_max|F|_global=1.122166e-03 (Fx=1.122166e-03, Fy=5.822967e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.122166e-03 (Fx=1.122166e-03, Fy=5.822967e-04)
+[Level 0 step 151] Advanced 131072 cells
+[force_eval] step=151 primary(2): Cd=7.382907745 Cl=0.0004139642611 (raw Cd,Cl)=(7.281509416,0.0001778628177) | eulerian(Cd,Cl)=(7.278204096,0.0001775239938) marker=(7.281509416,0.0001778628177) me=(7.281509416,0.0001778628177)
+Coarse STEP 151 ends. TIME = 151 DT = 1 Sum(Rho) = 131071.3077
+
+Coarse STEP 152 starts ...
+[Level 0 step 152] ADVANCE with time = 151 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1033816616,-9.496300086e-06,0) euler(sum(f*dV))=(-0.1033816616,-9.496300086e-06,0)
+[diag_force] lev=0 step=152 t=1.510000e+02 cc_max|F|_global=1.113552e-03 (Fx=1.113552e-03, Fy=5.706202e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.113552e-03 (Fx=1.113552e-03, Fy=5.706202e-04)
+[Level 0 step 152] Advanced 131072 cells
+[force_eval] step=152 primary(2): Cd=7.230395735 Cl=0.0004186640507 (raw Cd,Cl)=(7.179282055,0.0006594652838) | eulerian(Cd,Cl)=(7.176067692,0.0006580640397) marker=(7.179282055,0.0006594652838) me=(7.179282055,0.0006594652838)
+Coarse STEP 152 ends. TIME = 152 DT = 1 Sum(Rho) = 131071.1413
+
+Coarse STEP 153 starts ...
+[Level 0 step 153] ADVANCE with time = 152 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.1006298356,-2.463612422e-06,0) euler(sum(f*dV))=(-0.1006298356,-2.463612422e-06,0)
+[diag_force] lev=0 step=153 t=1.520000e+02 cc_max|F|_global=1.084254e-03 (Fx=1.084254e-03, Fy=5.611144e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.084254e-03 (Fx=1.084254e-03, Fy=5.611144e-04)
+[Level 0 step 153] Advanced 131072 cells
+[force_eval] step=153 primary(2): Cd=7.083732543 Cl=0.0004152747399 (raw Cd,Cl)=(6.988183031,0.000171084196) | eulerian(Cd,Cl)=(6.985055255,0.0001707259639) marker=(6.988183031,0.000171084196) me=(6.988183031,0.000171084196)
+Coarse STEP 153 ends. TIME = 153 DT = 1 Sum(Rho) = 131070.9599
+
+Coarse STEP 154 starts ...
+[Level 0 step 154] ADVANCE with time = 153 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.09925707082,-9.541572625e-06,0) euler(sum(f*dV))=(-0.09925707082,-9.541572625e-06,0)
+[diag_force] lev=0 step=154 t=1.530000e+02 cc_max|F|_global=1.074506e-03 (Fx=1.074506e-03, Fy=5.506381e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.074506e-03 (Fx=1.074506e-03, Fy=5.506381e-04)
+[Level 0 step 154] Advanced 131072 cells
+[force_eval] step=154 primary(2): Cd=6.940517585 Cl=0.000416846703 (raw Cd,Cl)=(6.89285214,0.0006626092101) | eulerian(Cd,Cl)=(6.889815518,0.000661191351) marker=(6.89285214,0.0006626092101) me=(6.89285214,0.0006626092101)
+Coarse STEP 154 ends. TIME = 154 DT = 1 Sum(Rho) = 131070.7675
+
+Coarse STEP 155 starts ...
+[Level 0 step 155] ADVANCE with time = 154 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.09658735564,-2.390137065e-06,0) euler(sum(f*dV))=(-0.09658735564,-2.390137065e-06,0)
+[diag_force] lev=0 step=155 t=1.540000e+02 cc_max|F|_global=1.045017e-03 (Fx=1.045017e-03, Fy=5.422371e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.045017e-03 (Fx=1.045017e-03, Fy=5.422371e-04)
+[Level 0 step 155] Advanced 131072 cells
+[force_eval] step=155 primary(2): Cd=6.800153697 Cl=0.0004142954754 (raw Cd,Cl)=(6.707455253,0.0001659817406) | eulerian(Cd,Cl)=(6.704512353,0.0001656436791) marker=(6.707455253,0.0001659817406) me=(6.707455253,0.0001659817406)
+Coarse STEP 155 ends. TIME = 155 DT = 1 Sum(Rho) = 131070.568
+
+Coarse STEP 156 starts ...
+[Level 0 step 156] ADVANCE with time = 155 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.09532380249,-9.764978926e-06,0) euler(sum(f*dV))=(-0.09532380249,-9.764978926e-06,0)
+[diag_force] lev=0 step=156 t=1.550000e+02 cc_max|F|_global=1.036111e-03 (Fx=1.036111e-03, Fy=5.330750e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.036111e-03 (Fx=1.036111e-03, Fy=5.330750e-04)
+[Level 0 step 156] Advanced 131072 cells
+[force_eval] step=156 primary(2): Cd=6.66358188 Cl=0.0004220526386 (raw Cd,Cl)=(6.619708507,0.0006781235365) | eulerian(Cd,Cl)=(6.616862633,0.0006767121708) marker=(6.619708507,0.0006781235365) me=(6.619708507,0.0006781235365)
+Coarse STEP 156 ends. TIME = 156 DT = 1 Sum(Rho) = 131070.3649
+
+Coarse STEP 157 starts ...
+[Level 0 step 157] ADVANCE with time = 156 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.09284748367,-2.431411024e-06,0) euler(sum(f*dV))=(-0.09284748367,-2.431411024e-06,0)
+[diag_force] lev=0 step=157 t=1.560000e+02 cc_max|F|_global=1.008854e-03 (Fx=1.008854e-03, Fy=5.259848e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.008854e-03 (Fx=1.008854e-03, Fy=5.259848e-04)
+[Level 0 step 157] Advanced 131072 cells
+[force_eval] step=157 primary(2): Cd=6.533725214 Cl=0.0004234857622 (raw Cd,Cl)=(6.447741922,0.0001688479878) | eulerian(Cd,Cl)=(6.444993281,0.0001685465079) marker=(6.447741922,0.0001688479878) me=(6.447741922,0.0001688479878)
+Coarse STEP 157 ends. TIME = 157 DT = 1 Sum(Rho) = 131070.1602
+
+Coarse STEP 158 starts ...
+[Level 0 step 158] ADVANCE with time = 157 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.09185076588,-9.911500848e-06,0) euler(sum(f*dV))=(-0.09185076588,-9.911500848e-06,0)
+[diag_force] lev=0 step=158 t=1.570000e+02 cc_max|F|_global=1.003128e-03 (Fx=1.003128e-03, Fy=5.180872e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=1.003128e-03 (Fx=1.003128e-03, Fy=5.180872e-04)
+[Level 0 step 158] Advanced 131072 cells
+[force_eval] step=158 primary(2): Cd=6.413133665 Cl=0.0004285733289 (raw Cd,Cl)=(6.378525409,0.00068829867) | eulerian(Cd,Cl)=(6.375864454,0.0006868992541) marker=(6.378525409,0.00068829867) me=(6.378525409,0.00068829867)
+Coarse STEP 158 ends. TIME = 158 DT = 1 Sum(Rho) = 131069.9544
+
+Coarse STEP 159 starts ...
+[Level 0 step 159] ADVANCE with time = 158 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08972381704,-2.35961741e-06,0) euler(sum(f*dV))=(-0.08972381704,-2.35961741e-06,0)
+[diag_force] lev=0 step=159 t=1.580000e+02 cc_max|F|_global=9.799695e-04 (Fx=9.799695e-04, Fy=5.122378e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.799695e-04 (Fx=9.799695e-04, Fy=5.122378e-04)
+[Level 0 step 159] Advanced 131072 cells
+[force_eval] step=159 primary(2): Cd=6.304673018 Cl=0.0004260804951 (raw Cd,Cl)=(6.230820628,0.0001638623201) | eulerian(Cd,Cl)=(6.228236774,0.0001635987552) marker=(6.230820628,0.0001638623201) me=(6.230820628,0.0001638623201)
+Coarse STEP 159 ends. TIME = 159 DT = 1 Sum(Rho) = 131069.7471
+
+Coarse STEP 160 starts ...
+[Level 0 step 160] ADVANCE with time = 159 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08913701304,-1.012749994e-05,0) euler(sum(f*dV))=(-0.08913701304,-1.012749994e-05,0)
+[diag_force] lev=0 step=160 t=1.590000e+02 cc_max|F|_global=9.784509e-04 (Fx=9.784509e-04, Fy=5.084124e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.784509e-04 (Fx=9.784509e-04, Fy=5.084124e-04)
+[Level 0 step 160] Advanced 131072 cells
+[force_eval] step=160 primary(2): Cd=6.210445489 Cl=0.0004335804635 (raw Cd,Cl)=(6.19007035,0.0007032986069) | eulerian(Cd,Cl)=(6.187535987,0.0007018953584) marker=(6.19007035,0.0007032986069) me=(6.19007035,0.0007032986069)
+Coarse STEP 160 ends. TIME = 160 DT = 1 Sum(Rho) = 131069.537
+
+Coarse STEP 161 starts ...
+[Level 0 step 161] ADVANCE with time = 160 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08748751044,-2.501655106e-06,0) euler(sum(f*dV))=(-0.08748751044,-2.501655106e-06,0)
+[diag_force] lev=0 step=161 t=1.600000e+02 cc_max|F|_global=9.595922e-04 (Fx=9.595922e-04, Fy=5.048755e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.595922e-04 (Fx=9.595922e-04, Fy=5.048755e-04)
+[Level 0 step 161] Advanced 131072 cells
+[force_eval] step=161 primary(2): Cd=6.132795954 Cl=0.000438512328 (raw Cd,Cl)=(6.075521558,0.0001737260491) | eulerian(Cd,Cl)=(6.073010356,0.0001734887041) marker=(6.075521558,0.0001737260491) me=(6.075521558,0.0001737260491)
+Coarse STEP 161 ends. TIME = 161 DT = 1 Sum(Rho) = 131069.3226
+
+Coarse STEP 162 starts ...
+[Level 0 step 162] ADVANCE with time = 161 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08739603125,-1.050431513e-05,0) euler(sum(f*dV))=(-0.08739603125,-1.050431513e-05,0)
+[diag_force] lev=0 step=162 t=1.610000e+02 cc_max|F|_global=9.621483e-04 (Fx=9.621483e-04, Fy=5.033116e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.621483e-04 (Fx=9.621483e-04, Fy=5.033116e-04)
+[Level 0 step 162] Advanced 131072 cells
+[force_eval] step=162 primary(2): Cd=6.072345198 Cl=0.0004515961889 (raw Cd,Cl)=(6.069168837,0.0007294663287) | eulerian(Cd,Cl)=(6.066640324,0.0007280703814) marker=(6.069168837,0.0007294663287) me=(6.069168837,0.0007294663287)
+Coarse STEP 162 ends. TIME = 162 DT = 1 Sum(Rho) = 131069.1031
+
+Coarse STEP 163 starts ...
+[Level 0 step 163] ADVANCE with time = 162 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.0862291326,-2.645762522e-06,0) euler(sum(f*dV))=(-0.0862291326,-2.645762522e-06,0)
+[diag_force] lev=0 step=163 t=1.620000e+02 cc_max|F|_global=9.476672e-04 (Fx=9.476672e-04, Fy=5.012919e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.476672e-04 (Fx=9.476672e-04, Fy=5.012919e-04)
+[Level 0 step 163] Advanced 131072 cells
+[force_eval] step=163 primary(2): Cd=6.028651523 Cl=0.0004565999186 (raw Cd,Cl)=(5.988134208,0.0001837335085) | eulerian(Cd,Cl)=(5.985552695,0.0001835561689) marker=(5.988134208,0.0001837335085) me=(5.988134208,0.0001837335085)
+Coarse STEP 163 ends. TIME = 163 DT = 1 Sum(Rho) = 131068.8784
+
+Coarse STEP 164 starts ...
+[Level 0 step 164] ADVANCE with time = 163 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08654467582,-1.080619349e-05,0) euler(sum(f*dV))=(-0.08654467582,-1.080619349e-05,0)
+[diag_force] lev=0 step=164 t=1.630000e+02 cc_max|F|_global=9.545417e-04 (Fx=9.545417e-04, Fy=5.010176e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.545417e-04 (Fx=9.545417e-04, Fy=5.010176e-04)
+[Level 0 step 164] Advanced 131072 cells
+[force_eval] step=164 primary(2): Cd=5.99909057 Cl=0.000467081806 (raw Cd,Cl)=(6.010046932,0.0007504301036) | eulerian(Cd,Cl)=(6.007376519,0.000749067324) marker=(6.010046932,0.0007504301036) me=(6.010046932,0.0007504301036)
+Coarse STEP 164 ends. TIME = 164 DT = 1 Sum(Rho) = 131068.6494
+
+Coarse STEP 165 starts ...
+[Level 0 step 165] ADVANCE with time = 164 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08569476697,-2.718215914e-06,0) euler(sum(f*dV))=(-0.08569476697,-2.718215914e-06,0)
+[diag_force] lev=0 step=165 t=1.640000e+02 cc_max|F|_global=9.443359e-04 (Fx=9.443359e-04, Fy=4.999902e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.443359e-04 (Fx=9.443359e-04, Fy=4.999902e-04)
+[Level 0 step 165] Advanced 131072 cells
+[force_eval] step=165 primary(2): Cd=5.980536208 Cl=0.0004695975488 (raw Cd,Cl)=(5.951025484,0.0001887649941) | eulerian(Cd,Cl)=(5.948234211,0.0001886640377) marker=(5.951025484,0.0001887649941) me=(5.951025484,0.0001887649941)
+Coarse STEP 165 ends. TIME = 165 DT = 1 Sum(Rho) = 131068.4175
+
+Coarse STEP 166 starts ...
+[Level 0 step 166] ADVANCE with time = 165 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08618878176,-1.095287079e-05,0) euler(sum(f*dV))=(-0.08618878176,-1.095287079e-05,0)
+[diag_force] lev=0 step=166 t=1.650000e+02 cc_max|F|_global=9.546928e-04 (Fx=9.546928e-04, Fy=5.002225e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.546928e-04 (Fx=9.546928e-04, Fy=5.002225e-04)
+[Level 0 step 166] Advanced 131072 cells
+[force_eval] step=166 primary(2): Cd=5.968178775 Cl=0.0004746905105 (raw Cd,Cl)=(5.985332067,0.0007606160269) | eulerian(Cd,Cl)=(5.982396881,0.0007592743066) marker=(5.985332067,0.0007606160269) me=(5.985332067,0.0007606160269)
+Coarse STEP 166 ends. TIME = 166 DT = 1 Sum(Rho) = 131068.1843
+
+Coarse STEP 167 starts ...
+[Level 0 step 167] ADVANCE with time = 166 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08536392937,-2.403664745e-06,0) euler(sum(f*dV))=(-0.08536392937,-2.403664745e-06,0)
+[diag_force] lev=0 step=167 t=1.660000e+02 cc_max|F|_global=9.472592e-04 (Fx=9.472592e-04, Fy=4.989908e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.472592e-04 (Fx=9.472592e-04, Fy=4.989908e-04)
+[Level 0 step 167] Advanced 131072 cells
+[force_eval] step=167 primary(2): Cd=5.956691359 Cl=0.0004637685949 (raw Cd,Cl)=(5.92805065,0.0001669211628) | eulerian(Cd,Cl)=(5.924944493,0.0001668883744) marker=(5.92805065,0.0001669211628) me=(5.92805065,0.0001669211628)
+Coarse STEP 167 ends. TIME = 167 DT = 1 Sum(Rho) = 131067.9508
+
+Coarse STEP 168 starts ...
+[Level 0 step 168] ADVANCE with time = 167 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08568934253,-1.054123305e-05,0) euler(sum(f*dV))=(-0.08568934253,-1.054123305e-05,0)
+[diag_force] lev=0 step=168 t=1.670000e+02 cc_max|F|_global=9.590501e-04 (Fx=9.590501e-04, Fy=4.982538e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.590501e-04 (Fx=9.590501e-04, Fy=4.982538e-04)
+[Level 0 step 168] Advanced 131072 cells
+[force_eval] step=168 primary(2): Cd=5.939349719 Cl=0.000449475618 (raw Cd,Cl)=(5.950648787,0.0007320300732) | eulerian(Cd,Cl)=(5.947358093,0.0007306749075) marker=(5.950648787,0.0007320300732) me=(5.950648787,0.0007320300732)
+Coarse STEP 168 ends. TIME = 168 DT = 1 Sum(Rho) = 131067.7176
+
+Coarse STEP 169 starts ...
+[Level 0 step 169] ADVANCE with time = 168 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08452837273,-1.624866839e-06,0) euler(sum(f*dV))=(-0.08452837273,-1.624866839e-06,0)
+[diag_force] lev=0 step=169 t=1.680000e+02 cc_max|F|_global=9.516046e-04 (Fx=9.516046e-04, Fy=4.954763e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.516046e-04 (Fx=9.516046e-04, Fy=4.954763e-04)
+[Level 0 step 169] Advanced 131072 cells
+[force_eval] step=169 primary(2): Cd=5.910337335 Cl=0.0004224340241 (raw Cd,Cl)=(5.870025884,0.000112837975) | eulerian(Cd,Cl)=(5.866532962,0.0001128202931) marker=(5.870025884,0.000112837975) me=(5.870025884,0.000112837975)
+Coarse STEP 169 ends. TIME = 169 DT = 1 Sum(Rho) = 131067.4843
+
+Coarse STEP 170 starts ...
+[Level 0 step 170] ADVANCE with time = 169 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08436546558,-9.942383418e-06,0) euler(sum(f*dV))=(-0.08436546558,-9.942383418e-06,0)
+[diag_force] lev=0 step=170 t=1.690000e+02 cc_max|F|_global=9.610394e-04 (Fx=9.610394e-04, Fy=4.929157e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.610394e-04 (Fx=9.610394e-04, Fy=4.929157e-04)
+[Level 0 step 170] Advanced 131072 cells
+[force_eval] step=170 primary(2): Cd=5.864369386 Cl=0.0004016406339 (raw Cd,Cl)=(5.858712888,0.0006904432929) | eulerian(Cd,Cl)=(5.855023139,0.0006890080661) marker=(5.858712888,0.0006904432929) me=(5.858712888,0.0006904432929)
+Coarse STEP 170 ends. TIME = 170 DT = 1 Sum(Rho) = 131067.2505
+
+Coarse STEP 171 starts ...
+[Level 0 step 171] ADVANCE with time = 170 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08262585954,-8.797623459e-07,0) euler(sum(f*dV))=(-0.08262585954,-8.797623459e-07,0)
+[diag_force] lev=0 step=171 t=1.700000e+02 cc_max|F|_global=9.490647e-04 (Fx=9.490647e-04, Fy=4.882860e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.490647e-04 (Fx=9.490647e-04, Fy=4.882860e-04)
+[Level 0 step 171] Advanced 131072 cells
+[force_eval] step=171 primary(2): Cd=5.7983099 Cl=0.0003757689501 (raw Cd,Cl)=(5.737906913,6.109460735e-05) | eulerian(Cd,Cl)=(5.734037092,6.103600989e-05) marker=(5.737906913,6.109460735e-05) me=(5.737906913,6.109460735e-05)
+Coarse STEP 171 ends. TIME = 171 DT = 1 Sum(Rho) = 131067.0153
+
+Coarse STEP 172 starts ...
+[Level 0 step 172] ADVANCE with time = 171 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.08181992559,-9.456992557e-06,0) euler(sum(f*dV))=(-0.08181992559,-9.456992557e-06,0)
+[diag_force] lev=0 step=172 t=1.710000e+02 cc_max|F|_global=9.518497e-04 (Fx=9.518497e-04, Fy=4.840275e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.518497e-04 (Fx=9.518497e-04, Fy=4.840275e-04)
+[Level 0 step 172] Advanced 131072 cells
+[force_eval] step=172 primary(2): Cd=5.709923095 Cl=0.0003589151008 (raw Cd,Cl)=(5.681939277,0.0006567355943) | eulerian(Cd,Cl)=(5.677936835,0.0006552145749) marker=(5.681939277,0.0006567355943) me=(5.681939277,0.0006567355943)
+Coarse STEP 172 ends. TIME = 172 DT = 1 Sum(Rho) = 131066.7785
+
+Coarse STEP 173 starts ...
+[Level 0 step 173] ADVANCE with time = 172 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.07945010327,-3.040098393e-07,0) euler(sum(f*dV))=(-0.07945010327,-3.040098393e-07,0)
+[diag_force] lev=0 step=173 t=1.720000e+02 cc_max|F|_global=9.323255e-04 (Fx=9.323255e-04, Fy=4.780237e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.323255e-04 (Fx=9.323255e-04, Fy=4.780237e-04)
+[Level 0 step 173] Advanced 131072 cells
+[force_eval] step=173 primary(2): Cd=5.59965378 Cl=0.0003389236943 (raw Cd,Cl)=(5.517368283,2.11117944e-05) | eulerian(Cd,Cl)=(5.5133062,2.104142866e-05) marker=(5.517368283,2.11117944e-05) me=(5.517368283,2.11117944e-05)
+Coarse STEP 173 ends. TIME = 173 DT = 1 Sum(Rho) = 131066.5404
+
+Coarse STEP 174 starts ...
+[Level 0 step 174] ADVANCE with time = 173 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.07808826043,-9.246804669e-06,0) euler(sum(f*dV))=(-0.07808826043,-9.246804669e-06,0)
+[diag_force] lev=0 step=174 t=1.730000e+02 cc_max|F|_global=9.273156e-04 (Fx=9.273156e-04, Fy=4.728487e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.273156e-04 (Fx=9.273156e-04, Fy=4.728487e-04)
+[Level 0 step 174] Advanced 131072 cells
+[force_eval] step=174 primary(2): Cd=5.470082073 Cl=0.0003316255037 (raw Cd,Cl)=(5.422795863,0.0006421392131) | eulerian(Cd,Cl)=(5.418756384,0.0006405947727) marker=(5.422795863,0.0006421392131) me=(5.422795863,0.0006421392131)
+Coarse STEP 174 ends. TIME = 174 DT = 1 Sum(Rho) = 131066.3017
+
+Coarse STEP 175 starts ...
+[Level 0 step 175] ADVANCE with time = 174 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.07534429934,-7.067589944e-08,0) euler(sum(f*dV))=(-0.07534429934,-7.067589945e-08,0)
+[diag_force] lev=0 step=175 t=1.740000e+02 cc_max|F|_global=9.010803e-04 (Fx=9.010803e-04, Fy=4.663973e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=9.010803e-04 (Fx=9.010803e-04, Fy=4.663973e-04)
+[Level 0 step 175] Advanced 131072 cells
+[force_eval] step=175 primary(2): Cd=5.327519436 Cl=0.0003235236308 (raw Cd,Cl)=(5.23224301,4.908048572e-06) | eulerian(Cd,Cl)=(5.228321645,4.880038797e-06) marker=(5.23224301,4.908048572e-06) me=(5.23224301,4.908048572e-06)
+Coarse STEP 175 ends. TIME = 175 DT = 1 Sum(Rho) = 131066.0631
+
+Coarse STEP 176 starts ...
+[Level 0 step 176] ADVANCE with time = 175 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.07383769985,-9.307285957e-06,0) euler(sum(f*dV))=(-0.07383769985,-9.307285957e-06,0)
+[diag_force] lev=0 step=176 t=1.750000e+02 cc_max|F|_global=8.910458e-04 (Fx=8.910458e-04, Fy=4.611484e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.910458e-04 (Fx=8.910458e-04, Fy=4.611484e-04)
+[Level 0 step 176] Advanced 131072 cells
+[force_eval] step=176 primary(2): Cd=5.179930528 Cl=0.0003256236756 (raw Cd,Cl)=(5.127618045,0.0006463393026) | eulerian(Cd,Cl)=(5.12387162,0.0006448229215) marker=(5.127618045,0.0006463393026) me=(5.127618045,0.0006463393026)
+Coarse STEP 176 ends. TIME = 176 DT = 1 Sum(Rho) = 131065.825
+
+Coarse STEP 177 starts ...
+[Level 0 step 177] ADVANCE with time = 176 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.07122403425,1.512801691e-08,0) euler(sum(f*dV))=(-0.07122403425,1.512801691e-08,0)
+[diag_force] lev=0 step=177 t=1.760000e+02 cc_max|F|_global=8.625784e-04 (Fx=8.625784e-04, Fy=4.549226e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.625784e-04 (Fx=8.625784e-04, Fy=4.549226e-04)
+[Level 0 step 177] Advanced 131072 cells
+[force_eval] step=177 primary(2): Cd=5.036865767 Cl=0.0003226443729 (raw Cd,Cl)=(4.946113489,-1.05055673e-06) | eulerian(Cd,Cl)=(4.942594971,-1.008506141e-06) marker=(4.946113489,-1.05055673e-06) me=(4.946113489,-1.05055673e-06)
+Coarse STEP 177 ends. TIME = 177 DT = 1 Sum(Rho) = 131065.5876
+
+Coarse STEP 178 starts ...
+[Level 0 step 178] ADVANCE with time = 177 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.07008876845,-9.501231689e-06,0) euler(sum(f*dV))=(-0.07008876845,-9.501231689e-06,0)
+[diag_force] lev=0 step=178 t=1.770000e+02 cc_max|F|_global=8.532451e-04 (Fx=8.532451e-04, Fy=4.502360e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.532451e-04 (Fx=8.532451e-04, Fy=4.502360e-04)
+[Level 0 step 178] Advanced 131072 cells
+[force_eval] step=178 primary(2): Cd=4.906694538 Cl=0.0003293785997 (raw Cd,Cl)=(4.867275587,0.0006598077562) | eulerian(Cd,Cl)=(4.863972666,0.000658328055) marker=(4.867275587,0.0006598077562) me=(4.867275587,0.0006598077562)
+Coarse STEP 178 ends. TIME = 178 DT = 1 Sum(Rho) = 131065.3506
+
+Coarse STEP 179 starts ...
+[Level 0 step 179] ADVANCE with time = 178 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.06805402179,-1.493259357e-07,0) euler(sum(f*dV))=(-0.06805402179,-1.493259357e-07,0)
+[diag_force] lev=0 step=179 t=1.780000e+02 cc_max|F|_global=8.281152e-04 (Fx=8.281152e-04, Fy=4.449803e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.281152e-04 (Fx=8.281152e-04, Fy=4.449803e-04)
+[Level 0 step 179] Advanced 131072 cells
+[force_eval] step=179 primary(2): Cd=4.796624661 Cl=0.0003350888064 (raw Cd,Cl)=(4.725973736,1.036985664e-05) | eulerian(Cd,Cl)=(4.722875235,1.045480764e-05) marker=(4.725973736,1.036985664e-05) me=(4.725973736,1.036985664e-05)
+Coarse STEP 179 ends. TIME = 179 DT = 1 Sum(Rho) = 131065.1136
+
+Coarse STEP 180 starts ...
+[Level 0 step 180] ADVANCE with time = 179 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.06759535439,-9.999708273e-06,0) euler(sum(f*dV))=(-0.06759535439,-9.999708273e-06,0)
+[diag_force] lev=0 step=180 t=1.790000e+02 cc_max|F|_global=8.242153e-04 (Fx=8.242153e-04, Fy=4.416363e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.242153e-04 (Fx=8.242153e-04, Fy=4.416363e-04)
+[Level 0 step 180] Advanced 131072 cells
+[force_eval] step=180 primary(2): Cd=4.710047784 Cl=0.0003523970211 (raw Cd,Cl)=(4.694121833,0.0006944241856) | eulerian(Cd,Cl)=(4.691162854,0.000692942987) marker=(4.694121833,0.0006944241856) me=(4.694121833,0.0006944241856)
+Coarse STEP 180 ends. TIME = 180 DT = 1 Sum(Rho) = 131064.8762
+
+Coarse STEP 181 starts ...
+[Level 0 step 181] ADVANCE with time = 180 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.06623374232,-4.704402921e-07,0) euler(sum(f*dV))=(-0.06623374232,-4.704402921e-07,0)
+[diag_force] lev=0 step=181 t=1.800000e+02 cc_max|F|_global=8.057245e-04 (Fx=8.057245e-04, Fy=4.379041e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.057245e-04 (Fx=8.057245e-04, Fy=4.379041e-04)
+[Level 0 step 181] Advanced 131072 cells
+[force_eval] step=181 primary(2): Cd=4.646843636 Cl=0.0003635468252 (raw Cd,Cl)=(4.599565439,3.266946473e-05) | eulerian(Cd,Cl)=(4.596700201,3.27732113e-05) marker=(4.599565439,3.266946473e-05) me=(4.599565439,3.266946473e-05)
+Coarse STEP 181 ends. TIME = 181 DT = 1 Sum(Rho) = 131064.6384
+
+Coarse STEP 182 starts ...
+[Level 0 step 182] ADVANCE with time = 181 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.0663040163,-1.037485696e-05,0) euler(sum(f*dV))=(-0.0663040163,-1.037485696e-05,0)
+[diag_force] lev=0 step=182 t=1.810000e+02 cc_max|F|_global=8.084862e-04 (Fx=8.084862e-04, Fy=4.360129e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.084862e-04 (Fx=8.084862e-04, Fy=4.360129e-04)
+[Level 0 step 182] Advanced 131072 cells
+[force_eval] step=182 primary(2): Cd=4.602005508 Cl=0.0003765728211 (raw Cd,Cl)=(4.604445576,0.0007204761776) | eulerian(Cd,Cl)=(4.601604344,0.0007189917003) marker=(4.604445576,0.0007204761776) me=(4.604445576,0.0007204761776)
+Coarse STEP 182 ends. TIME = 182 DT = 1 Sum(Rho) = 131064.4004
+
+Coarse STEP 183 starts ...
+[Level 0 step 183] ADVANCE with time = 182 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.0652621992,-4.706000464e-07,0) euler(sum(f*dV))=(-0.0652621992,-4.706000464e-07,0)
+[diag_force] lev=0 step=183 t=1.820000e+02 cc_max|F|_global=7.960338e-04 (Fx=7.960338e-04, Fy=4.334366e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.960338e-04 (Fx=7.960338e-04, Fy=4.334366e-04)
+[Level 0 step 183] Advanced 131072 cells
+[force_eval] step=183 primary(2): Cd=4.568271371 Cl=0.0003765783682 (raw Cd,Cl)=(4.532097167,3.268055878e-05) | eulerian(Cd,Cl)=(4.529242307,3.281735493e-05) marker=(4.532097167,3.268055878e-05) me=(4.532097167,3.268055878e-05)
+Coarse STEP 183 ends. TIME = 183 DT = 1 Sum(Rho) = 131064.1626
+
+Coarse STEP 184 starts ...
+[Level 0 step 184] ADVANCE with time = 183 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.06539969196,-1.036566564e-05,0) euler(sum(f*dV))=(-0.06539969196,-1.036566564e-05,0)
+[diag_force] lev=0 step=184 t=1.830000e+02 cc_max|F|_global=8.025969e-04 (Fx=8.025969e-04, Fy=4.322347e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=8.025969e-04 (Fx=8.025969e-04, Fy=4.322347e-04)
+[Level 0 step 184] Advanced 131072 cells
+[force_eval] step=184 primary(2): Cd=4.536871221 Cl=0.0003762592252 (raw Cd,Cl)=(4.541645275,0.0007198378916) | eulerian(Cd,Cl)=(4.538736669,0.0007183421382) marker=(4.541645275,0.0007198378916) me=(4.541645275,0.0007198378916)
+Coarse STEP 184 ends. TIME = 184 DT = 1 Sum(Rho) = 131063.9252
+
+Coarse STEP 185 starts ...
+[Level 0 step 185] ADVANCE with time = 184 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.06422408701,-9.115471815e-08,0) euler(sum(f*dV))=(-0.06422408701,-9.115471816e-08,0)
+[diag_force] lev=0 step=185 t=1.840000e+02 cc_max|F|_global=7.916301e-04 (Fx=7.916301e-04, Fy=4.297731e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.916301e-04 (Fx=7.916301e-04, Fy=4.297731e-04)
+[Level 0 step 185] Advanced 131072 cells
+[force_eval] step=185 primary(2): Cd=4.500825658 Cl=0.0003630840402 (raw Cd,Cl)=(4.460006042,6.33018876e-06) | eulerian(Cd,Cl)=(4.457039167,6.479983234e-06) marker=(4.460006042,6.33018876e-06) me=(4.460006042,6.33018876e-06)
+Coarse STEP 185 ends. TIME = 185 DT = 1 Sum(Rho) = 131063.6881
+
+Coarse STEP 186 starts ...
+[Level 0 step 186] ADVANCE with time = 185 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.06407942598,-9.997310489e-06,0) euler(sum(f*dV))=(-0.06407942598,-9.997310489e-06,0)
+[diag_force] lev=0 step=186 t=1.850000e+02 cc_max|F|_global=7.970670e-04 (Fx=7.970670e-04, Fy=4.281442e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.970670e-04 (Fx=7.970670e-04, Fy=4.281442e-04)
+[Level 0 step 186] Advanced 131072 cells
+[force_eval] step=186 primary(2): Cd=4.45498309 Cl=0.0003502939308 (raw Cd,Cl)=(4.449960137,0.0006942576729) | eulerian(Cd,Cl)=(4.446932152,0.0006927205316) marker=(4.449960137,0.0006942576729) me=(4.449960137,0.0006942576729)
+Coarse STEP 186 ends. TIME = 186 DT = 1 Sum(Rho) = 131063.451
+
+Coarse STEP 187 starts ...
+[Level 0 step 187] ADVANCE with time = 186 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.06258691284,5.109421913e-07,0) euler(sum(f*dV))=(-0.06258691284,5.109421913e-07,0)
+[diag_force] lev=0 step=187 t=1.860000e+02 cc_max|F|_global=7.831824e-04 (Fx=7.831824e-04, Fy=4.249280e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.831824e-04 (Fx=7.831824e-04, Fy=4.249280e-04)
+[Level 0 step 187] Advanced 131072 cells
+[force_eval] step=187 primary(2): Cd=4.398136765 Cl=0.0003293877881 (raw Cd,Cl)=(4.346313392,-3.548209662e-05) | eulerian(Cd,Cl)=(4.343255076,-3.534140184e-05) marker=(4.346313392,-3.548209662e-05) me=(4.346313392,-3.548209662e-05)
+Coarse STEP 187 ends. TIME = 187 DT = 1 Sum(Rho) = 131063.2136
+
+Coarse STEP 188 starts ...
+[Level 0 step 188] ADVANCE with time = 187 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.06217014655,-9.677513089e-06,0) euler(sum(f*dV))=(-0.06217014655,-9.677513089e-06,0)
+[diag_force] lev=0 step=188 t=1.870000e+02 cc_max|F|_global=7.850445e-04 (Fx=7.850445e-04, Fy=4.226301e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.850445e-04 (Fx=7.850445e-04, Fy=4.226301e-04)
+[Level 0 step 188] Advanced 131072 cells
+[force_eval] step=188 primary(2): Cd=4.33184234 Cl=0.0003182837117 (raw Cd,Cl)=(4.317371288,0.0006720495201) | eulerian(Cd,Cl)=(4.314300807,0.000670466979) marker=(4.317371288,0.0006720495201) me=(4.317371288,0.0006720495201)
+Coarse STEP 188 ends. TIME = 188 DT = 1 Sum(Rho) = 131062.9753
+
+Coarse STEP 189 starts ...
+[Level 0 step 189] ADVANCE with time = 188 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.06054678171,7.720568365e-07,0) euler(sum(f*dV))=(-0.06054678171,7.720568365e-07,0)
+[diag_force] lev=0 step=189 t=1.880000e+02 cc_max|F|_global=7.678644e-04 (Fx=7.678644e-04, Fy=4.206579e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.678644e-04 (Fx=7.678644e-04, Fy=4.206579e-04)
+[Level 0 step 189] Advanced 131072 cells
+[force_eval] step=189 primary(2): Cd=4.261004453 Cl=0.000309217231 (raw Cd,Cl)=(4.204637619,-5.361505809e-05) | eulerian(Cd,Cl)=(4.201595688,-5.347615475e-05) marker=(4.204637619,-5.361505809e-05) me=(4.204637619,-5.361505809e-05)
+Coarse STEP 189 ends. TIME = 189 DT = 1 Sum(Rho) = 131062.7362
+
+Coarse STEP 190 starts ...
+[Level 0 step 190] ADVANCE with time = 189 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.06015187549,-9.79730936e-06,0) euler(sum(f*dV))=(-0.06015187549,-9.79730936e-06,0)
+[diag_force] lev=0 step=190 t=1.890000e+02 cc_max|F|_global=7.676561e-04 (Fx=7.676561e-04, Fy=4.192745e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.676561e-04 (Fx=7.676561e-04, Fy=4.192745e-04)
+[Level 0 step 190] Advanced 131072 cells
+[force_eval] step=190 primary(2): Cd=4.190925597 Cl=0.0003133768237 (raw Cd,Cl)=(4.177213576,0.0006803687055) | eulerian(Cd,Cl)=(4.17420686,0.0006787780197) marker=(4.177213576,0.0006803687055) me=(4.177213576,0.0006803687055)
+Coarse STEP 190 ends. TIME = 190 DT = 1 Sum(Rho) = 131062.496
+
+Coarse STEP 191 starts ...
+[Level 0 step 191] ADVANCE with time = 190 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.05869912357,7.076580235e-07,0) euler(sum(f*dV))=(-0.05869912357,7.076580235e-07,0)
+[diag_force] lev=0 step=191 t=1.900000e+02 cc_max|F|_global=7.504819e-04 (Fx=7.504819e-04, Fy=4.174891e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.504819e-04 (Fx=7.504819e-04, Fy=4.174891e-04)
+[Level 0 step 191] Advanced 131072 cells
+[force_eval] step=191 primary(2): Cd=4.126770801 Cl=0.0003156128936 (raw Cd,Cl)=(4.076328026,-4.91429183e-05) | eulerian(Cd,Cl)=(4.073376377,-4.895440826e-05) marker=(4.076328026,-4.91429183e-05) me=(4.076328026,-4.91429183e-05)
+Coarse STEP 191 ends. TIME = 191 DT = 1 Sum(Rho) = 131062.2547
+
+Coarse STEP 192 starts ...
+[Level 0 step 192] ADVANCE with time = 191 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.05854521081,-1.002934338e-05,0) euler(sum(f*dV))=(-0.05854521081,-1.002934338e-05,0)
+[diag_force] lev=0 step=192 t=1.910000e+02 cc_max|F|_global=7.519004e-04 (Fx=7.519004e-04, Fy=4.164089e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.519004e-04 (Fx=7.519004e-04, Fy=4.164089e-04)
+[Level 0 step 192] Advanced 131072 cells
+[force_eval] step=192 primary(2): Cd=4.070983833 Cl=0.0003236696304 (raw Cd,Cl)=(4.065639639,0.0006964821792) | eulerian(Cd,Cl)=(4.062724282,0.0006949365926) marker=(4.065639639,0.0006964821792) me=(4.065639639,0.0006964821792)
+Coarse STEP 192 ends. TIME = 192 DT = 1 Sum(Rho) = 131062.012
+
+Coarse STEP 193 starts ...
+[Level 0 step 193] ADVANCE with time = 192 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.05735425094,6.826189399e-07,0) euler(sum(f*dV))=(-0.05735425094,6.826189399e-07,0)
+[diag_force] lev=0 step=193 t=1.920000e+02 cc_max|F|_global=7.379271e-04 (Fx=7.379271e-04, Fy=4.150033e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.379271e-04 (Fx=7.379271e-04, Fy=4.150033e-04)
+[Level 0 step 193] Advanced 131072 cells
+[force_eval] step=193 primary(2): Cd=4.024286866 Cl=0.0003245390431 (raw Cd,Cl)=(3.982934093,-4.740409305e-05) | eulerian(Cd,Cl)=(3.980050707,-4.714238704e-05) marker=(3.982934093,-4.740409305e-05) me=(3.982934093,-4.740409305e-05)
+Coarse STEP 193 ends. TIME = 193 DT = 1 Sum(Rho) = 131061.7673
+
+Coarse STEP 194 starts ...
+[Level 0 step 194] ADVANCE with time = 193 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.0574049976,-1.012260777e-05,0) euler(sum(f*dV))=(-0.0574049976,-1.012260777e-05,0)
+[diag_force] lev=0 step=194 t=1.930000e+02 cc_max|F|_global=7.426003e-04 (Fx=7.426003e-04, Fy=4.141806e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.426003e-04 (Fx=7.426003e-04, Fy=4.141806e-04)
+[Level 0 step 194] Advanced 131072 cells
+[force_eval] step=194 primary(2): Cd=3.98469613 Cl=0.0003277773899 (raw Cd,Cl)=(3.986458167,0.0007029588728) | eulerian(Cd,Cl)=(3.983575118,0.0007014392496) marker=(3.986458167,0.0007029588728) me=(3.986458167,0.0007029588728)
+Coarse STEP 194 ends. TIME = 194 DT = 1 Sum(Rho) = 131061.52
+
+Coarse STEP 195 starts ...
+[Level 0 step 195] ADVANCE with time = 194 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.05634064873,8.535774629e-07,0) euler(sum(f*dV))=(-0.05634064873,8.535774629e-07,0)
+[diag_force] lev=0 step=195 t=1.940000e+02 cc_max|F|_global=7.312578e-04 (Fx=7.312578e-04, Fy=4.130375e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.312578e-04 (Fx=7.312578e-04, Fy=4.130375e-04)
+[Level 0 step 195] Advanced 131072 cells
+[force_eval] step=195 primary(2): Cd=3.949501609 Cl=0.0003218413301 (raw Cd,Cl)=(3.912545051,-5.92762127e-05) | eulerian(Cd,Cl)=(3.909652267,-5.898811443e-05) marker=(3.912545051,-5.92762127e-05) me=(3.912545051,-5.92762127e-05)
+Coarse STEP 195 ends. TIME = 195 DT = 1 Sum(Rho) = 131061.2694
+
+Coarse STEP 196 starts ...
+[Level 0 step 196] ADVANCE with time = 195 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.05640758428,-9.998500944e-06,0) euler(sum(f*dV))=(-0.05640758428,-9.998500944e-06,0)
+[diag_force] lev=0 step=196 t=1.950000e+02 cc_max|F|_global=7.373128e-04 (Fx=7.373128e-04, Fy=4.124605e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.373128e-04 (Fx=7.373128e-04, Fy=4.124605e-04)
+[Level 0 step 196] Advanced 131072 cells
+[force_eval] step=196 primary(2): Cd=3.914869202 Cl=0.0003175320653 (raw Cd,Cl)=(3.917193353,0.0006943403433) | eulerian(Cd,Cl)=(3.914268011,0.0006927940693) marker=(3.917193353,0.0006943403433) me=(3.917193353,0.0006943403433)
+Coarse STEP 196 ends. TIME = 196 DT = 1 Sum(Rho) = 131061.0148
+
+Coarse STEP 197 starts ...
+[Level 0 step 197] ADVANCE with time = 196 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.05528608696,1.143633547e-06,0) euler(sum(f*dV))=(-0.05528608696,1.143633547e-06,0)
+[diag_force] lev=0 step=197 t=1.960000e+02 cc_max|F|_global=7.259858e-04 (Fx=7.259858e-04, Fy=4.115919e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.259858e-04 (Fx=7.259858e-04, Fy=4.115919e-04)
+[Level 0 step 197] Advanced 131072 cells
+[force_eval] step=197 primary(2): Cd=3.878252474 Cl=0.0003074606735 (raw Cd,Cl)=(3.839311595,-7.94189963e-05) | eulerian(Cd,Cl)=(3.83635978,-7.914502596e-05) marker=(3.839311595,-7.94189963e-05) me=(3.839311595,-7.94189963e-05)
+Coarse STEP 197 ends. TIME = 197 DT = 1 Sum(Rho) = 131060.7556
+
+Coarse STEP 198 starts ...
+[Level 0 step 198] ADVANCE with time = 197 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.05524769855,-9.915781544e-06,0) euler(sum(f*dV))=(-0.05524769855,-9.915781544e-06,0)
+[diag_force] lev=0 step=198 t=1.970000e+02 cc_max|F|_global=7.307833e-04 (Fx=7.307833e-04, Fy=4.111139e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.307833e-04 (Fx=7.307833e-04, Fy=4.111139e-04)
+[Level 0 step 198] Advanced 131072 cells
+[force_eval] step=198 primary(2): Cd=3.837978663 Cl=0.0003045884721 (raw Cd,Cl)=(3.836645732,0.0006885959405) | eulerian(Cd,Cl)=(3.833664384,0.0006870071158) marker=(3.836645732,0.0006885959405) me=(3.836645732,0.0006885959405)
+Coarse STEP 198 ends. TIME = 198 DT = 1 Sum(Rho) = 131060.4912
+
+Coarse STEP 199 starts ...
+[Level 0 step 199] ADVANCE with time = 198 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.05404106362,1.267888487e-06,0) euler(sum(f*dV))=(-0.05404106362,1.267888487e-06,0)
+[diag_force] lev=0 step=199 t=1.980000e+02 cc_max|F|_global=7.178286e-04 (Fx=7.178286e-04, Fy=4.102166e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.178286e-04 (Fx=7.178286e-04, Fy=4.102166e-04)
+[Level 0 step 199] Advanced 131072 cells
+[force_eval] step=199 primary(2): Cd=3.794748686 Cl=0.0003002740645 (raw Cd,Cl)=(3.752851641,-8.804781163e-05) | eulerian(Cd,Cl)=(3.749863805,-8.778156551e-05) marker=(3.752851641,-8.804781163e-05) me=(3.752851641,-8.804781163e-05)
+Coarse STEP 199 ends. TIME = 199 DT = 1 Sum(Rho) = 131060.2211
+
+Coarse STEP 200 starts ...
+[Level 0 step 200] ADVANCE with time = 199 dt = 1
+  [ibm_marker_df] it=0 force_balance marker(sum(F*dv))=(-0.05395266147,-9.964552416e-06,0) euler(sum(f*dV))=(-0.05395266147,-9.964552416e-06,0)
+[diag_force] lev=0 step=200 t=1.990000e+02 cc_max|F|_global=7.210570e-04 (Fx=7.210570e-04, Fy=4.096043e-04) cc_max|F|_local=0.000000e+00 packed_max|F|_global=7.210570e-04 (Fx=7.210570e-04, Fy=4.096043e-04)
+[Level 0 step 200] Advanced 131072 cells
+[force_eval] step=200 primary(2): Cd=3.749782121 Cl=0.0003019674975 (raw Cd,Cl)=(3.746712602,0.0006919828067) | eulerian(Cd,Cl)=(3.743722093,0.0006903882237) marker=(3.746712602,0.0006919828067) me=(3.746712602,0.0006919828067)
+Coarse STEP 200 ends. TIME = 200 DT = 1 Sum(Rho) = 131059.9448
+Unused ParmParse Variables:
+  [TOP]::amr.blocking_factor_z(nvals = 1)  :: [8]
+  [TOP]::amr.ref_ratio(nvals = 4)  :: [2, 2, 2, 2]
+
+AMReX (25.03-6-g5da47374715c) finalized

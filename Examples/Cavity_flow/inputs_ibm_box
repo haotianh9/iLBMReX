@@ -1,0 +1,84 @@
+# IBM cavity flow: moving lid enforced by marker-IBM on an immersed cavity box
+max_step  = 1200
+stop_time = 1200
+
+geometry.prob_lo     = 0.0 0.0 0.0
+geometry.prob_hi     = 64.0 96.0 8.0
+geometry.is_periodic = 0 0 1
+
+amr.v = 1
+amr.n_cell = 64 96 8
+amr.max_level = 0
+amr.max_grid_size = 64
+amr.blocking_factor_x = 8
+amr.blocking_factor_y = 8
+amr.blocking_factor_z = 8
+amr.regrid_int = 100
+
+amr.plot_file = out_ibm/plt
+amr.plot_int  = 400
+amr.chk_file  = chk
+amr.chk_int   = -1
+
+lbmPhysicalParameters.nu   = 0.02
+lbmPhysicalParameters.nmac = 6
+
+lbm2d.ndir   = 9
+lbm2d.wis    = 4.0  1.0  1.0  1.0   1.0  1.0  1.0  1.0  1.0
+lbm2d.wim    = 9.0  9.0  9.0  9.0   9.0  36.0 36.0 36.0 36.0
+lbm2d.dirx   = 0.0  1.0  0.0  -1.0  0.0  1.0  -1.0 -1.0 1.0
+lbm2d.diry   = 0.0  0.0  1.0  0.0   -1.0 1.0  1.0  -1.0 -1.0
+lbm2d.dirz   = 0.0  0.0  0.0  0.0   0.0  0.0  0.0  0.0  0.0
+
+# Closed outer domain. Inner cavity is imposed by immersed box markers.
+amrbc.bc_lo = 3 3
+amrbc.bc_hi = 3 3
+
+amrbc.bc_lo_0_rho_val = 1.0
+amrbc.bc_lo_0_ux_val  = 0.0
+amrbc.bc_lo_0_uy_val  = 0.0
+amrbc.bc_hi_0_rho_val = 1.0
+amrbc.bc_hi_0_ux_val  = 0.0
+amrbc.bc_hi_0_uy_val  = 0.0
+
+amrbc.bc_lo_1_rho_val = 1.0
+amrbc.bc_lo_1_ux_val  = 0.0
+amrbc.bc_lo_1_uy_val  = 0.0
+amrbc.bc_hi_1_rho_val = 1.0
+# Outer top wall is stationary; moving lid comes from IBM at y=64.
+amrbc.bc_hi_1_ux_val  = 0.0
+amrbc.bc_hi_1_uy_val  = 0.0
+
+ibm.use_cylinder = 1
+ibm.method = iamr_marker
+
+# legacy cylinder knobs still parsed; not used by marker box geometry
+ibm.x0 = 32.0
+ibm.y0 = 32.0
+ibm.z0 = 0.0
+ibm.R  = 8.0
+
+# Marker IBM cavity box (2D), with fixed plate location/speed.
+ibm.marker_geometry = box
+ibm.box_xlo = 0.0
+ibm.box_xhi = 64.0
+ibm.box_ylo = 0.0
+ibm.box_yhi = 64.0
+ibm.box_ds = 1.0
+# Use full immersed cavity box to avoid corner leakage.
+ibm.box_lid_only = 0
+ibm.box_lid_ux = 0.05
+ibm.box_lid_uy = 0.0
+ibm.box_lid_uz = 0.0
+
+# Wu-Shu IVC coupling (stabilized with diagonal regularization)
+ibm.coupling_method = ivc
+# loop_ns is ignored by IVC (single implicit solve per step)
+ibm.loop_ns = 1
+ibm.delta_type = 4
+ibm.delta_renorm = 0
+ibm.ivc_diag_reg = 20.0
+ibm.force_interval = -1
+ibm.print_force_balance = 0
+ibm.force_eval_debug = 0
+ibm.verbose = 0

@@ -30,6 +30,7 @@
 
 #include <array>
 #include <memory>
+#include <vector>
 
 // IAMReX-style marker-based direct-forcing immersed boundary method.
 //
@@ -79,10 +80,14 @@ public:
                       amrex::MultiFab &Fx,
                       amrex::MultiFab &Fy,
                       amrex::MultiFab &Fz,
-                      amrex::Real dt) const;
+                      amrex::Real dt,
+                      amrex::MultiFab const *prev_Fx = nullptr,
+                      amrex::MultiFab const *prev_Fy = nullptr,
+                      amrex::MultiFab const *prev_Fz = nullptr) const;
 
   // Access for diagnostics
   [[nodiscard]] amrex::Long num_markers() const;
+  [[nodiscard]] amrex::GpuArray<amrex::Real,3> last_marker_force_sum() const;
 
 private:
   void build_markers(amrex::DistributionMapping const &dm,
@@ -93,7 +98,8 @@ private:
   void velocity_interpolation(amrex::MultiFab const &EulerVel,
                               int euler_vel_comp, int delta_type) const;
 
-  void compute_lagrangian_force(amrex::Real dt) const;
+  void compute_lagrangian_force_explicit(amrex::Real dt) const;
+  void compute_lagrangian_force_ivc(amrex::Real dt) const;
 
   void force_spreading(amrex::MultiFab &EulerForce, int euler_force_comp,
                        int delta_type) const;
@@ -102,6 +108,26 @@ private:
                            amrex::MultiFab const &EulerForce,
                            int euler_vel_comp, int euler_force_comp,
                            amrex::Real dt) const;
+
+  void gather_marker_state(std::vector<int> &ids,
+                           std::vector<amrex::Real> &data) const;
+
+  void scatter_marker_force(std::vector<amrex::Real> const &fx_global,
+                            std::vector<amrex::Real> const &fy_global,
+                            std::vector<amrex::Real> const &fz_global) const;
+
+  void build_ivc_operator(std::vector<amrex::Real> const &x_global,
+                          std::vector<amrex::Real> const &y_global,
+                          std::vector<amrex::Real> const &z_global) const;
+
+  static bool lu_factorize(std::vector<amrex::Real> &a,
+                           std::vector<int> &pivot, int n,
+                           amrex::Real tiny);
+
+  static void lu_solve(std::vector<amrex::Real> const &a,
+                       std::vector<int> const &pivot,
+                       std::vector<amrex::Real> const &rhs,
+                       std::vector<amrex::Real> &x, int n);
 
 private:
   amrex::Geometry m_geom;
@@ -116,10 +142,27 @@ private:
   // We keep device copies so UpdateLagrangianMarker can run on GPU.
   mutable amrex::Gpu::DeviceVector<amrex::Real> m_phiK_d;
   mutable amrex::Gpu::DeviceVector<amrex::Real> m_thetaK_d;
+  mutable amrex::Gpu::DeviceVector<amrex::Real> m_xref_d;
+  mutable amrex::Gpu::DeviceVector<amrex::Real> m_yref_d;
+  mutable amrex::Gpu::DeviceVector<amrex::Real> m_zref_d;
   int m_start_id{0};
   amrex::Real m_dv{0.0};
+  amrex::Real m_wall_tol{0.0};
 
   std::unique_ptr<MarkerContainer> m_markers;
+
+  // Sum over last update_forcing call:
+  //   \int a_ib dV = sum_markers(F_marker * dv)
+  // Stored per component (x,y,z).
+  mutable amrex::GpuArray<amrex::Real,3> m_last_marker_force_sum{{amrex::Real(0.0),
+                                                                   amrex::Real(0.0),
+                                                                   amrex::Real(0.0)}};
+
+  // Cached IVC operator (stationary geometry): LU-factorized dense matrix.
+  mutable bool m_ivc_operator_ready{false};
+  mutable int m_ivc_nmark{0};
+  mutable std::vector<amrex::Real> m_ivc_lu;
+  mutable std::vector<int> m_ivc_pivot;
 };
 
 #else
@@ -141,11 +184,17 @@ public:
 
   void update_forcing(amrex::MultiFab const&, amrex::MultiFab const&, amrex::MultiFab const&,
                       amrex::MultiFab const&, amrex::MultiFab&, amrex::MultiFab&,
-                      amrex::MultiFab&, amrex::Real) const {
+                      amrex::MultiFab&, amrex::Real,
+                      amrex::MultiFab const* = nullptr,
+                      amrex::MultiFab const* = nullptr,
+                      amrex::MultiFab const* = nullptr) const {
     amrex::Abort("IBMarkerDF::update_forcing called but AMReX particles are disabled.");
   }
 
   [[nodiscard]] amrex::Long num_markers() const { return 0; }
+  [[nodiscard]] amrex::GpuArray<amrex::Real,3> last_marker_force_sum() const {
+    return {{amrex::Real(0.0), amrex::Real(0.0), amrex::Real(0.0)}};
+  }
 };
 
 #endif // (AMREX_PARTICLES && AMREX_PARTICLES)

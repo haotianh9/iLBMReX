@@ -1,0 +1,421 @@
+Initializing AMReX (25.03-6-g5da47374715c)...
+MPI initialized with 12 MPI processes
+MPI initialized with thread support level 0
+AMReX (25.03-6-g5da47374715c) initialized
+Successfully read inputs file ... 
+ max_step = 50
+ stop_time = 50
+LBM prescribed_force = (1e-06, 0, 0)
+IBM parameters: use_cylinder = 0, method = none
+               x0 = 12, y0 = 60, z0 = 0, R = 12, alpha = 0.1
+               force_eval_method = momentum_exchange (2)
+               marker_coupling = ivc (ivc_diag_reg=1e-12, ivc_rebuild_matrix=0)
+Number signed distance functions = 0
+Total number of variables = 15
+AmrCoreLBM::AmrCoreLBM() finished.
+Creating new distribution map on level: 0
+Making new level 0
+
+Coarse STEP 1 starts ...
+[Level 0 step 1] ADVANCE with time = 0 dt = 1
+[diag_force] lev=0 step=1 t=0.000000e+00 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 5.566037736e-07 max f=0.4444444444 max Fx=0
+[Level 0 step 1] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=5.56603773585e-07 pred=5e-07 <momx>=5.6603773585e-08 <v>=0 pred=0 <momy>=0 (t=1)
+Coarse STEP 1 ends. TIME = 1 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 2 starts ...
+[Level 0 step 2] ADVANCE with time = 1 dt = 1
+[diag_force] lev=0 step=2 t=1.000000e+00 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 1.556603774e-06 max f=0.4444444444 max Fx=0
+[Level 0 step 2] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=1.55660377364e-06 pred=1.5e-06 <momx>=1.05660377364e-06 <v>=0 pred=0 <momy>=0 (t=2)
+Coarse STEP 2 ends. TIME = 2 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 3 starts ...
+[Level 0 step 3] ADVANCE with time = 2 dt = 1
+[diag_force] lev=0 step=3 t=2.000000e+00 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 2.556603774e-06 max f=0.4444444444 max Fx=0
+[Level 0 step 3] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=2.5566037737e-06 pred=2.5e-06 <momx>=2.0566037737e-06 <v>=0 pred=0 <momy>=0 (t=3)
+Coarse STEP 3 ends. TIME = 3 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 4 starts ...
+[Level 0 step 4] ADVANCE with time = 3 dt = 1
+[diag_force] lev=0 step=4 t=3.000000e+00 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 3.556603774e-06 max f=0.4444444444 max Fx=0
+[Level 0 step 4] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=3.55660377367e-06 pred=3.5e-06 <momx>=3.05660377367e-06 <v>=0 pred=0 <momy>=0 (t=4)
+Coarse STEP 4 ends. TIME = 4 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 5 starts ...
+[Level 0 step 5] ADVANCE with time = 4 dt = 1
+[diag_force] lev=0 step=5 t=4.000000e+00 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 4.556603774e-06 max f=0.4444444444 max Fx=0
+[Level 0 step 5] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=4.55660377364e-06 pred=4.5e-06 <momx>=4.05660377364e-06 <v>=0 pred=0 <momy>=0 (t=5)
+Coarse STEP 5 ends. TIME = 5 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 6 starts ...
+[Level 0 step 6] ADVANCE with time = 5 dt = 1
+[diag_force] lev=0 step=6 t=5.000000e+00 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 5.556603774e-06 max f=0.4444444444 max Fx=0
+[Level 0 step 6] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=5.55660377366e-06 pred=5.5e-06 <momx>=5.05660377366e-06 <v>=0 pred=0 <momy>=0 (t=6)
+Coarse STEP 6 ends. TIME = 6 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 7 starts ...
+[Level 0 step 7] ADVANCE with time = 6 dt = 1
+[diag_force] lev=0 step=7 t=6.000000e+00 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 6.556603774e-06 max f=0.4444444444 max Fx=0
+[Level 0 step 7] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=6.55660377359e-06 pred=6.5e-06 <momx>=6.05660377359e-06 <v>=0 pred=0 <momy>=0 (t=7)
+Coarse STEP 7 ends. TIME = 7 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 8 starts ...
+[Level 0 step 8] ADVANCE with time = 7 dt = 1
+[diag_force] lev=0 step=8 t=7.000000e+00 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 7.556603774e-06 max f=0.4444444444 max Fx=0
+[Level 0 step 8] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=7.55660377361e-06 pred=7.5e-06 <momx>=7.05660377361e-06 <v>=0 pred=0 <momy>=0 (t=8)
+Coarse STEP 8 ends. TIME = 8 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 9 starts ...
+[Level 0 step 9] ADVANCE with time = 8 dt = 1
+[diag_force] lev=0 step=9 t=8.000000e+00 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 8.556603774e-06 max f=0.4444444444 max Fx=0
+[Level 0 step 9] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=8.55660377362e-06 pred=8.5e-06 <momx>=8.05660377362e-06 <v>=0 pred=0 <momy>=0 (t=9)
+Coarse STEP 9 ends. TIME = 9 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 10 starts ...
+[Level 0 step 10] ADVANCE with time = 9 dt = 1
+[diag_force] lev=0 step=10 t=9.000000e+00 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 9.556603774e-06 max f=0.4444444444 max Fx=0
+[Level 0 step 10] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=9.55660377359e-06 pred=9.5e-06 <momx>=9.05660377359e-06 <v>=0 pred=0 <momy>=0 (t=10)
+Coarse STEP 10 ends. TIME = 10 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 11 starts ...
+[Level 0 step 11] ADVANCE with time = 10 dt = 1
+[diag_force] lev=0 step=11 t=1.000000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 1.055660377e-05 max f=0.4444444444 max Fx=0
+[Level 0 step 11] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=1.05566037735e-05 pred=1.05e-05 <momx>=1.00566037735e-05 <v>=0 pred=0 <momy>=0 (t=11)
+Coarse STEP 11 ends. TIME = 11 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 12 starts ...
+[Level 0 step 12] ADVANCE with time = 11 dt = 1
+[diag_force] lev=0 step=12 t=1.100000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 1.155660377e-05 max f=0.4444444444 max Fx=0
+[Level 0 step 12] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=1.15566037735e-05 pred=1.15e-05 <momx>=1.10566037735e-05 <v>=0 pred=0 <momy>=0 (t=12)
+Coarse STEP 12 ends. TIME = 12 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 13 starts ...
+[Level 0 step 13] ADVANCE with time = 12 dt = 1
+[diag_force] lev=0 step=13 t=1.200000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 1.255660377e-05 max f=0.4444444443 max Fx=0
+[Level 0 step 13] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=1.25566037735e-05 pred=1.25e-05 <momx>=1.20566037735e-05 <v>=0 pred=0 <momy>=0 (t=13)
+Coarse STEP 13 ends. TIME = 13 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 14 starts ...
+[Level 0 step 14] ADVANCE with time = 13 dt = 1
+[diag_force] lev=0 step=14 t=1.300000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 1.355660377e-05 max f=0.4444444443 max Fx=0
+[Level 0 step 14] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=1.35566037735e-05 pred=1.35e-05 <momx>=1.30566037735e-05 <v>=0 pred=0 <momy>=0 (t=14)
+Coarse STEP 14 ends. TIME = 14 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 15 starts ...
+[Level 0 step 15] ADVANCE with time = 14 dt = 1
+[diag_force] lev=0 step=15 t=1.400000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 1.455660377e-05 max f=0.4444444443 max Fx=0
+[Level 0 step 15] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=1.45566037735e-05 pred=1.45e-05 <momx>=1.40566037735e-05 <v>=3.46944695195e-18 pred=0 <momy>=3.46944695195e-18 (t=15)
+Coarse STEP 15 ends. TIME = 15 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 16 starts ...
+[Level 0 step 16] ADVANCE with time = 15 dt = 1
+[diag_force] lev=0 step=16 t=1.500000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 1.555660377e-05 max f=0.4444444443 max Fx=0
+[Level 0 step 16] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=1.55566037735e-05 pred=1.55e-05 <momx>=1.50566037735e-05 <v>=3.46944695195e-18 pred=0 <momy>=3.46944695195e-18 (t=16)
+Coarse STEP 16 ends. TIME = 16 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 17 starts ...
+[Level 0 step 17] ADVANCE with time = 16 dt = 1
+[diag_force] lev=0 step=17 t=1.600000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 1.655660377e-05 max f=0.4444444443 max Fx=0
+[Level 0 step 17] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=1.65566037736e-05 pred=1.65e-05 <momx>=1.60566037736e-05 <v>=-3.46944695195e-18 pred=0 <momy>=-3.46944695195e-18 (t=17)
+Coarse STEP 17 ends. TIME = 17 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 18 starts ...
+[Level 0 step 18] ADVANCE with time = 17 dt = 1
+[diag_force] lev=0 step=18 t=1.700000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 1.755660377e-05 max f=0.4444444443 max Fx=0
+[Level 0 step 18] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=1.75566037735e-05 pred=1.75e-05 <momx>=1.70566037735e-05 <v>=3.46944695195e-18 pred=0 <momy>=3.46944695195e-18 (t=18)
+Coarse STEP 18 ends. TIME = 18 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 19 starts ...
+[Level 0 step 19] ADVANCE with time = 18 dt = 1
+[diag_force] lev=0 step=19 t=1.800000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 1.855660377e-05 max f=0.4444444442 max Fx=0
+[Level 0 step 19] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=1.85566037735e-05 pred=1.85e-05 <momx>=1.80566037735e-05 <v>=1.04083408559e-17 pred=0 <momy>=1.04083408559e-17 (t=19)
+Coarse STEP 19 ends. TIME = 19 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 20 starts ...
+[Level 0 step 20] ADVANCE with time = 19 dt = 1
+[diag_force] lev=0 step=20 t=1.900000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 1.955660377e-05 max f=0.4444444442 max Fx=0
+[Level 0 step 20] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=1.95566037735e-05 pred=1.95e-05 <momx>=1.90566037735e-05 <v>=-3.46944695195e-18 pred=0 <momy>=-3.46944695195e-18 (t=20)
+Coarse STEP 20 ends. TIME = 20 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 21 starts ...
+[Level 0 step 21] ADVANCE with time = 20 dt = 1
+[diag_force] lev=0 step=21 t=2.000000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 2.055660377e-05 max f=0.4444444442 max Fx=0
+[Level 0 step 21] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=2.05566037735e-05 pred=2.05e-05 <momx>=2.00566037735e-05 <v>=-1.73472347598e-17 pred=0 <momy>=-1.73472347598e-17 (t=21)
+Coarse STEP 21 ends. TIME = 21 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 22 starts ...
+[Level 0 step 22] ADVANCE with time = 21 dt = 1
+[diag_force] lev=0 step=22 t=2.100000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 2.155660377e-05 max f=0.4444444441 max Fx=0
+[Level 0 step 22] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=2.15566037735e-05 pred=2.15e-05 <momx>=2.10566037735e-05 <v>=-3.46944695195e-18 pred=0 <momy>=-3.46944695195e-18 (t=22)
+Coarse STEP 22 ends. TIME = 22 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 23 starts ...
+[Level 0 step 23] ADVANCE with time = 22 dt = 1
+[diag_force] lev=0 step=23 t=2.200000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 2.255660377e-05 max f=0.4444444441 max Fx=0
+[Level 0 step 23] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=2.25566037735e-05 pred=2.25e-05 <momx>=2.20566037735e-05 <v>=0 pred=0 <momy>=0 (t=23)
+Coarse STEP 23 ends. TIME = 23 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 24 starts ...
+[Level 0 step 24] ADVANCE with time = 23 dt = 1
+[diag_force] lev=0 step=24 t=2.300000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 2.355660377e-05 max f=0.4444444441 max Fx=0
+[Level 0 step 24] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=2.35566037734e-05 pred=2.35e-05 <momx>=2.30566037734e-05 <v>=0 pred=0 <momy>=0 (t=24)
+Coarse STEP 24 ends. TIME = 24 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 25 starts ...
+[Level 0 step 25] ADVANCE with time = 24 dt = 1
+[diag_force] lev=0 step=25 t=2.400000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 2.455660377e-05 max f=0.4444444441 max Fx=0
+[Level 0 step 25] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=2.45566037734e-05 pred=2.45e-05 <momx>=2.40566037734e-05 <v>=0 pred=0 <momy>=0 (t=25)
+Coarse STEP 25 ends. TIME = 25 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 26 starts ...
+[Level 0 step 26] ADVANCE with time = 25 dt = 1
+[diag_force] lev=0 step=26 t=2.500000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 2.555660377e-05 max f=0.444444444 max Fx=0
+[Level 0 step 26] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=2.55566037734e-05 pred=2.55e-05 <momx>=2.50566037734e-05 <v>=0 pred=0 <momy>=0 (t=26)
+Coarse STEP 26 ends. TIME = 26 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 27 starts ...
+[Level 0 step 27] ADVANCE with time = 26 dt = 1
+[diag_force] lev=0 step=27 t=2.600000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 2.655660377e-05 max f=0.444444444 max Fx=0
+[Level 0 step 27] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=2.65566037734e-05 pred=2.65e-05 <momx>=2.60566037734e-05 <v>=3.46944695195e-18 pred=0 <momy>=3.46944695195e-18 (t=27)
+Coarse STEP 27 ends. TIME = 27 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 28 starts ...
+[Level 0 step 28] ADVANCE with time = 27 dt = 1
+[diag_force] lev=0 step=28 t=2.700000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 2.755660377e-05 max f=0.444444444 max Fx=0
+[Level 0 step 28] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=2.75566037734e-05 pred=2.75e-05 <momx>=2.70566037734e-05 <v>=1.04083408559e-17 pred=0 <momy>=1.04083408559e-17 (t=28)
+Coarse STEP 28 ends. TIME = 28 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 29 starts ...
+[Level 0 step 29] ADVANCE with time = 28 dt = 1
+[diag_force] lev=0 step=29 t=2.800000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 2.855660377e-05 max f=0.4444444439 max Fx=0
+[Level 0 step 29] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=2.85566037734e-05 pred=2.85e-05 <momx>=2.80566037734e-05 <v>=-3.46944695195e-18 pred=0 <momy>=-3.46944695195e-18 (t=29)
+Coarse STEP 29 ends. TIME = 29 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 30 starts ...
+[Level 0 step 30] ADVANCE with time = 29 dt = 1
+[diag_force] lev=0 step=30 t=2.900000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 2.955660377e-05 max f=0.4444444439 max Fx=0
+[Level 0 step 30] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=2.95566037734e-05 pred=2.95e-05 <momx>=2.90566037734e-05 <v>=-3.46944695195e-18 pred=0 <momy>=-3.46944695195e-18 (t=30)
+Coarse STEP 30 ends. TIME = 30 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 31 starts ...
+[Level 0 step 31] ADVANCE with time = 30 dt = 1
+[diag_force] lev=0 step=31 t=3.000000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 3.055660377e-05 max f=0.4444444438 max Fx=0
+[Level 0 step 31] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=3.05566037734e-05 pred=3.05e-05 <momx>=3.00566037734e-05 <v>=-3.46944695195e-18 pred=0 <momy>=-3.46944695195e-18 (t=31)
+Coarse STEP 31 ends. TIME = 31 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 32 starts ...
+[Level 0 step 32] ADVANCE with time = 31 dt = 1
+[diag_force] lev=0 step=32 t=3.100000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 3.155660377e-05 max f=0.4444444438 max Fx=0
+[Level 0 step 32] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=3.15566037734e-05 pred=3.15e-05 <momx>=3.10566037734e-05 <v>=3.46944695195e-18 pred=0 <momy>=3.46944695195e-18 (t=32)
+Coarse STEP 32 ends. TIME = 32 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 33 starts ...
+[Level 0 step 33] ADVANCE with time = 32 dt = 1
+[diag_force] lev=0 step=33 t=3.200000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 3.255660377e-05 max f=0.4444444438 max Fx=0
+[Level 0 step 33] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=3.25566037734e-05 pred=3.25e-05 <momx>=3.20566037734e-05 <v>=-3.46944695195e-18 pred=0 <momy>=-3.46944695195e-18 (t=33)
+Coarse STEP 33 ends. TIME = 33 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 34 starts ...
+[Level 0 step 34] ADVANCE with time = 33 dt = 1
+[diag_force] lev=0 step=34 t=3.300000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 3.355660377e-05 max f=0.4444444437 max Fx=0
+[Level 0 step 34] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=3.35566037734e-05 pred=3.35e-05 <momx>=3.30566037734e-05 <v>=-1.04083408559e-17 pred=0 <momy>=-1.04083408559e-17 (t=34)
+Coarse STEP 34 ends. TIME = 34 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 35 starts ...
+[Level 0 step 35] ADVANCE with time = 34 dt = 1
+[diag_force] lev=0 step=35 t=3.400000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 3.455660377e-05 max f=0.4444444437 max Fx=0
+[Level 0 step 35] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=3.45566037734e-05 pred=3.45e-05 <momx>=3.40566037734e-05 <v>=3.46944695195e-18 pred=0 <momy>=3.46944695195e-18 (t=35)
+Coarse STEP 35 ends. TIME = 35 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 36 starts ...
+[Level 0 step 36] ADVANCE with time = 35 dt = 1
+[diag_force] lev=0 step=36 t=3.500000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 3.555660377e-05 max f=0.4444444436 max Fx=0
+[Level 0 step 36] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=3.55566037734e-05 pred=3.55e-05 <momx>=3.50566037734e-05 <v>=0 pred=0 <momy>=0 (t=36)
+Coarse STEP 36 ends. TIME = 36 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 37 starts ...
+[Level 0 step 37] ADVANCE with time = 36 dt = 1
+[diag_force] lev=0 step=37 t=3.600000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 3.655660377e-05 max f=0.4444444436 max Fx=0
+[Level 0 step 37] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=3.65566037735e-05 pred=3.65e-05 <momx>=3.60566037735e-05 <v>=-3.46944695195e-18 pred=0 <momy>=-3.46944695195e-18 (t=37)
+Coarse STEP 37 ends. TIME = 37 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 38 starts ...
+[Level 0 step 38] ADVANCE with time = 37 dt = 1
+[diag_force] lev=0 step=38 t=3.700000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 3.755660377e-05 max f=0.4444444435 max Fx=0
+[Level 0 step 38] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=3.75566037736e-05 pred=3.75e-05 <momx>=3.70566037736e-05 <v>=-3.46944695195e-18 pred=0 <momy>=-3.46944695195e-18 (t=38)
+Coarse STEP 38 ends. TIME = 38 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 39 starts ...
+[Level 0 step 39] ADVANCE with time = 38 dt = 1
+[diag_force] lev=0 step=39 t=3.800000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 3.855660377e-05 max f=0.4444444435 max Fx=0
+[Level 0 step 39] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=3.85566037735e-05 pred=3.85e-05 <momx>=3.80566037735e-05 <v>=3.46944695195e-18 pred=0 <momy>=3.46944695195e-18 (t=39)
+Coarse STEP 39 ends. TIME = 39 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 40 starts ...
+[Level 0 step 40] ADVANCE with time = 39 dt = 1
+[diag_force] lev=0 step=40 t=3.900000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 3.955660377e-05 max f=0.4444444434 max Fx=0
+[Level 0 step 40] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=3.95566037735e-05 pred=3.95e-05 <momx>=3.90566037735e-05 <v>=6.93889390391e-18 pred=0 <momy>=6.93889390391e-18 (t=40)
+Coarse STEP 40 ends. TIME = 40 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 41 starts ...
+[Level 0 step 41] ADVANCE with time = 40 dt = 1
+[diag_force] lev=0 step=41 t=4.000000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 4.055660377e-05 max f=0.4444444434 max Fx=0
+[Level 0 step 41] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=4.05566037735e-05 pred=4.05e-05 <momx>=4.00566037735e-05 <v>=-6.93889390391e-18 pred=0 <momy>=-6.93889390391e-18 (t=41)
+Coarse STEP 41 ends. TIME = 41 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 42 starts ...
+[Level 0 step 42] ADVANCE with time = 41 dt = 1
+[diag_force] lev=0 step=42 t=4.100000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 4.155660377e-05 max f=0.4444444433 max Fx=0
+[Level 0 step 42] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=4.15566037735e-05 pred=4.15e-05 <momx>=4.10566037735e-05 <v>=3.46944695195e-18 pred=0 <momy>=3.46944695195e-18 (t=42)
+Coarse STEP 42 ends. TIME = 42 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 43 starts ...
+[Level 0 step 43] ADVANCE with time = 42 dt = 1
+[diag_force] lev=0 step=43 t=4.200000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 4.255660377e-05 max f=0.4444444433 max Fx=0
+[Level 0 step 43] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=4.25566037735e-05 pred=4.25e-05 <momx>=4.20566037735e-05 <v>=3.46944695195e-18 pred=0 <momy>=3.46944695195e-18 (t=43)
+Coarse STEP 43 ends. TIME = 43 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 44 starts ...
+[Level 0 step 44] ADVANCE with time = 43 dt = 1
+[diag_force] lev=0 step=44 t=4.300000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 4.355660377e-05 max f=0.4444444432 max Fx=0
+[Level 0 step 44] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=4.35566037735e-05 pred=4.35e-05 <momx>=4.30566037735e-05 <v>=3.46944695195e-18 pred=0 <momy>=3.46944695195e-18 (t=44)
+Coarse STEP 44 ends. TIME = 44 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 45 starts ...
+[Level 0 step 45] ADVANCE with time = 44 dt = 1
+[diag_force] lev=0 step=45 t=4.400000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 4.455660377e-05 max f=0.4444444432 max Fx=0
+[Level 0 step 45] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=4.45566037736e-05 pred=4.45e-05 <momx>=4.40566037736e-05 <v>=0 pred=0 <momy>=0 (t=45)
+Coarse STEP 45 ends. TIME = 45 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 46 starts ...
+[Level 0 step 46] ADVANCE with time = 45 dt = 1
+[diag_force] lev=0 step=46 t=4.500000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 4.555660377e-05 max f=0.4444444431 max Fx=0
+[Level 0 step 46] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=4.55566037737e-05 pred=4.55e-05 <momx>=4.50566037737e-05 <v>=0 pred=0 <momy>=0 (t=46)
+Coarse STEP 46 ends. TIME = 46 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 47 starts ...
+[Level 0 step 47] ADVANCE with time = 46 dt = 1
+[diag_force] lev=0 step=47 t=4.600000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 4.655660377e-05 max f=0.444444443 max Fx=0
+[Level 0 step 47] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=4.65566037737e-05 pred=4.65e-05 <momx>=4.60566037737e-05 <v>=-6.93889390391e-18 pred=0 <momy>=-6.93889390391e-18 (t=47)
+Coarse STEP 47 ends. TIME = 47 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 48 starts ...
+[Level 0 step 48] ADVANCE with time = 47 dt = 1
+[diag_force] lev=0 step=48 t=4.700000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 4.755660377e-05 max f=0.444444443 max Fx=0
+[Level 0 step 48] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=4.75566037736e-05 pred=4.75e-05 <momx>=4.70566037736e-05 <v>=6.93889390391e-18 pred=0 <momy>=6.93889390391e-18 (t=48)
+Coarse STEP 48 ends. TIME = 48 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 49 starts ...
+[Level 0 step 49] ADVANCE with time = 48 dt = 1
+[diag_force] lev=0 step=49 t=4.800000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 4.855660377e-05 max f=0.4444444429 max Fx=0
+[Level 0 step 49] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=4.85566037737e-05 pred=4.85e-05 <momx>=4.80566037737e-05 <v>=0 pred=0 <momy>=0 (t=49)
+Coarse STEP 49 ends. TIME = 49 DT = 1 Sum(Rho) = 4096
+
+Coarse STEP 50 starts ...
+[Level 0 step 50] ADVANCE with time = 49 dt = 1
+[diag_force] lev=0 step=50 t=4.900000e+01 cc_max|F|_global=1.000000e-06 (Fx=1.000000e-06, Fy=0.000000e+00) cc_max|F|_local=1.000000e-06 packed_max|F|_global=0.000000e+00 (Fx=0.000000e+00, Fy=0.000000e+00)
+[lev 0] diag: max rho=1 max |u| ~ 4.955660377e-05 max f=0.4444444428 max Fx=0
+[Level 0 step 50] Advanced 4096 cells
+  [force_validation] <rho>=1 <u>=4.95566037737e-05 pred=4.95e-05 <momx>=4.90566037737e-05 <v>=0 pred=0 <momy>=0 (t=50)
+Coarse STEP 50 ends. TIME = 50 DT = 1 Sum(Rho) = 4096
+Unused ParmParse Variables:
+  [TOP]::amr.blocking_factor_z(nvals = 1)  :: [1]
+
+AMReX (25.03-6-g5da47374715c) finalized

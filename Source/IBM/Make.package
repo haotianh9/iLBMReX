@@ -1,7 +1,9 @@
 CEXE_sources += IBDiffuseLS.cpp
 CEXE_sources += IBSharpLS.cpp
 CEXE_sources += IBMarkerDF.cpp
+CEXE_sources += IBForceEval.cpp
 CEXE_headers += IBDiffuseLS.H
 CEXE_headers += IBSharpLS.H
 CEXE_headers += IBMarkerDF.H
+CEXE_headers += IBForceEval.H
 CEXE_headers += MarkerIBParams.H

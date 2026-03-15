@@ -1,0 +1,14 @@
+{
+  "nx": 64,
+  "ny": 64,
+  "u_centerline_l2_rel": 0.08994688625612414,
+  "u_centerline_linf_rel": 0.08463978871304696,
+  "v_centerline_l2_rel": 0.08948980734281949,
+  "v_centerline_linf_rel": 0.1021942410875906,
+  "u_center_bc": -0.0037144664761358547,
+  "u_center_ibm": -0.004035447545452891,
+  "v_center_bc": 0.00046760436964441034,
+  "v_center_ibm": 0.0005698715223347859,
+  "bc_plot": "out_bc/plt01200",
+  "ibm_plot": "out_ibm/plt01200"
+}

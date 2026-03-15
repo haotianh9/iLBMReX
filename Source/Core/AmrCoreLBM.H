@@ -221,6 +221,14 @@ private:
 
   int m_force_interval = -1;
 
+  enum ForceEvalMethod {
+    ForceEvalEulerian = 0,
+    ForceEvalMarker = 1,
+    ForceEvalMomentumExchange = 2
+  };
+  int m_force_eval_method{ForceEvalMomentumExchange};
+  int m_force_eval_debug{0};
+
   // ------------------------------
   // Prescribed (user) forcing for LBM validation / simple test cases
   // Convention: Fx,Fy,Fz are in *lattice forcing units* used by Guo forcing

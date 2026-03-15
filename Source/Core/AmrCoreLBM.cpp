@@ -17,6 +17,7 @@
 #include "DebugNaN.H"
 
 #include "IBM/IBDiffuseLS.H"
+#include "IBM/IBForceEval.H"
 #include "IBM/IBMarkerDF.H"
 #include "IBM/IBSharpLS.H"
 #include "LevelSet/LevelSet.H"
@@ -110,6 +111,8 @@ AmrCoreLBM::AmrCoreLBM() {
                  BCVals::bc_lo_ux_val[idim]);
         pp.query(("bc_lo_" + dir + "_uy_val").c_str(),
                  BCVals::bc_lo_uy_val[idim]);
+        pp.query(("bc_lo_" + dir + "_uz_val").c_str(),
+                 BCVals::bc_lo_uz_val[idim]);
       }
       if (bc_hi[idim] == amrex::BCType::ext_dir) {
         std::string dir = std::to_string(idim);
@@ -119,6 +122,8 @@ AmrCoreLBM::AmrCoreLBM() {
                  BCVals::bc_hi_ux_val[idim]);
         pp.query(("bc_hi_" + dir + "_uy_val").c_str(),
                  BCVals::bc_hi_uy_val[idim]);
+        pp.query(("bc_hi_" + dir + "_uz_val").c_str(),
+                 BCVals::bc_hi_uz_val[idim]);
       }
     }
 
@@ -126,9 +131,11 @@ AmrCoreLBM::AmrCoreLBM() {
       bcval.lo_rho[idim] = BCVals::bc_lo_rho_val[idim];
       bcval.lo_ux[idim] = BCVals::bc_lo_ux_val[idim];
       bcval.lo_uy[idim] = BCVals::bc_lo_uy_val[idim];
+      bcval.lo_uz[idim] = BCVals::bc_lo_uz_val[idim];
       bcval.hi_rho[idim] = BCVals::bc_hi_rho_val[idim];
       bcval.hi_ux[idim] = BCVals::bc_hi_ux_val[idim];
       bcval.hi_uy[idim] = BCVals::bc_hi_uy_val[idim];
+      bcval.hi_uz[idim] = BCVals::bc_hi_uz_val[idim];
     }
 
   } else {
@@ -141,10 +148,23 @@ AmrCoreLBM::AmrCoreLBM() {
       bcval.lo_rho[idim] = amrex::Real(0.0);
       bcval.lo_ux[idim] = amrex::Real(0.0);
       bcval.lo_uy[idim] = amrex::Real(0.0);
+      bcval.lo_uz[idim] = amrex::Real(0.0);
       bcval.hi_rho[idim] = amrex::Real(0.0);
       bcval.hi_ux[idim] = amrex::Real(0.0);
       bcval.hi_uy[idim] = amrex::Real(0.0);
+      bcval.hi_uz[idim] = amrex::Real(0.0);
     }
+  }
+
+  if (ndir > BCBuf::MAX_NDIR) {
+    amrex::Abort("LBM ndir exceeds BCBuf::MAX_NDIR (27).");
+  }
+  bcval.ndir = ndir;
+  for (int q = 0; q < ndir; ++q) {
+    bcval.dirx[q] = dirx[q];
+    bcval.diry[q] = diry[q];
+    bcval.dirz[q] = dirz[q];
+    bcval.wi[q] = wi[q];
   }
 
   // 2) ALWAYS build BCRec vectors (required even if domain is periodic)
@@ -290,37 +310,90 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
   }
 
   // --------------------------------------------------------------------
-  // 1) Integrate body-force density over the domain
+  // 1) Force on body from IBM coupling (all diagnostics)
   // --------------------------------------------------------------------
-  // Sum only over the *valid domain* (no ghost cells)
-  const amrex::Box &domain = geom[lev].Domain();
+  Real Fx_eul = amrex::Real(0.0), Fy_eul = amrex::Real(0.0), Fz_eul = amrex::Real(0.0);
+  Real Fx_marker = amrex::Real(0.0), Fy_marker = amrex::Real(0.0), Fz_marker = amrex::Real(0.0);
+  Real Fx_me = amrex::Real(0.0), Fy_me = amrex::Real(0.0), Fz_me = amrex::Real(0.0);
 
-  Real Fx_sum = forcing[lev].sum(domain, 0, false); // region, comp, local=false
-  Real Fy_sum = forcing[lev].sum(domain, 1, false);
+  // Eulerian force integral from forcing field actually coupled into LBM.
+  {
+    const amrex::Box &domain = geom[lev].Domain();
+    Real Fx_sum = forcing[lev].sum(domain, 0, false);
+    Real Fy_sum = forcing[lev].sum(domain, 1, false);
 #if (AMREX_SPACEDIM == 3)
-  Real Fz_sum = forcing[lev].sum(domain, 2, false);
+    Real Fz_sum = forcing[lev].sum(domain, 2, false);
 #else
-  Real Fz_sum = 0.0;
+    Real Fz_sum = 0.0;
 #endif
-
-  const auto dx = geom[lev].CellSizeArray();
-  Real dV = dx[0];
+    const auto dx = geom[lev].CellSizeArray();
+    Real dV = dx[0];
 #if (AMREX_SPACEDIM >= 2)
-  dV *= dx[1];
+    dV *= dx[1];
 #endif
 #if (AMREX_SPACEDIM == 3)
-  dV *= dx[2];
+    dV *= dx[2];
 #endif
+    Fx_eul = -Fx_sum * dV;
+    Fy_eul = -Fy_sum * dV;
+    Fz_eul = -Fz_sum * dV;
+  }
 
-  // Total force on fluid (integral of body-force density)
-  Real Fx_fluid = Fx_sum * dV;
-  Real Fy_fluid = Fy_sum * dV;
-  Real Fz_fluid = Fz_sum * dV;
+  // Marker force integral from Lagrangian direct-forcing data.
+  if (m_ib_method == 3 && m_ibm) {
+    auto Fm = m_ibm->last_marker_force_sum();
+    Fx_marker = -Fm[0];
+    Fy_marker = -Fm[1];
+    Fz_marker = -Fm[2];
+  }
 
-  // Reaction on the body
-  Real Fx_body = -Fx_fluid;
-  Real Fy_body = -Fy_fluid;
-  Real Fz_body = -Fz_fluid;
+  // Momentum-exchange force:
+  // - For marker direct-forcing IBM, hydrodynamic reaction is the
+  //   Lagrangian forcing integral (IBM momentum exchange by construction).
+  // - For level-set style immersed boundaries, use geometric link-wise ME.
+  if (m_ib_method == 3 && m_ibm) {
+    Fx_me = Fx_marker;
+    Fy_me = Fy_marker;
+    Fz_me = Fz_marker;
+  } else if (m_use_cylinder) {
+    auto Fme = IBForceEval::ComputeMomentumExchangeBodyForce(
+        f_new[lev], geom[lev], dirx, diry, dirz, ndir, m_ls_par);
+    Fx_me = Fme[0];
+    Fy_me = Fme[1];
+    Fz_me = Fme[2];
+  }
+
+  Real Fx_body = Fx_eul;
+  Real Fy_body = Fy_eul;
+  Real Fz_body = Fz_eul;
+  if (m_force_eval_method == ForceEvalMarker) {
+    Fx_body = Fx_marker;
+    Fy_body = Fy_marker;
+    Fz_body = Fz_marker;
+  } else if (m_force_eval_method == ForceEvalMomentumExchange) {
+    Fx_body = Fx_me;
+    Fy_body = Fy_me;
+    Fz_body = Fz_me;
+  }
+
+  // Time-centered body force for Guo-forced LBM diagnostics:
+  // use midpoint (n+1/2) estimate from consecutive whole-step forces.
+  static bool have_prev_body = false;
+  static Real Fx_body_prev = amrex::Real(0.0);
+  static Real Fy_body_prev = amrex::Real(0.0);
+  static Real Fz_body_prev = amrex::Real(0.0);
+  Real Fx_body_tc = Fx_body;
+  Real Fy_body_tc = Fy_body;
+  Real Fz_body_tc = Fz_body;
+  if (have_prev_body) {
+    Fx_body_tc = amrex::Real(0.5) * (Fx_body_prev + Fx_body);
+    Fy_body_tc = amrex::Real(0.5) * (Fy_body_prev + Fy_body);
+    Fz_body_tc = amrex::Real(0.5) * (Fz_body_prev + Fz_body);
+  }
+  Fx_body_prev = Fx_body;
+  Fy_body_prev = Fy_body;
+  Fz_body_prev = Fz_body;
+  have_prev_body = true;
 
   // --------------------------------------------------------------------
   // 2) Drag / lift coefficients
@@ -337,13 +410,24 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
   Real U_ref = U0;                  // set earlier in ReadParameters()
   Real D_ref = amrex::Real(2.0) * m_ls_par.R; // cylinder diameter
 
-  Real Cd = amrex::Real(0.0);
-  Real Cl = amrex::Real(0.0);
+  Real Cd = amrex::Real(0.0), Cl = amrex::Real(0.0);
+  Real Cd_raw = amrex::Real(0.0), Cl_raw = amrex::Real(0.0);
+  Real Cd_eul = amrex::Real(0.0), Cl_eul = amrex::Real(0.0);
+  Real Cd_marker = amrex::Real(0.0), Cl_marker = amrex::Real(0.0);
+  Real Cd_me = amrex::Real(0.0), Cl_me = amrex::Real(0.0);
 
   Real denom = amrex::Real(0.5) * rho_ref * U_ref * U_ref * D_ref;
   if (denom > amrex::Real(0.0)) {
-    Cd = Fx_body / denom;
-    Cl = Fy_body / denom;
+    Cd_raw = Fx_body / denom;
+    Cl_raw = Fy_body / denom;
+    Cd = Fx_body_tc / denom;
+    Cl = Fy_body_tc / denom;
+    Cd_eul = Fx_eul / denom;
+    Cl_eul = Fy_eul / denom;
+    Cd_marker = Fx_marker / denom;
+    Cl_marker = Fy_marker / denom;
+    Cd_me = Fx_me / denom;
+    Cl_me = Fy_me / denom;
   }
 
   // --------------------------------------------------------------------
@@ -360,12 +444,35 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
         amrex::Print() << "WARNING: could not open force.dat\n";
         return;
       }
-      ofs << "# step  time  Fx_body  Fy_body  Cd  Cl\n";
+      ofs << "# step  time  Fx_body_tc  Fy_body_tc  Cd  Cl"
+             "  Fx_body_raw  Fy_body_raw  Cd_raw  Cl_raw"
+             "  Fx_eul  Fy_eul  Cd_eul  Cl_eul"
+             "  Fx_marker  Fy_marker  Cd_marker  Cl_marker"
+             "  Fx_me  Fy_me  Cd_me  Cl_me  t_conv\n";
       initialized = true;
     }
 
-    ofs << step << "  " << time << "  " << Fx_body << "  " << Fy_body << "  "
-        << Cd << "  " << Cl << "\n";
+    const Real t_conv = (D_ref > amrex::Real(0.0))
+                            ? (time * U_ref / D_ref)
+                            : amrex::Real(0.0);
+
+    ofs << step << "  " << time << "  "
+        << Fx_body_tc << "  " << Fy_body_tc << "  " << Cd << "  " << Cl << "  "
+        << Fx_body << "  " << Fy_body << "  " << Cd_raw << "  " << Cl_raw << "  "
+        << Fx_eul << "  " << Fy_eul << "  " << Cd_eul << "  " << Cl_eul << "  "
+        << Fx_marker << "  " << Fy_marker << "  " << Cd_marker << "  " << Cl_marker << "  "
+        << Fx_me << "  " << Fy_me << "  " << Cd_me << "  " << Cl_me << "  "
+        << t_conv << "\n";
+    ofs.flush();
+
+    if (m_force_eval_debug > 0) {
+      amrex::Print() << "[force_eval] step=" << step
+                     << " primary(" << m_force_eval_method << "): Cd=" << Cd
+                     << " Cl=" << Cl << " (raw Cd,Cl)=(" << Cd_raw << "," << Cl_raw << ")"
+                     << " | eulerian(Cd,Cl)=(" << Cd_eul << "," << Cl_eul << ")"
+                     << " marker=(" << Cd_marker << "," << Cl_marker << ")"
+                     << " me=(" << Cd_me << "," << Cl_me << ")\n";
+    }
   }
 }
 
@@ -674,7 +781,7 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
     const Box &box = mfi.fabbox();
 
     amrex::ParallelFor(box, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-      initdata(box, rho, u, v, w, vor, problo, probhi, dx, nu);
+      initdata(i, j, k, rho, u, v, w, vor, problo, probhi, dx, nu);
     });
   }
 
@@ -744,7 +851,10 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
 
   // Max vorticity (component 4) on this level
   amrex::Real vortMax = curMacro.max(4);
-  if (m_use_cylinder) {
+  const bool marker_box_ibm =
+      (m_ib_method == 3 &&
+       m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
+  if (m_use_cylinder && !marker_box_ibm && m_ls && m_ls->has_level(lev)) {
     // Level set φ for this level
     MultiFab &phi_mf = m_ls->phi_at(lev);
 
@@ -933,8 +1043,28 @@ void AmrCoreLBM::ReadParameters() {
       // IAMReX-style marker DF parameters
       pp_ibm.query("delta_type", m_marker_par.delta_type); // 0:4pt, 1:3pt
       pp_ibm.query("loop_ns", m_marker_par.loop_ns);
+      pp_ibm.query("mdf_relax", m_marker_par.mdf_relax);
       pp_ibm.query("n_marker", m_marker_par.n_marker);
       pp_ibm.query("rd", m_marker_par.rd);
+      std::string marker_geometry = "cylinder";
+      pp_ibm.query("marker_geometry", marker_geometry);
+      if (marker_geometry == "box" || marker_geometry == "cavity_box") {
+        m_marker_par.geometry_type = MarkerIBParams::GeometryBox;
+      } else {
+        m_marker_par.geometry_type = MarkerIBParams::GeometryCylinder;
+      }
+      pp_ibm.query("box_xlo", m_marker_par.box_xlo);
+      pp_ibm.query("box_xhi", m_marker_par.box_xhi);
+      pp_ibm.query("box_ylo", m_marker_par.box_ylo);
+      pp_ibm.query("box_yhi", m_marker_par.box_yhi);
+      pp_ibm.query("box_zlo", m_marker_par.box_zlo);
+      pp_ibm.query("box_zhi", m_marker_par.box_zhi);
+      pp_ibm.query("box_ds", m_marker_par.box_ds);
+      pp_ibm.query("box_lid_only", m_marker_par.box_lid_only);
+      pp_ibm.query("box_lid_ux", m_marker_par.box_lid_ux);
+      pp_ibm.query("box_lid_uy", m_marker_par.box_lid_uy);
+      pp_ibm.query("box_lid_uz", m_marker_par.box_lid_uz);
+      pp_ibm.query("box_wall_tol", m_marker_par.box_wall_tol);
       pp_ibm.query("ubx", m_marker_par.ubx);
       pp_ibm.query("uby", m_marker_par.uby);
       pp_ibm.query("ubz", m_marker_par.ubz);
@@ -942,7 +1072,83 @@ void AmrCoreLBM::ReadParameters() {
       pp_ibm.query("omy", m_marker_par.omy);
       pp_ibm.query("omz", m_marker_par.omz);
       pp_ibm.query("verbose", m_marker_par.verbose);
+      std::string coupling_method = "ivc";
+      pp_ibm.query("coupling_method", coupling_method);
+      if (coupling_method == "ivc" || coupling_method == "wu_shu") {
+        m_marker_par.coupling_method = MarkerIBParams::CouplingIVC;
+      } else if (coupling_method == "explicit_diag" ||
+                 coupling_method == "diag_ivc") {
+        m_marker_par.coupling_method = MarkerIBParams::CouplingExplicitDiag;
+      } else {
+        m_marker_par.coupling_method = MarkerIBParams::CouplingExplicit;
+      }
+      pp_ibm.query("explicit_diag_eps", m_marker_par.explicit_diag_eps);
+      pp_ibm.query("ivc_diag_reg", m_marker_par.ivc_diag_reg);
+      pp_ibm.query("ivc_rebuild_matrix", m_marker_par.ivc_rebuild_matrix);
+      pp_ibm.query("ivc_verbose", m_marker_par.ivc_verbose);
       pp_ibm.query("force_interval", m_force_interval);
+      std::string force_eval_method = "momentum_exchange";
+      pp_ibm.query("force_eval_method", force_eval_method);
+      if (force_eval_method == "eulerian") {
+        m_force_eval_method = ForceEvalEulerian;
+      } else if (force_eval_method == "marker") {
+        m_force_eval_method = ForceEvalMarker;
+      } else {
+        m_force_eval_method = ForceEvalMomentumExchange;
+      }
+      pp_ibm.query("force_eval_debug", m_force_eval_debug);
+      // IAMReX-compatible aliases in the ibm.* namespace.
+      pp_ibm.query("renormalize_delta", m_marker_par.renormalize_delta);
+      pp_ibm.query("delta_renorm", m_marker_par.renormalize_delta);
+      pp_ibm.query("debug_force_balance", m_marker_par.debug_force_balance);
+      pp_ibm.query("print_force_balance", m_marker_par.debug_force_balance);
+      pp_ibm.query("debug_kernel_partition", m_marker_par.debug_kernel_partition);
+      pp_ibm.query("print_delta_partition", m_marker_par.debug_kernel_partition);
+
+      // Additional IAMReX-compatible marker DF knobs (nested namespace).
+      // These commonly appear in inputs as ibm.marker_df.*
+      {
+        amrex::ParmParse pp_mdf("ibm.marker_df");
+        pp_mdf.query("debug_force_balance", m_marker_par.debug_force_balance);
+        pp_mdf.query("debug_kernel_partition", m_marker_par.debug_kernel_partition);
+        pp_mdf.query("renormalize_delta", m_marker_par.renormalize_delta);
+        pp_mdf.query("mdf_relax", m_marker_par.mdf_relax);
+        pp_mdf.query("explicit_diag_eps", m_marker_par.explicit_diag_eps);
+        std::string marker_geometry_mdf;
+        if (pp_mdf.query("geometry", marker_geometry_mdf)) {
+          if (marker_geometry_mdf == "box" || marker_geometry_mdf == "cavity_box") {
+            m_marker_par.geometry_type = MarkerIBParams::GeometryBox;
+          } else {
+            m_marker_par.geometry_type = MarkerIBParams::GeometryCylinder;
+          }
+        }
+        pp_mdf.query("box_xlo", m_marker_par.box_xlo);
+        pp_mdf.query("box_xhi", m_marker_par.box_xhi);
+        pp_mdf.query("box_ylo", m_marker_par.box_ylo);
+        pp_mdf.query("box_yhi", m_marker_par.box_yhi);
+        pp_mdf.query("box_zlo", m_marker_par.box_zlo);
+        pp_mdf.query("box_zhi", m_marker_par.box_zhi);
+        pp_mdf.query("box_ds", m_marker_par.box_ds);
+        pp_mdf.query("box_lid_only", m_marker_par.box_lid_only);
+        pp_mdf.query("box_lid_ux", m_marker_par.box_lid_ux);
+        pp_mdf.query("box_lid_uy", m_marker_par.box_lid_uy);
+        pp_mdf.query("box_lid_uz", m_marker_par.box_lid_uz);
+        pp_mdf.query("box_wall_tol", m_marker_par.box_wall_tol);
+        std::string coupling_method_mdf;
+        if (pp_mdf.query("coupling_method", coupling_method_mdf)) {
+          if (coupling_method_mdf == "ivc" || coupling_method_mdf == "wu_shu") {
+            m_marker_par.coupling_method = MarkerIBParams::CouplingIVC;
+          } else if (coupling_method_mdf == "explicit_diag" ||
+                     coupling_method_mdf == "diag_ivc") {
+            m_marker_par.coupling_method = MarkerIBParams::CouplingExplicitDiag;
+          } else {
+            m_marker_par.coupling_method = MarkerIBParams::CouplingExplicit;
+          }
+        }
+        pp_mdf.query("ivc_diag_reg", m_marker_par.ivc_diag_reg);
+        pp_mdf.query("ivc_rebuild_matrix", m_marker_par.ivc_rebuild_matrix);
+        pp_mdf.query("ivc_verbose", m_marker_par.ivc_verbose);
+      }
 
       amrex::Print() << "IBM parameters: use_cylinder = " << m_use_cylinder
                      << ", method = " << method << std::endl;
@@ -950,6 +1156,29 @@ void AmrCoreLBM::ReadParameters() {
                      << ", y0 = " << m_ls_par.y0 << ", z0 = " << m_ls_par.z0
                      << ", R = " << m_ls_par.R
                      << ", alpha = " << m_diff_par.alpha << std::endl;
+      amrex::Print() << "               marker_geometry = "
+                     << ((m_marker_par.geometry_type ==
+                          MarkerIBParams::GeometryBox)
+                             ? "box"
+                             : "cylinder")
+                     << "\n";
+      amrex::Print() << "               force_eval_method = " << force_eval_method
+                     << " (" << m_force_eval_method << ")\n";
+      amrex::Print() << "               marker_coupling = "
+                     << ((m_marker_par.coupling_method ==
+                          MarkerIBParams::CouplingIVC)
+                             ? "ivc"
+                             : ((m_marker_par.coupling_method ==
+                                 MarkerIBParams::CouplingExplicitDiag)
+                                    ? "explicit_diag"
+                                    : "explicit"))
+                     << " (loop_ns=" << m_marker_par.loop_ns
+                     << ", mdf_relax=" << m_marker_par.mdf_relax << ")"
+                     << " (explicit_diag_eps="
+                     << m_marker_par.explicit_diag_eps << ")"
+                     << " (ivc_diag_reg=" << m_marker_par.ivc_diag_reg
+                     << ", ivc_rebuild_matrix="
+                     << m_marker_par.ivc_rebuild_matrix << ")\n";
 
       // create managers
       m_ls = std::make_unique<LevelSetManager>();
@@ -979,6 +1208,24 @@ void AmrCoreLBM::ReadParameters() {
                      dirz_dev.begin());
 
     const Geometry &geom = Geom(0);
+    if (m_marker_par.geometry_type == MarkerIBParams::GeometryBox) {
+      const auto problo = geom.ProbLoArray();
+      const auto probhi = geom.ProbHiArray();
+      if (m_marker_par.box_xhi <= m_marker_par.box_xlo) {
+        m_marker_par.box_xlo = problo[0];
+        m_marker_par.box_xhi = probhi[0];
+      }
+      if (m_marker_par.box_yhi <= m_marker_par.box_ylo) {
+        m_marker_par.box_ylo = problo[1];
+        m_marker_par.box_yhi = probhi[1];
+      }
+#if (AMREX_SPACEDIM == 3)
+      if (m_marker_par.box_zhi <= m_marker_par.box_zlo) {
+        m_marker_par.box_zlo = problo[2];
+        m_marker_par.box_zhi = probhi[2];
+      }
+#endif
+    }
     L0 = geom.ProbHi(0) - geom.ProbLo(0);
 
     T0 = L0 / U0;
@@ -1247,7 +1494,10 @@ amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
   const int n_macro_out = 6; // rho, ux, uy, uz, vor, Pressure
   const int f_first_comp = n_macro_out;
 
-  const bool want_phi = (m_use_cylinder && m_ls);
+  const bool marker_box_ibm =
+      (m_ib_method == 3 &&
+       m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
+  const bool want_phi = (m_use_cylinder && m_ls && !marker_box_ibm);
 
   for (int lev = 0; lev <= finest_level; ++lev) {
     amrex::Print() << "Preparing plotfile data at level " << lev << "\n";
@@ -1292,6 +1542,31 @@ amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
       phi_cc.ParallelCopy(phi_src, 0, 0, 1, 0, 0, Geom(lev).periodicity());
 
       amrex::MultiFab::Copy(out, phi_cc, 0, phi_dest_comp, 1, 0);
+
+      // Marker IBM uses fictitious fluid inside the body; mask solid-interior
+      // macroscopic fields in plot output so visualization reflects the
+      // physical exterior flow.
+      if (m_ib_method == 3 &&
+          m_marker_par.geometry_type != MarkerIBParams::GeometryBox) {
+        const amrex::Real ubx = m_marker_par.ubx;
+        const amrex::Real uby = m_marker_par.uby;
+        const amrex::Real ubz = m_marker_par.ubz;
+        for (amrex::MFIter mfi(out, amrex::TilingIfNotGPU()); mfi.isValid();
+             ++mfi) {
+          const amrex::Box &bx = mfi.validbox();
+          auto out_a = out[mfi].array();
+          auto phi_a = phi_cc[mfi].const_array();
+          amrex::ParallelFor(
+              bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                if (phi_a(i, j, k, 0) < amrex::Real(0.0)) {
+                  out_a(i, j, k, ux_comp) = ubx;
+                  out_a(i, j, k, uy_comp) = uby;
+                  out_a(i, j, k, uz_comp) = ubz;
+                  out_a(i, j, k, vor_comp) = amrex::Real(0.0);
+                }
+              });
+        }
+      }
     }
 
     amrex::Print() << "m_use_cylinder = " << m_use_cylinder
@@ -1310,7 +1585,11 @@ Vector<std::string> AmrCoreLBM::PlotFileVarNames() const {
   // Use level 0 as reference (all levels have the same nComp layout)
   const int nmacro = macro_new[0].nComp();
   const int nmeso = f_new[0].nComp();
-  const bool have_phi = (m_use_cylinder && m_ls && m_ls->has_level(0));
+  const bool marker_box_ibm =
+      (m_ib_method == 3 &&
+       m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
+  const bool have_phi =
+      (m_use_cylinder && m_ls && m_ls->has_level(0) && !marker_box_ibm);
   const int nphi = have_phi ? 1 : 0;
 
   // --- Macroscopic variables ---
@@ -1712,7 +1991,10 @@ void AmrCoreLBM::GetDataMacro(int lev, Real time, Vector<MultiFab *> &data,
 }
 
 void AmrCoreLBM::BuildLevelSetOnLevel(int lev) {
-  if (!m_use_cylinder || !m_ls)
+  const bool marker_box_ibm =
+      (m_ib_method == 3 &&
+       m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
+  if (!m_use_cylinder || !m_ls || marker_box_ibm)
     return;
 
   // Use the *macro* MultiFab as the reference for BA/DM

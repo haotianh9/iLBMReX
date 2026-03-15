@@ -1,0 +1,71 @@
+# Single benchmark case: 2D flow past a circular cylinder (BGK + marker IBM).
+# Canonical validation here uses Re=200 (nu=0.0048, U0=0.03, D=32).
+# Re=100 can be tested by overriding nu=0.0096 at runtime.
+# Lateral direction is periodic (not wall-bounded).
+
+max_step  = 12000
+stop_time = 12000
+
+geometry.prob_lo     = 0.0 0.0 0.0
+geometry.prob_hi     = 512.0 256.0 8.0
+geometry.is_periodic = 0 1 1
+
+amr.v = 1
+amr.n_cell = 512 256 8
+amr.max_level = 0
+amr.ref_ratio = 2 2 2 2
+amr.blocking_factor_x = 8
+amr.blocking_factor_y = 8
+amr.blocking_factor_z = 8
+amr.max_grid_size = 256
+amr.regrid_int = 100
+
+amr.plot_file = out_cylinder/plt
+amr.plot_int  = 100
+amr.chk_file  = chk
+amr.chk_int   = -1
+
+# Re = U*D/nu = 200 with U=0.03, D=32 => nu=0.0048
+lbmPhysicalParameters.nu   = 0.0048
+lbmPhysicalParameters.nmac = 6
+lbmPhysicalParameters.U0   = 0.03
+
+lbm2d.ndir   = 9
+lbm2d.wis    = 4.0  1.0  1.0  1.0   1.0  1.0  1.0  1.0  1.0
+lbm2d.wim    = 9.0  9.0  9.0  9.0   9.0  36.0 36.0 36.0 36.0
+lbm2d.dirx   = 0.0  1.0  0.0  -1.0  0.0  1.0  -1.0 -1.0 1.0
+lbm2d.diry   = 0.0  0.0  1.0  0.0   -1.0 1.0  1.0  -1.0 -1.0
+lbm2d.dirz   = 0.0  0.0  0.0  0.0   0.0  0.0  0.0  0.0  0.0
+
+# BC codes: int_dir=0, foextrap=2, ext_dir=3
+# Inlet: prescribed velocity (ext_dir), Outlet: first-order extrapolation.
+amrbc.bc_lo = 3 0
+amrbc.bc_hi = 2 0
+amrbc.bc_lo_0_rho_val = 1.0
+amrbc.bc_lo_0_ux_val  = 0.03
+amrbc.bc_lo_0_uy_val  = 1.0e-4
+
+# Marker IBM (Wu-Shu IVC coupling)
+ibm.use_cylinder = 1
+ibm.method = iamr_marker
+ibm.x0 = 96.0
+# Slightly biased placement to trigger shedding and avoid symmetry lock-in.
+ibm.y0 = 127.9
+ibm.z0 = 0.0
+ibm.R  = 16.0
+ibm.force_interval = 1
+ibm.force_eval_method = momentum_exchange
+ibm.force_eval_debug = 0
+
+ibm.delta_type = 4
+ibm.loop_ns = 1
+ibm.n_marker = 0
+# Literature-consistent implicit velocity correction (Wu & Shu)
+ibm.coupling_method = wu_shu
+ibm.ivc_diag_reg = 1.3
+ibm.ivc_rebuild_matrix = 0
+ibm.ivc_verbose = 0
+ibm.delta_renorm = 0
+ibm.print_force_balance = 0
+ibm.print_delta_partition = 0
+ibm.verbose = 0

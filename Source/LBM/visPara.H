@@ -15,7 +15,8 @@ void visPara(int i, int j, int k, amrex::Array4<amrex::Real const> const &rho,
              amrex::Real const dy, amrex::Real const dz, amrex::Real const T0) {
   using namespace amrex;
 
-  Pressure(i, j, k) = (rho(i, j, k) - 1.0) / (3.0 * 0.5 * 0.02 * 0.02);
+  // Isothermal LBM pressure perturbation (in lattice units).
+  Pressure(i, j, k) = (rho(i, j, k) - 1.0) / 3.0;
 
   // This is just a test based on the flow rate
   Real dv_dx = (v(i + 1, j, k) - v(i - 1, j, k)) / (2.0 * dx);
