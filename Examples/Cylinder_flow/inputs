@@ -1,6 +1,6 @@
-# Single benchmark case: 2D flow past a circular cylinder (BGK + marker IBM).
-# Canonical validation here uses Re=200 (nu=0.0048, U0=0.03, D=32).
-# Re=100 can be tested by overriding nu=0.0096 at runtime.
+# Single 2D flow-past-cylinder case (BGK + marker IBM).
+# Primary validation uses Re=100 (nu=0.0096, U0=0.03, D=32).
+# Secondary check uses Re=200 by overriding nu=0.0048 at runtime.
 # Lateral direction is periodic (not wall-bounded).
 
 max_step  = 12000
@@ -21,12 +21,12 @@ amr.max_grid_size = 256
 amr.regrid_int = 100
 
 amr.plot_file = out_cylinder/plt
-amr.plot_int  = 100
+amr.plot_int  = 1000
 amr.chk_file  = chk
 amr.chk_int   = -1
 
-# Re = U*D/nu = 200 with U=0.03, D=32 => nu=0.0048
-lbmPhysicalParameters.nu   = 0.0048
+# Re = U*D/nu = 100 with U=0.03, D=32 => nu=0.0096
+lbmPhysicalParameters.nu   = 0.0096
 lbmPhysicalParameters.nmac = 6
 lbmPhysicalParameters.U0   = 0.03
 
@@ -43,6 +43,7 @@ amrbc.bc_lo = 3 0
 amrbc.bc_hi = 2 0
 amrbc.bc_lo_0_rho_val = 1.0
 amrbc.bc_lo_0_ux_val  = 0.03
+# Tiny inlet cross-flow bias to break perfect symmetry.
 amrbc.bc_lo_0_uy_val  = 1.0e-4
 
 # Marker IBM (Wu-Shu IVC coupling)

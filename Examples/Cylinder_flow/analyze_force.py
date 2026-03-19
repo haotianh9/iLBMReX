@@ -27,8 +27,8 @@ def read_force(path: Path, source: str):
     c_cd, c_cl = cols[source]
 
     rows = []
-    for line in path.read_text().splitlines():
-        s = line.strip()
+    for raw in path.open("rb"):
+        s = raw.decode("ascii", errors="ignore").replace("\x00", " ").strip()
         if not s or s.startswith("#"):
             continue
         vals = _parse_floats(s)

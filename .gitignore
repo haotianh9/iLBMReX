@@ -44,3 +44,9 @@ Visualization_debug.ipynb
 
 # visualization notebooks checkpoints
 *.ipynb_checkpoints*
+
+# example-generated cylinder outputs
+Examples/Cylinder_flow/_artifacts/
+Examples/Cylinder_flow/__pycache__/
+Examples/Cylinder_flow/out_cylinder/
+Examples/Cylinder_flow/chk*/

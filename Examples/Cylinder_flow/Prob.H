@@ -22,7 +22,7 @@ void initdata(int i, int j, int k,
 {
     using namespace amrex;
     amrex::ignore_unused(vor, nu);
-    // Keep initialization consistent with uniform benchmark inflow.
+    // Keep initialization consistent with the uniform inflow cylinder case.
     const double u0 = 0.03;
     rho(i, j, k) = 1.0;
     ux(i, j, k) = u0;

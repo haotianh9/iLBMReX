@@ -2,14 +2,15 @@
 set -euo pipefail
 
 # Test ladder:
-#   T1: pure LBM forcing sanity (no IBM)      -> Examples/ForceValidation
-#   T2: short cylinder stability sanity        -> this folder
-#   T3: long Re=200 cylinder validation gate   -> this folder
+#   T1: pure LBM forcing sanity (no IBM)          -> Examples/ForceValidation
+#   T2: short cylinder stability sanity           -> this folder
+#   T3: long Re=100 cylinder validation gate      -> this folder
+#   T4: long Re=200 secondary trend check         -> this folder
 #
 # Usage examples:
-#   ./run_test_ladder.sh
-#   ./run_test_ladder.sh --quick
-#   ./run_test_ladder.sh --nprocs 12 --omp 1 --jobs 12
+#   ./validate_cylinder.sh
+#   ./validate_cylinder.sh --quick
+#   ./validate_cylinder.sh --nprocs 12 --omp 1 --jobs 12
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -111,7 +112,7 @@ echo "[T1] PASS"
 #############################################
 # T2: short cylinder stability sanity
 #############################################
-echo "[T2] Build Cylinder benchmark"
+echo "[T2] Build Cylinder flow case"
 (
   cd "${CYL_DIR}"
   make -j"${JOBS}" > "${ART_DIR}/t2_build.log" 2>&1
@@ -142,36 +143,63 @@ fi
 echo "[T2] PASS"
 
 #############################################
-# T3: long Re=200 validation gate
+# T3: long Re=100 validation gate (primary)
 #############################################
 if [[ "${QUICK}" -eq 0 ]]; then
-  echo "[T3] Run long cylinder validation (12000 steps, Re=200 default)"
+  echo "[T3] Run long cylinder validation (50000 steps, Re=100 default)"
   (
     cd "${CYL_DIR}"
     rm -f force.dat
     OMP_NUM_THREADS="${OMP_THREADS}" mpirun -n "${NPROCS}" ./main2d.gnu.MPI.OMP.ex inputs \
-      max_step=12000 stop_time=12000 \
+      max_step=50000 stop_time=50000 amr.plot_int=-1 \
       > "${ART_DIR}/t3_run.log" 2>&1
     cp force.dat "${ART_DIR}/t3_force.dat"
   )
 
   require_file "${ART_DIR}/t3_force.dat"
-  rg -q "Coarse STEP 12000 ends" "${ART_DIR}/t3_run.log" || fail "T3 did not reach step 12000"
+  rg -q "Coarse STEP 50000 ends" "${ART_DIR}/t3_run.log" || fail "T3 did not reach step 50000"
   if rg -qi "nan|abort|error" "${ART_DIR}/t3_run.log"; then
     fail "T3 detected NaN/Abort/Error in run log"
   fi
 
   (
     cd "${CYL_DIR}"
-    python3 analyze_force.py --force "${ART_DIR}/t3_force.dat" --discard-frac 0.5 \
+    python3 analyze_force.py --force "${ART_DIR}/t3_force.dat" --source me --discard-frac 0.5 \
       > "${ART_DIR}/t3_analyze.txt"
   )
 
   rg -q "match_Cd=True match_St=True" "${ART_DIR}/t3_analyze.txt" || fail "T3 metric gate failed"
   rg -q "periodic_lift=True" "${ART_DIR}/t3_analyze.txt" || fail "T3 periodic-lift gate failed"
   echo "[T3] PASS"
+
+  #############################################
+  # T4: long Re=200 secondary trend check
+  #############################################
+  echo "[T4] Run long cylinder trend check (50000 steps, Re=200 override)"
+  (
+    cd "${CYL_DIR}"
+    rm -f force.dat
+    OMP_NUM_THREADS="${OMP_THREADS}" mpirun -n "${NPROCS}" ./main2d.gnu.MPI.OMP.ex inputs \
+      lbmPhysicalParameters.nu=0.0048 max_step=50000 stop_time=50000 amr.plot_int=-1 \
+      > "${ART_DIR}/t4_run.log" 2>&1
+    cp force.dat "${ART_DIR}/t4_force.dat"
+  )
+
+  require_file "${ART_DIR}/t4_force.dat"
+  rg -q "Coarse STEP 50000 ends" "${ART_DIR}/t4_run.log" || fail "T4 did not reach step 50000"
+  if rg -qi "nan|abort|error" "${ART_DIR}/t4_run.log"; then
+    fail "T4 detected NaN/Abort/Error in run log"
+  fi
+
+  (
+    cd "${CYL_DIR}"
+    python3 analyze_force.py --force "${ART_DIR}/t4_force.dat" --source me --discard-frac 0.5 \
+      --cd-min 1.2 --cd-max 2.2 --st-min 0.18 --st-max 0.24 \
+      > "${ART_DIR}/t4_analyze.txt"
+  )
+  echo "[T4] COMPLETE (report-only secondary check)"
 else
-  echo "[T3] SKIPPED (--quick)"
+  echo "[T3/T4] SKIPPED (--quick)"
 fi
 
 echo
@@ -182,4 +210,5 @@ echo "  ${ART_DIR}/t1_metrics.txt"
 echo "  ${ART_DIR}/t2_analyze.txt"
 if [[ "${QUICK}" -eq 0 ]]; then
   echo "  ${ART_DIR}/t3_analyze.txt"
+  echo "  ${ART_DIR}/t4_analyze.txt"
 fi

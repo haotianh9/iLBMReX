@@ -195,11 +195,6 @@ void AmrCoreLBM::Evolve() {
   Real cur_time = t_new[0];
   int last_plot_file_step = 0;
 
-  amrex::Real nu = 0.064;
-  amrex::Real H = 64.0;
-  std::vector<amrex::Real> target_tstar = {0.005, 0.05, 0.5};
-  std::vector<bool> tstar_written(target_tstar.size(), false);
-
   for (int step = istep[0]; step < max_step && cur_time < stop_time; ++step) {
     amrex::Print() << "\nCoarse STEP " << step + 1 << " starts ..."
                    << std::endl;
@@ -275,16 +270,6 @@ amrex::Print() << std::setprecision(12)
     if (cur_time >= stop_time - 1.e-6 * dt[0])
       break;
 
-    Real t_star = nu * cur_time / (H * H);
-    for (int i = 0; i < target_tstar.size(); ++i) {
-      if (!tstar_written[i] && std::abs(t_star - target_tstar[i]) < 1e-5) {
-        amrex::Print() << ">>> Output at t* = " << t_star
-                       << " (t = " << cur_time << ")" << std::endl;
-        std::string tag = "_tstar" + std::to_string(i);
-        WritePlotFile();
-        tstar_written[i] = true;
-      }
-    }
   }
 
   if (plot_int > 0 && istep[0] > last_plot_file_step) {

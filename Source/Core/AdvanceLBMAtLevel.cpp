@@ -200,7 +200,7 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
   if (sForcingborder) {
     FillPatchForcing(lev, time, *sForcingborder, 0, sForcingborder->nComp());
   }
-  {
+  if (m_force_eval_debug > 0) {
     // NOTE: `local=true` is per-rank and can print zero on IO rank even when
     // other ranks have nonzero forcing. Report both local and global norms.
     const Real maxFx_local = fx_cc.norm0(0, 0, true);
@@ -225,8 +225,9 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
                    << " (Fx=" << maxFx_global << ", Fy=" << maxFy_global << ")"
                    << " cc_max|F|_local=" << std::max(maxFx_local, maxFy_local)
                    << " packed_max|F|_global=" << maxF_packed
-                   << " (Fx=" << maxFx_packed << ", Fy=" << maxFy_packed << ")"
-                   << "\n" << std::defaultfloat;
+                   << " (Fx=" << maxFx_packed << ", Fy=" << maxFy_packed
+                   << ")\n"
+                   << std::defaultfloat;
   }
   const Real tempdx = xCellSize[lev];
   const Real tempdy = yCellSize[lev];
