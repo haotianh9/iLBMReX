@@ -1,5 +1,5 @@
 <div align="center">
-  {Place holder for name, an exmaple: iLBMReX}
+  iLBMReX
 <!-- <img src="./README_figures/IAMReX.png" alt="title" width="300"> -->
 <!-- <p align="center">
   <a href="https://joss.theoj.org/papers/10.21105/joss.08080">
@@ -46,7 +46,7 @@ To obtain additional help, simply post an issue.
 
  We are always happy to have users contribute to the [Place holder for name] source code. To contribute, issue a pull request against the development branch.
 Any level of changes are welcomed: documentation, bug fixes, new test problems,
-new solvers, etc. For more details on how to contribute to IAMReX, please see
+new solvers, etc. For more details on how to contribute to iLBMReX, please see
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
 💡 If you're using IAMReX in your own GitHub projects, consider adding [Place holder for name]
