@@ -13,9 +13,8 @@ void calculateMacro(int i, int j, int k,
                     amrex::Array4<amrex::Real> const &u,
                     amrex::Array4<amrex::Real> const &v,
                     amrex::Array4<amrex::Real> const &w, int const ndir,
-                    amrex::Vector<amrex::Real> const dirx,
-                    amrex::Vector<amrex::Real> const diry,
-                    amrex::Vector<amrex::Real> const dirz) {
+                    amrex::Real const *dirx, amrex::Real const *diry,
+                    amrex::Real const *dirz) {
   using namespace amrex;
 
   amrex::Real rho_temp, u_temp, v_temp, w_temp;

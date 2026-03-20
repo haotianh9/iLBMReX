@@ -4,7 +4,6 @@
 #include <AMReX_Box.H>
 #include <AMReX_FArrayBox.H>
 #include <AMReX_Geometry.H>
-#include <cmath>
 
 
 

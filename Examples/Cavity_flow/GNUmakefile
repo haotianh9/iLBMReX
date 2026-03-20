@@ -13,7 +13,7 @@ COMP	   = gcc
 USE_MPI    = TRUE
 USE_OMP    = TRUE 
 USE_CUDA   = FALSE
-USE_PARTICLES = TRUE
+USE_PARTICLES = FALSE
 
 Bpack   := ./Make.package 
 Blocs   := . 

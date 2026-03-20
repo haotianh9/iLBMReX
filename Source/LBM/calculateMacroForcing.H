@@ -15,9 +15,8 @@ void calculateMacroForcing(int i, int j, int k,
                            amrex::Array4<amrex::Real const> const &fx,
                            amrex::Array4<amrex::Real const> const &fy,
                            amrex::Array4<amrex::Real const> const &fz, int ndir,
-                           amrex::Vector<amrex::Real> const &dirx,
-                           amrex::Vector<amrex::Real> const &diry,
-                           amrex::Vector<amrex::Real> const &dirz) {
+                           amrex::Real const *dirx, amrex::Real const *diry,
+                           amrex::Real const *dirz) {
   amrex::Real r = 0, m1 = 0, m2 = 0, m3 = 0;
   for (int q = 0; q < ndir; ++q) {
     amrex::Real fq = f_arr(i, j, k, q);

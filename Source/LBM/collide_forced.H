@@ -9,12 +9,11 @@ AMREX_GPU_DEVICE
 AMREX_FORCE_INLINE
 void collide_forced(int i, int j, int k,
                     amrex::Array4<amrex::Real> const &f_old,
-                    amrex::Vector<amrex::Real> const &feq_i, // length = ndir
+                    amrex::Real const *feq_i, // length = ndir
                     int ndir, amrex::Real tau,
-                    amrex::Vector<amrex::Real> const &wi,
-                    amrex::Vector<amrex::Real> const &dirx,
-                    amrex::Vector<amrex::Real> const &diry,
-                    amrex::Vector<amrex::Real> const &dirz, amrex::Real rho,
+                    amrex::Real const *wi, amrex::Real const *dirx,
+                    amrex::Real const *diry, amrex::Real const *dirz,
+                    amrex::Real rho,
                     amrex::Real ux, amrex::Real uy, amrex::Real uz,
                     amrex::Real fx, amrex::Real fy, amrex::Real fz) {
   // 1) Do the usual BGK collision using your existing kernel

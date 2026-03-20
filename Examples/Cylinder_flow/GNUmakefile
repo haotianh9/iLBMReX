@@ -13,7 +13,6 @@ USE_OMP    = TRUE
 USE_CUDA   = FALSE
 
 USE_PARTICLES = TRUE
-DEFINES      += -DAMREX_PARTICLES
 
 Bpack   := ./Make.package
 Blocs   := .

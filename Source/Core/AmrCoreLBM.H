@@ -80,10 +80,19 @@ public:
   void AdvancePhiAtLevel(int lev, amrex::Real time, amrex::Real dt_lev,
                          int iteration, int ncycle);
 
+  // Exposed publicly because nvcc extended device lambdas reject private
+  // enclosing member functions in this code path.
+  void FillPatchMesoscopic(int lev, amrex::Real time, amrex::MultiFab &mf,
+                           int icomp, int ncomp);
+
   // Define the advection velocity as the curl of a scalar field
   void DefineVelocityAtLevel(int lev, amrex::Real time);
 
   void DefineVelocityAllLevels(amrex::Real time);
+
+  amrex::Vector<std::unique_ptr<amrex::MultiFab>> PlotFileMF() const;
+
+  void InitEquilibrium();
 
   // compute dt from CFL considerations
   amrex::Real EstTimeStep(int lev, amrex::Real time);
@@ -103,12 +112,6 @@ private:
   // more flexible version of AverageDown() that lets you average down across
   // multiple levels
   void AverageDownTo(int crse_lev);
-
-  // compute a new multifab by coping in phi from valid region and filling ghost
-  // cells works for single level and 2-level cases (fill fine grid ghost by
-  // interpolating from coarse)
-  void FillPatchMesoscopic(int lev, amrex::Real time, amrex::MultiFab &mf,
-                           int icomp, int ncomp);
 
   // fill an entire multifab by interpolating from the coarser level
   // this comes into play when a new level of refinement appears
@@ -137,9 +140,6 @@ private:
 
   // get plotfile name
   std::string PlotFileName(int lev) const;
-
-  // put together an array of multifabs for writing
-  amrex::Vector<std::unique_ptr<amrex::MultiFab>> PlotFileMF() const;
 
   // set plotfile variables names
   amrex::Vector<std::string> PlotFileVarNames() const;
@@ -267,8 +267,6 @@ private:
 
   int nmac;
   const int nghost = 3;
-
-  void InitEquilibrium();
 
   int totalNumberVar;
 

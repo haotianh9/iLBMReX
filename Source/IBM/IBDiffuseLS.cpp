@@ -8,8 +8,7 @@ using namespace amrex;
 
 namespace {
 
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE Real
-min_cell_size(Geometry const &geom) noexcept {
+AMREX_FORCE_INLINE Real min_cell_size(Geometry const &geom) noexcept {
   const auto dx = geom.CellSizeArray();
   Real hmin = dx[0];
 #if (AMREX_SPACEDIM >= 2)

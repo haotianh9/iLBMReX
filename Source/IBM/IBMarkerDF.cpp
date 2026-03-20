@@ -265,12 +265,17 @@ void IBMarkerDF::build_markers(DistributionMapping const &dm,
     m_xref_d.resize(Ml + 1);
     m_yref_d.resize(Ml + 1);
     m_zref_d.resize(Ml + 1);
+    m_xref_h = x_ref;
+    m_yref_h = y_ref;
+    m_zref_h = z_ref;
     Gpu::copy(Gpu::hostToDevice, x_ref.begin(), x_ref.end(), m_xref_d.begin());
     Gpu::copy(Gpu::hostToDevice, y_ref.begin(), y_ref.end(), m_yref_d.begin());
     Gpu::copy(Gpu::hostToDevice, z_ref.begin(), z_ref.end(), m_zref_d.begin());
 
     m_phiK_d.resize(0);
     m_thetaK_d.resize(0);
+    m_phiK_h.clear();
+    m_thetaK_h.clear();
 #endif
   } else {
 #if (AMREX_SPACEDIM == 2)
@@ -331,6 +336,8 @@ void IBMarkerDF::build_markers(DistributionMapping const &dm,
 
     m_phiK_d.resize(Ml + 1);
     m_thetaK_d.resize(Ml + 1);
+    m_phiK_h = phi_h;
+    m_thetaK_h = theta_h;
     Gpu::copy(Gpu::hostToDevice, phi_h.begin(), phi_h.end(), m_phiK_d.begin());
     Gpu::copy(Gpu::hostToDevice, theta_h.begin(), theta_h.end(),
               m_thetaK_d.begin());
@@ -338,6 +345,9 @@ void IBMarkerDF::build_markers(DistributionMapping const &dm,
     m_xref_d.resize(0);
     m_yref_d.resize(0);
     m_zref_d.resize(0);
+    m_xref_h.clear();
+    m_yref_h.clear();
+    m_zref_h.clear();
   }
 
   m_dv = dv;
@@ -368,30 +378,10 @@ void IBMarkerDF::build_markers(DistributionMapping const &dm,
 
   m_markers->Redistribute();
 
-  // Robustly map particle IDs to our 1-based marker reference arrays.
-  // AMReX particle IDs are not guaranteed to start at 1 in all code paths.
-  amrex::Long id_min_local = std::numeric_limits<amrex::Long>::max();
-  amrex::Long id_max_local = std::numeric_limits<amrex::Long>::lowest();
-  amrex::Long id_n_local = 0;
-  for (MarkerParIter pti(*m_markers, 0); pti.isValid(); ++pti) {
-    auto const *particles = pti.GetArrayOfStructs().data();
-    const Long np = pti.numParticles();
-    id_n_local += np;
-    for (Long n = 0; n < np; ++n) {
-      const Long id = static_cast<Long>(particles[n].id());
-      id_min_local = amrex::min(id_min_local, id);
-      id_max_local = amrex::max(id_max_local, id);
-    }
-  }
-  amrex::Long id_n_global = id_n_local;
-  amrex::ParallelDescriptor::ReduceLongSum(id_n_global);
-  if (id_n_global > 0) {
-    amrex::ParallelDescriptor::ReduceLongMin(id_min_local);
-    amrex::ParallelDescriptor::ReduceLongMax(id_max_local);
-    m_start_id = static_cast<int>(id_min_local - 1);
-  } else {
-    m_start_id = 0;
-  }
+  // We insert markers with ids 1..Ml and store the stable marker index in M_ID.
+  // Avoid host-side particle-id scans here because GPU particle data may live
+  // in device memory after Redistribute.
+  m_start_id = 0;
 
   update_lagrangian_marker();
 
@@ -404,7 +394,7 @@ void IBMarkerDF::build_markers(DistributionMapping const &dm,
                            : "cylinder")
                    << " delta_type=" << m_par.delta_type
                    << " loop_ns=" << m_par.loop_ns
-                   << " id_range=[" << id_min_local << "," << id_max_local
+                   << " id_range=[1," << Ml
                    << "] start_id=" << m_start_id;
     if (m_par.geometry_type == MarkerIBParams::GeometryBox) {
       amrex::Print() << " box_bounds=(" << m_par.box_xlo << "," << m_par.box_xhi
@@ -769,8 +759,14 @@ void IBMarkerDF::gather_marker_state(std::vector<int> &ids,
   ids.clear();
   data.clear();
 
+  const bool use_box = (m_par.geometry_type == MarkerIBParams::GeometryBox);
+  const Real x0 = m_x0;
+  const Real y0 = m_y0;
+#if (AMREX_SPACEDIM == 3)
+  const Real z0 = m_z0;
+#endif
+
   for (MarkerParIter pti(*m_markers, 0); pti.isValid(); ++pti) {
-    auto *particles = pti.GetArrayOfStructs().data();
     const Long np = pti.numParticles();
     auto &soa = pti.GetStructOfArrays();
     auto const &mid_arr = soa.GetIntData(M_ID);
@@ -779,18 +775,60 @@ void IBMarkerDF::gather_marker_state(std::vector<int> &ids,
     auto const &v_arr = soa.GetRealData(V_Marker);
     auto const &w_arr = soa.GetRealData(W_Marker);
 
+    std::vector<int> mid_host(static_cast<std::size_t>(np), 0);
+    std::vector<Real> u_host(static_cast<std::size_t>(np), Real(0.0));
+    std::vector<Real> v_host(static_cast<std::size_t>(np), Real(0.0));
+    std::vector<Real> w_host(static_cast<std::size_t>(np), Real(0.0));
+
+    Gpu::copy(Gpu::deviceToHost, mid_arr.begin(), mid_arr.begin() + np,
+              mid_host.begin());
+    Gpu::copy(Gpu::deviceToHost, u_arr.begin(), u_arr.begin() + np,
+              u_host.begin());
+    Gpu::copy(Gpu::deviceToHost, v_arr.begin(), v_arr.begin() + np,
+              v_host.begin());
+    Gpu::copy(Gpu::deviceToHost, w_arr.begin(), w_arr.begin() + np,
+              w_host.begin());
+
     for (Long n = 0; n < np; ++n) {
-      ids.push_back(mid_arr[n]);
-      data.push_back(particles[n].pos(0));
-      data.push_back(particles[n].pos(1));
+      const int idx = mid_host[n];
+      if (idx <= 0) {
+        continue;
+      }
+
+      Real px = x0;
+      Real py = y0;
 #if (AMREX_SPACEDIM == 3)
-      data.push_back(particles[n].pos(2));
+      Real pz = z0;
 #else
-      data.push_back(amrex::Real(0.0));
+      Real pz = amrex::Real(0.0);
 #endif
-      data.push_back(u_arr[n]);
-      data.push_back(v_arr[n]);
-      data.push_back(w_arr[n]);
+
+      if (use_box) {
+        if (idx < static_cast<int>(m_xref_h.size())) {
+          px = m_xref_h[idx];
+          py = m_yref_h[idx];
+#if (AMREX_SPACEDIM == 3)
+          pz = m_zref_h[idx];
+#endif
+        }
+      } else if (idx < static_cast<int>(m_phiK_h.size()) &&
+                 idx < static_cast<int>(m_thetaK_h.size())) {
+        const Real phi = m_phiK_h[idx];
+        const Real theta = m_thetaK_h[idx];
+        px = x0 + m_R * std::sin(theta) * std::cos(phi);
+        py = y0 + m_R * std::sin(theta) * std::sin(phi);
+#if (AMREX_SPACEDIM == 3)
+        pz = z0 + m_R * std::cos(theta);
+#endif
+      }
+
+      ids.push_back(idx);
+      data.push_back(px);
+      data.push_back(py);
+      data.push_back(pz);
+      data.push_back(u_host[n]);
+      data.push_back(v_host[n]);
+      data.push_back(w_host[n]);
     }
   }
 }
@@ -804,26 +842,42 @@ void IBMarkerDF::scatter_marker_force(std::vector<Real> const &fx_global,
   }
 
   for (MarkerParIter pti(*m_markers, 0); pti.isValid(); ++pti) {
-    auto *particles = pti.GetArrayOfStructs().data();
     const Long np = pti.numParticles();
     auto &soa = pti.GetStructOfArrays();
     auto const &mid_arr = soa.GetIntData(M_ID);
+    auto &fx_arr = soa.GetRealData(Fx_Marker);
+    auto &fy_arr = soa.GetRealData(Fy_Marker);
+    auto &fz_arr = soa.GetRealData(Fz_Marker);
 
-    auto *fxP = soa.GetRealData(Fx_Marker).data();
-    auto *fyP = soa.GetRealData(Fy_Marker).data();
-    auto *fzP = soa.GetRealData(Fz_Marker).data();
+    std::vector<int> mid_host(static_cast<std::size_t>(np), 0);
+    std::vector<Real> fx_host(static_cast<std::size_t>(np), Real(0.0));
+    std::vector<Real> fy_host(static_cast<std::size_t>(np), Real(0.0));
+    std::vector<Real> fz_host(static_cast<std::size_t>(np), Real(0.0));
+
+    Gpu::copy(Gpu::deviceToHost, mid_arr.begin(), mid_arr.begin() + np,
+              mid_host.begin());
+    Gpu::copy(Gpu::deviceToHost, fx_arr.begin(), fx_arr.begin() + np,
+              fx_host.begin());
+    Gpu::copy(Gpu::deviceToHost, fy_arr.begin(), fy_arr.begin() + np,
+              fy_host.begin());
+    Gpu::copy(Gpu::deviceToHost, fz_arr.begin(), fz_arr.begin() + np,
+              fz_host.begin());
 
     for (Long n = 0; n < np; ++n) {
-      int idx = mid_arr[n] - 1;
-      if (idx < 0 || idx >= nmark) {
-        idx = particles[n].id() - 1;
-      }
+      const int idx = mid_host[n] - 1;
       if (idx >= 0 && idx < nmark) {
-        fxP[n] += fx_global[idx];
-        fyP[n] += fy_global[idx];
-        fzP[n] += fz_global[idx];
+        fx_host[n] += fx_global[idx];
+        fy_host[n] += fy_global[idx];
+        fz_host[n] += fz_global[idx];
       }
     }
+
+    Gpu::copy(Gpu::hostToDevice, fx_host.begin(), fx_host.end(),
+              fx_arr.begin());
+    Gpu::copy(Gpu::hostToDevice, fy_host.begin(), fy_host.end(),
+              fy_arr.begin());
+    Gpu::copy(Gpu::hostToDevice, fz_host.begin(), fz_host.end(),
+              fz_arr.begin());
   }
 }
 
@@ -954,9 +1008,6 @@ void IBMarkerDF::build_ivc_operator(std::vector<Real> const &x_global,
 }
 
 void IBMarkerDF::compute_lagrangian_force_ivc(Real dt) const {
-#ifdef AMREX_USE_GPU
-  amrex::Abort("IBMarkerDF IVC path currently requires CPU particle execution.");
-#else
   const int nmark = static_cast<int>(num_markers());
   if (nmark <= 0) {
     return;
@@ -1121,7 +1172,6 @@ void IBMarkerDF::compute_lagrangian_force_ivc(Real dt) const {
 #endif
 
   scatter_marker_force(fx_global, fy_global, fz_global);
-#endif
 }
 
 template <typename P>
@@ -1584,11 +1634,28 @@ void IBMarkerDF::update_forcing(MultiFab const &rhocc, MultiFab const &ucc,
         auto const &fx_arr = soa.GetRealData(Fx_Marker);
         auto const &fy_arr = soa.GetRealData(Fy_Marker);
         auto const &fz_arr = soa.GetRealData(Fz_Marker);
+#ifdef AMREX_USE_GPU
+        std::vector<amrex::Real> fx_host(np2);
+        std::vector<amrex::Real> fy_host(np2);
+        std::vector<amrex::Real> fz_host(np2);
+        Gpu::copy(Gpu::deviceToHost, fx_arr.begin(), fx_arr.begin() + np2,
+                  fx_host.begin());
+        Gpu::copy(Gpu::deviceToHost, fy_arr.begin(), fy_arr.begin() + np2,
+                  fy_host.begin());
+        Gpu::copy(Gpu::deviceToHost, fz_arr.begin(), fz_arr.begin() + np2,
+                  fz_host.begin());
+        for (Long n = 0; n < np2; ++n) {
+          sx += fx_host[n] * m_dv;
+          sy += fy_host[n] * m_dv;
+          sz += fz_host[n] * m_dv;
+        }
+#else
         for (int n = 0; n < np2; ++n) {
           sx += fx_arr[n] * m_dv;
           sy += fy_arr[n] * m_dv;
           sz += fz_arr[n] * m_dv;
         }
+#endif
       }
       amrex::ParallelDescriptor::ReduceRealSum(sx);
       amrex::ParallelDescriptor::ReduceRealSum(sy);

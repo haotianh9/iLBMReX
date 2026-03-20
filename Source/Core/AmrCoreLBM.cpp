@@ -756,6 +756,7 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
   const auto problo = Geom(lev).ProbLoArray();
   const auto probhi = Geom(lev).ProbHiArray();
   const auto dx = Geom(lev).CellSizeArray();
+  const Real nu_l = nu;
 
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
@@ -770,7 +771,7 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
     const Box &box = mfi.fabbox();
 
     amrex::ParallelFor(box, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-      initdata(i, j, k, rho, u, v, w, vor, problo, probhi, dx, nu);
+      initdata(i, j, k, rho, u, v, w, vor, problo, probhi, dx, nu_l);
     });
   }
 

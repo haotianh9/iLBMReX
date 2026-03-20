@@ -267,36 +267,30 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
     auto fy = fy_cc[mfi].array(0);
     auto fz = fz_cc[mfi].array(0);
 
-    const int nd = ndir;  // capture number of directions
-    auto dirx_loc = dirx; // OK for CPU path (AMREX_GPU_MAX_THREADS=0)
-    auto diry_loc = diry;
-    auto dirz_loc = dirz;
-    auto wi_loc = wi;
+    const int ndir_l = ndir;
+    auto const *dirx_d = dirx_dev.data();
+    auto const *diry_d = diry_dev.data();
+    auto const *dirz_d = dirz_dev.data();
+    auto const *wi_d = wi_dev.data();
     // -------- Collide (BGK) --------
     amrex::ParallelFor(
         gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
           // local macros from last stage
-          amrex::Vector<amrex::Real> mac(4);
-          mac[0] = rho_old(i, j, k);
-          mac[1] = u_old(i, j, k);
-          mac[2] = v_old(i, j, k);
-          mac[3] = w_old(i, j, k);
+          const amrex::Real rho_loc = rho_old(i, j, k);
+          const amrex::Real u_loc = u_old(i, j, k);
+          const amrex::Real v_loc = v_old(i, j, k);
+          const amrex::Real w_loc = w_old(i, j, k);
           // build feq
 
-          amrex::Vector<amrex::Real> tempMes(4);
-          amrex::Vector<amrex::Real> feq_loc(ndir);
+          amrex::Real feq_loc[BCBuf::MAX_NDIR];
 
-          for (int q = 0; q < ndir; ++q) {
-            tempMes[0] = wi[q];
-            tempMes[1] = dirx[q];
-            tempMes[2] = diry[q];
-            tempMes[3] = dirz[q];
-            feq_loc[q] = feqFunction(tempMes, mac);
+          for (int q = 0; q < ndir_l; ++q) {
+            feq_loc[q] = feqFunction(wi_d[q], dirx_d[q], diry_d[q], dirz_d[q],
+                                     rho_loc, u_loc, v_loc, w_loc);
           }
-          // collide(i, j, k, statein, feq_loc, ndir, temptau);
-          collide_forced(i, j, k, statein, feq_loc, ndir, temptau, wi_loc,
-                         dirx_loc, diry_loc, dirz_loc, mac[0], mac[1], mac[2],
-                         mac[3], fx(i, j, k), fy(i, j, k), fz(i, j, k));
+          collide_forced(i, j, k, statein, feq_loc, ndir_l, temptau, wi_d,
+                         dirx_d, diry_d, dirz_d, rho_loc, u_loc, v_loc, w_loc,
+                         fx(i, j, k), fy(i, j, k), fz(i, j, k));
 
           // amrex::Real fx_loc = 0.0;
           // amrex::Real fy_loc = 0.0;
@@ -312,7 +306,7 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
     amrex::ParallelFor(
         gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
           if (vbx.contains(i, j, k)) {
-            stream(i, j, k, stateout, statein, dirx, diry, dirz, ndir);
+            stream(i, j, k, stateout, statein, dirx_d, diry_d, dirz_d, ndir_l);
           }
         });
 
@@ -322,7 +316,7 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
           // Ensure that the calculation area is within the valid range
           if (vbx.contains(i, j, k)) {
             calculateMacroForcing(i, j, k, stateout, rho, u, v, w, fx, fy, fz,
-                                  ndir, dirx, diry, dirz);
+                                  ndir_l, dirx_d, diry_d, dirz_d);
             // calculateMacro(i, j, k, stateout, rho, u, v, w, ndir, dirx, diry,
             // dirz);
           }
@@ -351,14 +345,14 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
           vor(i, j, k) = Real(0.0);
           P(i, j, k) = rho0 / amrex::Real(3.0);
 
-          for (int q = 0; q < ndir; ++q) {
-            Real cu = dirx[q] * u(i, j, k) + diry[q] * v(i, j, k)
+          for (int q = 0; q < ndir_l; ++q) {
+            Real cu = dirx_d[q] * u(i, j, k) + diry_d[q] * v(i, j, k)
 #if (AMREX_SPACEDIM == 3)
-                      + dirz[q] * w(i, j, k)
+                      + dirz_d[q] * w(i, j, k)
 #endif
                 ;
             Real feq =
-                wi_loc[q] * rho0 *
+                wi_d[q] * rho0 *
                 (Real(1.0) + Real(3.0) * cu + Real(4.5) * cu * cu -
                  Real(1.5) * (u(i, j, k) * u(i, j, k) + v(i, j, k) * v(i, j, k)
 #if (AMREX_SPACEDIM == 3)

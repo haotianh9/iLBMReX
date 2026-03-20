@@ -9,7 +9,7 @@ AMREX_FORCE_INLINE
 void collide(int i, int j, int k,
              // amrex::Array4<amrex::Real>  const & f_out,
              amrex::Array4<amrex::Real> const &f_old,
-             amrex::Vector<amrex::Real> const feq, int const ndir,
+             amrex::Real const *feq, int const ndir,
              amrex::Real const tau) {
   // amrex::Print() << tau << std::endl;
   // amrex::Print() << "Collide at (" << i << "," << j << "," << k << ")\n";

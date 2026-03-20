@@ -89,7 +89,7 @@ public:
   [[nodiscard]] amrex::Long num_markers() const;
   [[nodiscard]] amrex::GpuArray<amrex::Real,3> last_marker_force_sum() const;
 
-private:
+public:
   void build_markers(amrex::DistributionMapping const &dm,
                      amrex::BoxArray const &ba);
 
@@ -145,6 +145,11 @@ private:
   mutable amrex::Gpu::DeviceVector<amrex::Real> m_xref_d;
   mutable amrex::Gpu::DeviceVector<amrex::Real> m_yref_d;
   mutable amrex::Gpu::DeviceVector<amrex::Real> m_zref_d;
+  std::vector<amrex::Real> m_phiK_h;
+  std::vector<amrex::Real> m_thetaK_h;
+  std::vector<amrex::Real> m_xref_h;
+  std::vector<amrex::Real> m_yref_h;
+  std::vector<amrex::Real> m_zref_h;
   int m_start_id{0};
   amrex::Real m_dv{0.0};
   amrex::Real m_wall_tol{0.0};

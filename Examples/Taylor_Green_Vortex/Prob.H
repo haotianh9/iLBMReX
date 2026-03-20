@@ -4,50 +4,52 @@
 #include <AMReX_Box.H>
 #include <AMReX_FArrayBox.H>
 #include <AMReX_Geometry.H>
-
-
+#include <AMReX_Math.H>
 
 AMREX_GPU_DEVICE
 AMREX_FORCE_INLINE
-void
-initdata(amrex::Box const& bx, amrex::Array4<amrex::Real> const& rho,amrex::Array4<amrex::Real> const& ux, amrex::Array4<amrex::Real> const& uy, amrex::Array4<amrex::Real> const& uz,amrex::Array4<amrex::Real> const& vor,amrex::GpuArray<amrex::Real,AMREX_SPACEDIM> const& prob_lo,
-         amrex::GpuArray<amrex::Real,AMREX_SPACEDIM> const& prob_hi,
-         amrex::GpuArray<amrex::Real,AMREX_SPACEDIM> const& dx,double nu)
-{
-    using namespace amrex;
-    double t=0;
-    double u_max = (double)0.02;	
-    double rho0 = 1.0;
-    const auto lo = lbound(bx);
-    const auto hi = ubound(bx);
-    double kx = 2.0 * M_PI / (prob_hi[0]-prob_lo[0]);
-    double ky = 2.0 * M_PI / (prob_hi[1]-prob_lo[1]);
-    double td = 1.0 / (nu * (kx * kx + ky * ky));
-     //amrex::Print() << "prob_lo[0]: " << prob_lo[0] << " prob_hi[0]: " << prob_hi[0] << std::endl;
-     //amrex::Print() << "prob_lo[1]: " << prob_lo[1] << " prob_hi[1]: " << prob_hi[1] << std::endl;
-    // amrex::Print() << "dx[0]: " << dx[0] << " dx[1]: " << dx[1] << std::endl;
-    for         (int k = lo.z; k <= hi.z; ++k) {
-        for     (int j = lo.y; j <= hi.y; ++j) {        
-            Real Y = prob_lo[1] + (0.5+j) * dx[1];
-            
-            for (int i = lo.x; i <= hi.x; ++i) {
-            	
-                Real X= prob_lo[0] + (0.5+i) * dx[0];
-                ux(i, j, k) =  -u_max * sqrt(ky / kx) * cos(kx * X) * sin(ky * Y) * exp(-1.0 * t / td);
-                uy(i, j, k) =  u_max * sqrt(kx / ky) * sin(kx * X) * cos(ky * Y) * exp(-1.0 * t / td);
+void initdata(int i, int j, int k,
+              amrex::Array4<amrex::Real> const &rho,
+              amrex::Array4<amrex::Real> const &ux,
+              amrex::Array4<amrex::Real> const &uy,
+              amrex::Array4<amrex::Real> const &uz,
+              amrex::Array4<amrex::Real> const &vor,
+              amrex::GpuArray<amrex::Real, AMREX_SPACEDIM> const &prob_lo,
+              amrex::GpuArray<amrex::Real, AMREX_SPACEDIM> const &prob_hi,
+              amrex::GpuArray<amrex::Real, AMREX_SPACEDIM> const &dx,
+              double nu) {
+    amrex::ignore_unused(k);
 
-                uz(i, j, k) = 0.0;
-                
-                vor(i, j, k)= 0.0;
-                
-                //amrex::Print() << vor(i, j, k) << std::endl;
-                double P = -0.25 * rho0 * u_max * u_max *((ky / kx) * cos(2.0 * kx * X) + (kx / ky) * cos(2.0 * ky * Y)) * exp(-2.0 * t / td);
-                rho(i, j, k) = rho0 + 3.0 * P;
-            
-                
-            }
-        }
-    }
+    constexpr amrex::Real t = 0.0;
+    constexpr amrex::Real u_max = 0.02;
+    constexpr amrex::Real rho0 = 1.0;
+    constexpr amrex::Real pi = amrex::Math::pi<amrex::Real>();
+
+    const amrex::Real kx = 2.0 * pi / (prob_hi[0] - prob_lo[0]);
+    const amrex::Real ky = 2.0 * pi / (prob_hi[1] - prob_lo[1]);
+    const amrex::Real td = 1.0 / (nu * (kx * kx + ky * ky));
+
+    const amrex::Real x = prob_lo[0] + (0.5 + i) * dx[0];
+    const amrex::Real y = prob_lo[1] + (0.5 + j) * dx[1];
+    const amrex::Real decay = std::exp(-t / td);
+    const auto xphase = amrex::Math::sincos(kx * x);
+    const auto yphase = amrex::Math::sincos(ky * y);
+    const auto x2phase = amrex::Math::sincos(2.0 * kx * x);
+    const auto y2phase = amrex::Math::sincos(2.0 * ky * y);
+
+    ux(i, j, k) = -u_max * std::sqrt(ky / kx) * xphase.second *
+                  yphase.first * decay;
+    uy(i, j, k) =  u_max * std::sqrt(kx / ky) * xphase.first *
+                  yphase.second * decay;
+    uz(i, j, k) = 0.0;
+    vor(i, j, k) = 0.0;
+
+    const amrex::Real pressure =
+        -0.25 * rho0 * u_max * u_max *
+        ((ky / kx) * x2phase.second +
+         (kx / ky) * y2phase.second) *
+        std::exp(-2.0 * t / td);
+    rho(i, j, k) = rho0 + 3.0 * pressure;
 }
 
 #endif
