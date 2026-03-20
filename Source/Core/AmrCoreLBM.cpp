@@ -70,7 +70,11 @@ AmrCoreLBM::AmrCoreLBM() {
 
   for (int lev = 1; lev <= max_level; ++lev) {
     dt[lev] = xCellSize[lev];
-    tau[lev] = 0.5 + nsubsteps[lev] * (tau[lev - 1] - 0.5);
+    // Keep the physical viscosity fixed across AMR levels.
+    // With lattice scaling dt_lev ~ dx_lev, BGK requires
+    //   nu = c_s^2 (tau_lev - 1/2) dt_lev
+    // so tau_lev - 1/2 must scale with the local dt_lev ~ dx_lev.
+    tau[lev] = 0.5 + 3.0 * xCellSize[lev] * nu;
   }
 
   f_new.resize(nlevs_max);

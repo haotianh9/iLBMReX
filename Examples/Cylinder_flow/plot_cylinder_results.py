@@ -105,10 +105,29 @@ def latest_plotfile(root: Path) -> Path:
     return cands[-1]
 
 
+def finest_covering_grid(ds):
+    level = int(ds.index.max_level)
+    dims = np.array(ds.domain_dimensions, dtype=np.int64)
+    if level > 0:
+        ref = int(np.prod(np.asarray(ds.ref_factors[:level], dtype=np.int64)))
+        dims *= ref
+    # For AMR visualization, yt's smoothed covering grid gives a continuous
+    # stitched field across refinement patches. For BoxLib/AMReX plotfiles on
+    # a non-periodic inlet/outlet, force_periodicity() is only used here in
+    # postprocessing so yt can build the smoothed sample without complaining
+    # about a one-cell internal stencil overshoot at the x-boundary.
+    ds.force_periodicity()
+    return ds.smoothed_covering_grid(
+        level=level,
+        left_edge=ds.domain_left_edge,
+        dims=tuple(int(v) for v in dims),
+        num_ghost_zones=0,
+    )
+
+
 def load_fields2d(plotfile: Path) -> tuple[list[float], np.ndarray, np.ndarray, np.ndarray]:
     ds = yt.load(str(plotfile))
-    dims = tuple(int(v) for v in ds.domain_dimensions)
-    cg = ds.covering_grid(level=0, left_edge=ds.domain_left_edge, dims=dims)
+    cg = finest_covering_grid(ds)
 
     def field(name: str) -> np.ndarray:
         arr = cg[("boxlib", name)].to_ndarray()
@@ -226,11 +245,20 @@ def plot_flow_fields(
         ("vorticity", vor, "coolwarm", vor_norm),
     ]
     for axi, (name, arr, cmap, norm) in zip(ax.ravel(), fields):
-        im = axi.imshow(arr.T, origin="lower", extent=extent, cmap=cmap, norm=norm, aspect="equal")
+        im = axi.imshow(
+            arr.T,
+            origin="lower",
+            extent=extent,
+            cmap=cmap,
+            norm=norm,
+            aspect="equal",
+            interpolation="nearest",
+        )
         add_cylinder(axi, x0, y0, r)
         axi.set_title(name)
         axi.set_xlabel("x")
         axi.set_ylabel("y")
+        axi.grid(False)
         fig.colorbar(im, ax=axi, shrink=0.9)
 
     fig.suptitle(f"{title}\n{plotfile.name}")
