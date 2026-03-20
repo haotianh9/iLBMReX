@@ -44,12 +44,12 @@ To obtain additional help, simply post an issue.
 
 ## Contribute
 
- We are always happy to have users contribute to the [Place holder for name] source code. To contribute, issue a pull request against the development branch.
+ We are always happy to have users contribute to the iLBMReX source code. To contribute, issue a pull request against the development branch.
 Any level of changes are welcomed: documentation, bug fixes, new test problems,
 new solvers, etc. For more details on how to contribute to iLBMReX, please see
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
-💡 If you're using IAMReX in your own GitHub projects, consider adding [Place holder for name]
+💡 If you're using IAMReX in your own GitHub projects, consider adding iLBMReX
 as a [repository topic](to be added)!
 This helps others discover related work and strengthens the IAMReX ecosystem.
 
