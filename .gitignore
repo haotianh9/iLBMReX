@@ -41,12 +41,12 @@ Visualization_debug.ipynb
 # Data files
 *plt*/
 *.dat
-
+*.log
 # visualization notebooks checkpoints
 *.ipynb_checkpoints*
 
 # example-generated cylinder outputs
-Examples/Cylinder_flow/_artifacts/
-Examples/Cylinder_flow/__pycache__/
-Examples/Cylinder_flow/out_cylinder/
-Examples/Cylinder_flow/chk*/
+
+
+*_artifacts/*
+*__pycache__/*

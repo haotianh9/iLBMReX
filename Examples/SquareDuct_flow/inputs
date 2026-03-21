@@ -1,0 +1,79 @@
+# Minimal 3D square-duct LBM validation (D3Q19, body-force driven)
+#
+# Geometry:
+#   x in [0, 8], periodic
+#   y in [-16, 16], stationary walls
+#   z in [-16, 16], stationary walls
+#
+# With dx = dy = dz = 1 and nu = 0.06, the BGK relaxation time is
+#   tau = 3 * nu + 0.5 = 0.68
+# which stays inside the recommended [0.6, 0.8] range.
+
+max_step  = 6000
+stop_time = 6000
+
+amr.v              = 1
+amr.plot_file      = out_square_duct/plt
+amr.plot_int       = 6000
+amr.chk_file       = chk
+amr.chk_int        = -1
+
+geometry.prob_lo     =   0.0 -16.0 -16.0
+geometry.prob_hi     =   8.0  16.0  16.0
+geometry.is_periodic =   1    0    0
+
+amr.n_cell            = 8 32 32
+amr.max_level         = 0
+amr.blocking_factor_x = 8
+amr.blocking_factor_y = 8
+amr.blocking_factor_z = 8
+amr.max_grid_size     = 32
+
+lbmPhysicalParameters.nu   = 0.06
+lbmPhysicalParameters.nmac = 6
+
+# D3Q19 lattice: wi = wis / wim
+lbm3d.ndir = 19
+lbm3d.wis  = 12.0 2.0 2.0 2.0 2.0 2.0 2.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+lbm3d.wim  = 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0 36.0
+lbm3d.dirx = 0 1 -1 0 0 0 0 1 -1 1 -1 1 -1 1 -1 0 0 0 0
+lbm3d.diry = 0 0 0 1 -1 0 0 1 -1 -1 1 0 0 0 0 1 -1 1 -1
+lbm3d.dirz = 0 0 0 0 0 1 -1 0 0 0 0 1 -1 -1 1 1 -1 -1 1
+
+# The prescribed forcing is the LBM force density used by the Guo forcing term.
+# With rho ~ 1, this corresponds to a body-force acceleration close to 1e-5.
+lbm.prescribed_force = 1.0e-5 0.0 0.0
+lbm.force_validation = 0
+
+# AMReX BC codes:
+#   int_dir  = 0
+#   ext_dir  = 3
+#   user_1   = 1001
+#   user_2   = 1002
+#
+# `user_2` uses a face-mirrored ghost state to impose the wall value at the
+# boundary face instead of at the ghost-cell center.
+amrbc.bc_lo = 0 1002 1002
+amrbc.bc_hi = 0 1002 1002
+
+amrbc.bc_lo_1_rho_val = 1.0
+amrbc.bc_lo_1_ux_val  = 0.0
+amrbc.bc_lo_1_uy_val  = 0.0
+amrbc.bc_lo_1_uz_val  = 0.0
+amrbc.bc_hi_1_rho_val = 1.0
+amrbc.bc_hi_1_ux_val  = 0.0
+amrbc.bc_hi_1_uy_val  = 0.0
+amrbc.bc_hi_1_uz_val  = 0.0
+
+amrbc.bc_lo_2_rho_val = 1.0
+amrbc.bc_lo_2_ux_val  = 0.0
+amrbc.bc_lo_2_uy_val  = 0.0
+amrbc.bc_lo_2_uz_val  = 0.0
+amrbc.bc_hi_2_rho_val = 1.0
+amrbc.bc_hi_2_ux_val  = 0.0
+amrbc.bc_hi_2_uy_val  = 0.0
+amrbc.bc_hi_2_uz_val  = 0.0
+
+# No IBM in this minimal case.
+ibm.use_cylinder = 0
+ibm.method = none

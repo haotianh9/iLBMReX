@@ -62,7 +62,11 @@ AmrCoreLBM::AmrCoreLBM() {
     yCellSize[lev] = geom[lev].CellSize(1);
     zCellSize[lev] = geom[lev].CellSize(2);
   }
-  tau_base = 3.0 * xCellSize[0] * nu + 0.5;
+  // With c = dx/dt = 1 and cs^2 = 1/3, the physical viscosity is
+  //   nu = cs^2 (tau - 1/2) dt = (tau - 1/2) dt / 3.
+  // Since dt = dx in this code, keeping nu fixed requires
+  //   tau - 1/2 = 3 nu / dx.
+  tau_base = 3.0 * nu / xCellSize[0] + 0.5;
 
   tau.resize(nlevs_max, 0.0);
   dt[0] = xCellSize[0];
@@ -73,8 +77,8 @@ AmrCoreLBM::AmrCoreLBM() {
     // Keep the physical viscosity fixed across AMR levels.
     // With lattice scaling dt_lev ~ dx_lev, BGK requires
     //   nu = c_s^2 (tau_lev - 1/2) dt_lev
-    // so tau_lev - 1/2 must scale with the local dt_lev ~ dx_lev.
-    tau[lev] = 0.5 + 3.0 * xCellSize[lev] * nu;
+    // so tau_lev - 1/2 must scale like 1 / dt_lev ~ 1 / dx_lev.
+    tau[lev] = 0.5 + 3.0 * nu / xCellSize[lev];
   }
 
   f_new.resize(nlevs_max);
@@ -107,7 +111,9 @@ AmrCoreLBM::AmrCoreLBM() {
       bc_lo[idim] = temp0[idim];
       bc_hi[idim] = temp1[idim];
 
-      if (bc_lo[idim] == amrex::BCType::ext_dir) {
+      if (bc_lo[idim] == amrex::BCType::ext_dir ||
+          bc_lo[idim] == amrex::BCType::user_1 ||
+          bc_lo[idim] == amrex::BCType::user_2) {
         std::string dir = std::to_string(idim);
         pp.query(("bc_lo_" + dir + "_rho_val").c_str(),
                  BCVals::bc_lo_rho_val[idim]);
@@ -118,7 +124,9 @@ AmrCoreLBM::AmrCoreLBM() {
         pp.query(("bc_lo_" + dir + "_uz_val").c_str(),
                  BCVals::bc_lo_uz_val[idim]);
       }
-      if (bc_hi[idim] == amrex::BCType::ext_dir) {
+      if (bc_hi[idim] == amrex::BCType::ext_dir ||
+          bc_hi[idim] == amrex::BCType::user_1 ||
+          bc_hi[idim] == amrex::BCType::user_2) {
         std::string dir = std::to_string(idim);
         pp.query(("bc_hi_" + dir + "_rho_val").c_str(),
                  BCVals::bc_hi_rho_val[idim]);

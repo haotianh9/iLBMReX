@@ -241,9 +241,10 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
-  for (MFIter mfi(sF_new, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
+  // We update ghost cells in `gtbx`, so tiled iteration would create
+  // overlapping grown regions and collide some cells multiple times.
+  for (MFIter mfi(sF_new, false); mfi.isValid(); ++mfi) {
     const Box &vbx = mfi.validbox();
-    const Box &tbx = mfi.tilebox();
     Box gtbx = mfi.growntilebox(nghost); // <-- safe grown box, clamped to FAB
 
     // staging views
@@ -300,6 +301,116 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
           // collide_forced(i, j, k, statein, feq_loc, ndir, temptau, wi_loc,
           //                dirx_loc, diry_loc, dirz_loc, mac[0], mac[1],
           //                mac[2], mac[3], fx_loc, fy_loc, fz_loc);
+        });
+
+    const amrex::Box domain = geom[lev].Domain();
+    const amrex::BCRec bc_rec =
+        bcsMesoscopic.empty() ? amrex::BCRec() : bcsMesoscopic[0];
+
+    // For `user_1` walls, impose stationary halfway bounce-back by populating
+    // ghost cells with the fully reversed post-collision population from the
+    // boundary-adjacent fluid cell that will pull from that ghost location.
+    amrex::ParallelFor(
+        gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+          if (vbx.contains(i, j, k)) {
+            return;
+          }
+
+          int flip_x = 0;
+          int flip_y = 0;
+#if (AMREX_SPACEDIM == 3)
+          int flip_z = 0;
+#endif
+          bool has_bounce_back = false;
+          bool unsupported_face = false;
+
+          if (i < domain.smallEnd(0)) {
+            if (bc_rec.lo(0) == amrex::BCType::user_1) {
+              flip_x = 1;
+              has_bounce_back = true;
+            } else {
+              unsupported_face = true;
+            }
+          } else if (i > domain.bigEnd(0)) {
+            if (bc_rec.hi(0) == amrex::BCType::user_1) {
+              flip_x = 1;
+              has_bounce_back = true;
+            } else {
+              unsupported_face = true;
+            }
+          }
+
+          if (j < domain.smallEnd(1)) {
+            if (bc_rec.lo(1) == amrex::BCType::user_1) {
+              flip_y = 1;
+              has_bounce_back = true;
+            } else {
+              unsupported_face = true;
+            }
+          } else if (j > domain.bigEnd(1)) {
+            if (bc_rec.hi(1) == amrex::BCType::user_1) {
+              flip_y = 1;
+              has_bounce_back = true;
+            } else {
+              unsupported_face = true;
+            }
+          }
+
+#if (AMREX_SPACEDIM == 3)
+          if (k < domain.smallEnd(2)) {
+            if (bc_rec.lo(2) == amrex::BCType::user_1) {
+              flip_z = 1;
+              has_bounce_back = true;
+            } else {
+              unsupported_face = true;
+            }
+          } else if (k > domain.bigEnd(2)) {
+            if (bc_rec.hi(2) == amrex::BCType::user_1) {
+              flip_z = 1;
+              has_bounce_back = true;
+            } else {
+              unsupported_face = true;
+            }
+          }
+#endif
+
+          if (!has_bounce_back || unsupported_face) {
+            return;
+          }
+
+          for (int q = 0; q < ndir_l; ++q) {
+            const int itgt = i + static_cast<int>(dirx_d[q]);
+            const int jtgt = j + static_cast<int>(diry_d[q]);
+#if (AMREX_SPACEDIM == 3)
+            const int ktgt = k + static_cast<int>(dirz_d[q]);
+#else
+            const int ktgt = k;
+#endif
+
+            if (!vbx.contains(itgt, jtgt, ktgt)) {
+              continue;
+            }
+
+            const int rx = -static_cast<int>(dirx_d[q]);
+            const int ry = -static_cast<int>(diry_d[q]);
+#if (AMREX_SPACEDIM == 3)
+            const int rz = -static_cast<int>(dirz_d[q]);
+#else
+            const int rz = 0;
+#endif
+
+            int q_reflect = q;
+            for (int p = 0; p < ndir_l; ++p) {
+              if (static_cast<int>(dirx_d[p]) == rx &&
+                  static_cast<int>(diry_d[p]) == ry &&
+                  static_cast<int>(dirz_d[p]) == rz) {
+                q_reflect = p;
+                break;
+              }
+            }
+
+            statein(i, j, k, q) = statein(itgt, jtgt, ktgt, q_reflect);
+          }
         });
 
     // // -------- Stream --------
