@@ -40,4 +40,4 @@ lbm.force_validation = 1
 
 # No IBM
 ibm.use_cylinder = 0
-ibm.method = none
+ibm.method = 0

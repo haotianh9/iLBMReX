@@ -48,7 +48,7 @@ amrbc.bc_lo_0_uy_val  = 1.0e-4
 
 # Marker IBM (Wu-Shu IVC coupling)
 ibm.use_cylinder = 1
-ibm.method = iamr_marker
+ibm.method = 1
 ibm.x0 = 96.0
 # Slightly biased placement to trigger shedding and avoid symmetry lock-in.
 ibm.y0 = 127.9

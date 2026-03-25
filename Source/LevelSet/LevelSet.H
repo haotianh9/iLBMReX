@@ -6,8 +6,6 @@
 #include <AMReX_Vector.H>
 
 struct LevelSetParams {
-  amrex::Real eps = 1.5;   // smoothing length
-  amrex::Real alpha = 2.0; // scaling factor, not strictly needed
   amrex::Real x0 = 12.0;   // cylinder center x
   amrex::Real y0 = 60.0;   // cylinder center y
   amrex::Real z0 = 0.0;    // cylinder center z (for 3D)

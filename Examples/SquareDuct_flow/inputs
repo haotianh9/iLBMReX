@@ -76,4 +76,4 @@ amrbc.bc_hi_2_uz_val  = 0.0
 
 # No IBM in this minimal case.
 ibm.use_cylinder = 0
-ibm.method = none
+ibm.method = 0

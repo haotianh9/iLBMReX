@@ -51,4 +51,4 @@ amrbc.bc_hi_1_ux_val  = 0.05
 amrbc.bc_hi_1_uy_val  = 0.0
 
 ibm.use_cylinder = 0
-ibm.method = none
+ibm.method = 0

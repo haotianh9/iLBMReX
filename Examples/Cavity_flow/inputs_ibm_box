@@ -50,7 +50,7 @@ amrbc.bc_hi_1_ux_val  = 0.0
 amrbc.bc_hi_1_uy_val  = 0.0
 
 ibm.use_cylinder = 1
-ibm.method = iamr_marker
+ibm.method = 1
 
 # legacy cylinder knobs still parsed; not used by marker box geometry
 ibm.x0 = 32.0

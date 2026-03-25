@@ -17,15 +17,11 @@
 #include <AMReX_TableData.H>
 #include <memory> // for std::unique_ptr
 
-#include "IBM/IBDiffuseLS.H"    // DiffuseIBParams, IBDiffuseLS
-#include "IBM/IBSharpLS.H"      // SharpIBParams,   IBSharpLS
 #include "IBM/MarkerIBParams.H" // MarkerIBParams
 #include "LevelSet/LevelSet.H"  // LevelSetParams, LevelSetManager
 
 // ---- Forward decls; full definitions live in the .cpps
 class LevelSetManager;
-class IBDiffuseLS;
-class IBSharpLS;
 class IBMarkerDF;
 
 class AmrCoreLBM : public amrex::AmrCore {
@@ -283,23 +279,25 @@ private:
                     amrex::Vector<amrex::MultiFab *> &data,
                     amrex::Vector<amrex::Real> &datatime);
 
+  void ResetIBMBackend();
+  void EnsureIBMBackend(int lev, amrex::DistributionMapping const &dm,
+                        amrex::BoxArray const &ba);
+
   BCBuf bcval;
 
   // BC/geometry switches
   // IBM (cylinder) runtime knobs — default values and OFF by default
   int m_use_cylinder{0}; // 0 = off (default), 1 = on
-  int m_ib_method{0}; // 0: none, 1: diffuse, 2: sharp, 3: marker-direct-forcing
+  static constexpr int IBMMethodNone = 0;
+  static constexpr int IBMMethodMarker = 1; // Add future validated IBM modes here.
+  int m_ib_method{IBMMethodNone};
 
   // Parameter bundles
   LevelSetParams m_ls_par{};
-  DiffuseIBParams m_diff_par{};
-  SharpIBParams m_sharp_par{};
   MarkerIBParams m_marker_par{};
 
   // Backends (opaque handles)
   std::unique_ptr<LevelSetManager> m_ls;
-  std::unique_ptr<IBDiffuseLS> m_ibd;
-  std::unique_ptr<IBSharpLS> m_ibs;
   std::unique_ptr<IBMarkerDF> m_ibm;
 
   // state per level

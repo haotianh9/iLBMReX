@@ -11,8 +11,6 @@
 
 #if LBM_USE_IBM
 #include "IBM/IBMarkerDF.H"
-#include "IBM/IBDiffuseLS.H"
-#include "IBM/IBSharpLS.H"
 #include "LevelSet/LevelSet.H"
 #endif
 
@@ -77,37 +75,12 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
   std::unique_ptr<MultiFab> prevFyAlias;
   std::unique_ptr<MultiFab> prevFzAlias;
 
-  // Ensure the IBM backend exists on the active finest level.
-  // In AMReX level construction callbacks, finest_level can still be in
-  // transition, so creating the backend only there can leave it null at run
-  // time (which silently disables IBM forcing).
   if (m_use_cylinder && lev == finestLevel()) {
-    if (m_ib_method == 3 && !m_ibm) {
-      m_ibm = std::make_unique<IBMarkerDF>(geom[lev], dmap[lev], grids[lev],
-                                           m_ls_par.x0, m_ls_par.y0,
-                                           m_ls_par.z0, m_ls_par.R,
-                                           m_marker_par);
-      m_ibd.reset();
-      m_ibs.reset();
-      amrex::Print() << "AdvancePhiAtLevel: initialized marker IBM backend on "
-                     << "level " << lev << "\n";
-    } else if (m_ib_method == 1 && !m_ibd) {
-      m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
-      m_ibs.reset();
-      m_ibm.reset();
-      amrex::Print() << "AdvancePhiAtLevel: initialized diffuse IBM backend on "
-                     << "level " << lev << "\n";
-    } else if (m_ib_method == 2 && !m_ibs) {
-      m_ibs = std::make_unique<IBSharpLS>(geom[lev]);
-      m_ibd.reset();
-      m_ibm.reset();
-      amrex::Print() << "AdvancePhiAtLevel: initialized sharp IBM backend on "
-                     << "level " << lev << "\n";
-    }
+    EnsureIBMBackend(lev, dmap[lev], grids[lev]);
   }
 
   // ---- Marker DF IBM (no level-set required; only on finest) ----
-  if (lev == finestLevel() && m_ib_method == 3 && m_ibm) {
+  if (lev == finestLevel() && m_ib_method == IBMMethodMarker && m_ibm) {
     if (sForcingPtr && sForcingPtr->nComp() >= 3) {
       prevFxAlias = std::make_unique<MultiFab>(*sForcingPtr, amrex::make_alias, 0, 1);
       prevFyAlias = std::make_unique<MultiFab>(*sForcingPtr, amrex::make_alias, 1, 1);
@@ -117,22 +90,6 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
     m_ibm->update_forcing(rhocc, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc, dt_lev,
                           prevFxAlias.get(), prevFyAlias.get(),
                           prevFzAlias.get());
-  }
-
-  // ---- Level-set driven IBM (only on finest; requires level set) ----
-  if (m_use_cylinder && lev == finestLevel() && m_ls) {
-    // amrex::Print() << "AdvancePhiAtLevel: lev=" << lev << " dt_lev=" <<
-    // dt_lev
-    //                << " updating IBM forcing\n";
-    if (m_ib_method == 1 && m_ibd) {
-      // Diffuse: Brinkman penalization in smoothed solid mask
-      m_ibd->update_forcing(lev, *m_ls, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc,
-                            m_diff_par.alpha, m_diff_par.eps);
-    } else if (m_ib_method == 2 && m_ibs) {
-      // Sharp: direct forcing in |phi|<=eps band
-      m_ibs->update_forcing(lev, *m_ls, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc,
-                            dt_lev);
-    }
   }
 #endif // LBM_USE_IBM
   // amrex::Print() << "AdvancePhiAtLevel lev=" << lev
@@ -161,8 +118,6 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
   //         grids[lev], dmap[lev], sForcing.nComp(),
   //                           sForcing.nGrow());
   // }
-
-  // ... fill fx_cc, fy_cc, fz_cc from IBM (m_ibd/m_ibs) ...
 
   // pack into forcing[lev] on valid region
   if (sForcingPtr) {
@@ -433,48 +388,6 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
           }
         });
 
-    // The "overwrite deep-solid cells to rest equilibrium" treatment is for
-    // level-set IBM variants. Marker direct-forcing IBM (IAMR style) should
-    // rely on marker coupling alone and must not apply this extra solid reset.
-    if (m_use_cylinder && m_ls && m_ib_method != 3) {
-      const auto &phi_cc = m_ls->phi_at(lev);
-      auto phi = phi_cc[mfi].const_array();
-
-      Real eps_loc = m_ls_par.eps * xCellSize[lev];
-
-      amrex::ParallelFor(vbx, [=] AMREX_GPU_DEVICE(int i, int j,
-                                                   int k) noexcept {
-        Real chi = Hsmooth(-phi(i, j, k, 0), eps_loc);
-
-        // Deep inside the solid: overwrite state with rest equilibrium
-        if (chi > Real(0.99)) {
-          Real rho0 = 1.0; // or just amrex::Real(1.0)
-          rho(i, j, k) = rho0;
-          u(i, j, k) = Real(0.0);
-          v(i, j, k) = Real(0.0);
-          w(i, j, k) = Real(0.0);
-          vor(i, j, k) = Real(0.0);
-          P(i, j, k) = rho0 / amrex::Real(3.0);
-
-          for (int q = 0; q < ndir_l; ++q) {
-            Real cu = dirx_d[q] * u(i, j, k) + diry_d[q] * v(i, j, k)
-#if (AMREX_SPACEDIM == 3)
-                      + dirz_d[q] * w(i, j, k)
-#endif
-                ;
-            Real feq =
-                wi_d[q] * rho0 *
-                (Real(1.0) + Real(3.0) * cu + Real(4.5) * cu * cu -
-                 Real(1.5) * (u(i, j, k) * u(i, j, k) + v(i, j, k) * v(i, j, k)
-#if (AMREX_SPACEDIM == 3)
-                              + w(i, j, k) * w(i, j, k)
-#endif
-                                  ));
-            stateout(i, j, k, q) = feq;
-          }
-        }
-      });
-    }
   }
   const int step_lev = istep[lev];
   const bool do_vorticity = (((step_lev + 1) % regrid_int) == 0) ||

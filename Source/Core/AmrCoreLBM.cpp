@@ -16,10 +16,7 @@
 
 #include "DebugNaN.H"
 
-#include "IBM/IBDiffuseLS.H"
-#include "IBM/IBForceEval.H"
 #include "IBM/IBMarkerDF.H"
-#include "IBM/IBSharpLS.H"
 #include "LevelSet/LevelSet.H"
 #include <AMReX_GpuContainers.H>
 
@@ -27,6 +24,24 @@
 #include <iomanip> // optional, for nicer formatting
 
 using namespace amrex;
+
+void AmrCoreLBM::ResetIBMBackend() { m_ibm.reset(); }
+
+void AmrCoreLBM::EnsureIBMBackend(int lev, DistributionMapping const &dm,
+                                  BoxArray const &ba) {
+  if (m_ib_method != IBMMethodMarker) {
+    ResetIBMBackend();
+    return;
+  }
+
+  if (!m_ibm) {
+    m_ibm = std::make_unique<IBMarkerDF>(geom[lev], dm, ba, m_ls_par.x0,
+                                         m_ls_par.y0, m_ls_par.z0, m_ls_par.R,
+                                         m_marker_par);
+    amrex::Print() << "Initialized marker IBM backend on level " << lev
+                   << "\n";
+  }
+}
 
 // constructor - reads in parameters from inputs file
 //             - sizes multilevel arrays and data structures
@@ -337,28 +352,18 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
   }
 
   // Marker force integral from Lagrangian direct-forcing data.
-  if (m_ib_method == 3 && m_ibm) {
+  if (m_ib_method == IBMMethodMarker && m_ibm) {
     auto Fm = m_ibm->last_marker_force_sum();
     Fx_marker = -Fm[0];
     Fy_marker = -Fm[1];
     Fz_marker = -Fm[2];
   }
 
-  // Momentum-exchange force:
-  // - For marker direct-forcing IBM, hydrodynamic reaction is the
-  //   Lagrangian forcing integral (IBM momentum exchange by construction).
-  // - For level-set style immersed boundaries, use geometric link-wise ME.
-  if (m_ib_method == 3 && m_ibm) {
-    Fx_me = Fx_marker;
-    Fy_me = Fy_marker;
-    Fz_me = Fz_marker;
-  } else if (m_use_cylinder) {
-    auto Fme = IBForceEval::ComputeMomentumExchangeBodyForce(
-        f_new[lev], geom[lev], dirx, diry, dirz, ndir, m_ls_par);
-    Fx_me = Fme[0];
-    Fy_me = Fme[1];
-    Fz_me = Fme[2];
-  }
+  // For the validated marker IBM, hydrodynamic reaction is the
+  // Lagrangian forcing integral by construction.
+  Fx_me = Fx_marker;
+  Fy_me = Fy_marker;
+  Fz_me = Fz_marker;
 
   Real Fx_body = Fx_eul;
   Real Fy_body = Fy_eul;
@@ -579,28 +584,8 @@ void AmrCoreLBM::MakeNewLevelFromCoarse(int lev, Real time, const BoxArray &ba,
   }
 
   // --- IBM object only for current finest (optional) ---
-  // Marker-based IBM (method 3) does NOT require a level-set/cylinder.
-  // Level-set based IBM (methods 1/2) requires m_use_cylinder.
   if (lev == finestLevel()) {
-    if (m_ib_method == 3) {
-      m_ibm = std::make_unique<IBMarkerDF>(geom[lev], dm, ba, m_ls_par.x0,
-                                           m_ls_par.y0, m_ls_par.z0, m_ls_par.R,
-                                           m_marker_par);
-      m_ibd.reset();
-      m_ibs.reset();
-    } else if (m_use_cylinder && m_ib_method == 1) {
-      m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
-      m_ibs.reset();
-      m_ibm.reset();
-    } else if (m_use_cylinder && m_ib_method == 2) {
-      m_ibs = std::make_unique<IBSharpLS>(geom[lev]);
-      m_ibd.reset();
-      m_ibm.reset();
-    } else {
-      m_ibd.reset();
-      m_ibs.reset();
-      m_ibm.reset();
-    }
+    EnsureIBMBackend(lev, dm, ba);
   }
 }
 
@@ -680,26 +665,8 @@ void AmrCoreLBM::RemakeLevel(int lev, Real time, const BoxArray &ba,
   }
 
   // --- IBM object only for current finest (optional) ---
-  if (m_use_cylinder && lev == finestLevel()) {
-    if (m_ib_method == 1) {
-      m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
-      m_ibs.reset();
-      m_ibm.reset();
-    } else if (m_ib_method == 2) {
-      m_ibs = std::make_unique<IBSharpLS>(geom[lev]);
-      m_ibd.reset();
-      m_ibm.reset();
-    } else if (m_ib_method == 3) {
-      m_ibm = std::make_unique<IBMarkerDF>(geom[lev], dm, ba, m_ls_par.x0,
-                                           m_ls_par.y0, m_ls_par.z0, m_ls_par.R,
-                                           m_marker_par);
-      m_ibd.reset();
-      m_ibs.reset();
-    } else {
-      m_ibd.reset();
-      m_ibs.reset();
-      m_ibm.reset();
-    }
+  if (lev == finestLevel()) {
+    EnsureIBMBackend(lev, dm, ba);
   }
 }
 
@@ -737,26 +704,8 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
   }
 
   // --- IBM object only for current finest (optional) ---
-  if (m_use_cylinder && lev == finestLevel()) {
-    if (m_ib_method == 1) {
-      m_ibd = std::make_unique<IBDiffuseLS>(geom[lev]);
-      m_ibs.reset();
-      m_ibm.reset();
-    } else if (m_ib_method == 2) {
-      m_ibs = std::make_unique<IBSharpLS>(geom[lev]);
-      m_ibd.reset();
-      m_ibm.reset();
-    } else if (m_ib_method == 3) {
-      m_ibm = std::make_unique<IBMarkerDF>(geom[lev], dm, ba, m_ls_par.x0,
-                                           m_ls_par.y0, m_ls_par.z0, m_ls_par.R,
-                                           m_marker_par);
-      m_ibd.reset();
-      m_ibs.reset();
-    } else {
-      m_ibd.reset();
-      m_ibs.reset();
-      m_ibm.reset();
-    }
+  if (lev == finestLevel()) {
+    EnsureIBMBackend(lev, dm, ba);
   }
 
   MultiFab &cur = macro_new[lev];
@@ -850,7 +799,7 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
   // Max vorticity (component 4) on this level
   amrex::Real vortMax = curMacro.max(4);
   const bool marker_box_ibm =
-      (m_ib_method == 3 &&
+      (m_ib_method == IBMMethodMarker &&
        m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
   if (m_use_cylinder && !marker_box_ibm && m_ls && m_ls->has_level(lev)) {
     // Level set φ for this level
@@ -1019,20 +968,21 @@ void AmrCoreLBM::ReadParameters() {
 
       std::string method = "none";
       pp_ibm.query("method", method);
-      if (method == "diffuse") {
-        m_ib_method = 1;
-      } else if (method == "sharp") {
-        m_ib_method = 2;
-      } else if (method == "marker" || method == "iamr_marker") {
-        m_ib_method = 3;
+      if (method == "0" || method == "none" || method.empty()) {
+        m_ib_method = IBMMethodNone;
+      } else if (method == "1" || method == "marker" || method == "iamr_marker") {
+        m_ib_method = IBMMethodMarker;
+      } else if (method == "diffuse" || method == "sharp") {
+        amrex::Abort("ibm.method = " + method +
+                     " is not enabled in the current code base. "
+                     "Only the validated marker backend "
+                     "(`ibm.method = 1`) is supported.");
       } else {
-        m_ib_method = 0;
+        amrex::Abort("Unknown ibm.method = " + method +
+                     ". Supported values are: 0, 1, none, marker, iamr_marker.");
       }
 
-      // geometry: tie to your existing cylinder knobs (x0,y0,z0,R)
-      pp_ibm.query("eps", m_diff_par.eps);
-      // pp_ibm.query("alpha", m_ls_par.alpha);
-      pp_ibm.query("alpha", m_diff_par.alpha); // <-- use diffuse params here
+      // Geometry shared by the validated marker backend.
       pp_ibm.query("x0", m_ls_par.x0);
       pp_ibm.query("y0", m_ls_par.y0);
       pp_ibm.query("z0", m_ls_par.z0);
@@ -1152,8 +1102,7 @@ void AmrCoreLBM::ReadParameters() {
                      << ", method = " << method << std::endl;
       amrex::Print() << "               x0 = " << m_ls_par.x0
                      << ", y0 = " << m_ls_par.y0 << ", z0 = " << m_ls_par.z0
-                     << ", R = " << m_ls_par.R
-                     << ", alpha = " << m_diff_par.alpha << std::endl;
+                     << ", R = " << m_ls_par.R << std::endl;
       amrex::Print() << "               marker_geometry = "
                      << ((m_marker_par.geometry_type ==
                           MarkerIBParams::GeometryBox)
@@ -1180,9 +1129,7 @@ void AmrCoreLBM::ReadParameters() {
 
       // create managers
       m_ls = std::make_unique<LevelSetManager>();
-      m_ibd.reset();
-      m_ibs.reset();
-      m_ibm.reset();
+      ResetIBMBackend();
     }
 
     int n_phi = (m_use_cylinder ? 1 : 0);
@@ -1493,7 +1440,7 @@ amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
   const int f_first_comp = n_macro_out;
 
   const bool marker_box_ibm =
-      (m_ib_method == 3 &&
+      (m_ib_method == IBMMethodMarker &&
        m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
   const bool want_phi = (m_use_cylinder && m_ls && !marker_box_ibm);
 
@@ -1544,7 +1491,7 @@ amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
       // Marker IBM uses fictitious fluid inside the body; mask solid-interior
       // macroscopic fields in plot output so visualization reflects the
       // physical exterior flow.
-      if (m_ib_method == 3 &&
+      if (m_ib_method == IBMMethodMarker &&
           m_marker_par.geometry_type != MarkerIBParams::GeometryBox) {
         const amrex::Real ubx = m_marker_par.ubx;
         const amrex::Real uby = m_marker_par.uby;
@@ -1584,7 +1531,7 @@ Vector<std::string> AmrCoreLBM::PlotFileVarNames() const {
   const int nmacro = macro_new[0].nComp();
   const int nmeso = f_new[0].nComp();
   const bool marker_box_ibm =
-      (m_ib_method == 3 &&
+      (m_ib_method == IBMMethodMarker &&
        m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
   const bool have_phi =
       (m_use_cylinder && m_ls && m_ls->has_level(0) && !marker_box_ibm);
@@ -1990,7 +1937,7 @@ void AmrCoreLBM::GetDataMacro(int lev, Real time, Vector<MultiFab *> &data,
 
 void AmrCoreLBM::BuildLevelSetOnLevel(int lev) {
   const bool marker_box_ibm =
-      (m_ib_method == 3 &&
+      (m_ib_method == IBMMethodMarker &&
        m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
   if (!m_use_cylinder || !m_ls || marker_box_ibm)
     return;
