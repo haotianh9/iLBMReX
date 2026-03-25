@@ -17,7 +17,53 @@
 #include <limits>
 #include <numeric>
 
+#if defined(__has_include)
+#  if __has_include("IBMUserDefinedGeometry.H")
+#    include "IBMUserDefinedGeometry.H"
+#    define LBM_HAVE_USER_DEFINED_IBM_GEOMETRY 1
+#  endif
+#endif
+
+#ifndef LBM_HAVE_USER_DEFINED_IBM_GEOMETRY
+#  define LBM_HAVE_USER_DEFINED_IBM_GEOMETRY 0
+#endif
+
 using namespace amrex;
+
+#if !LBM_HAVE_USER_DEFINED_IBM_GEOMETRY
+namespace lbm_user_ibm_geometry {
+
+inline const char *label() noexcept { return "user_defined"; }
+
+inline void build_markers(amrex::Geometry const &geom, MarkerIBParams const &par,
+                          amrex::Real h,
+                          std::vector<amrex::Real> &x_ref,
+                          std::vector<amrex::Real> &y_ref,
+                          std::vector<amrex::Real> &z_ref,
+                          amrex::Real &dv, amrex::Real &wall_tol) {
+  amrex::ignore_unused(geom, par, h, x_ref, y_ref, z_ref, dv, wall_tol);
+  amrex::Abort(
+      "marker_geometry = user_defined requires IBMUserDefinedGeometry.H in the example directory.");
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE void
+marker_state(int idx, amrex::Real time, MarkerIBParams const &par,
+             amrex::Real x0, amrex::Real y0, amrex::Real z0,
+             amrex::Real const *xref, amrex::Real const *yref,
+             amrex::Real const *zref, amrex::Real &x, amrex::Real &y,
+             amrex::Real &z, amrex::Real &ux, amrex::Real &uy,
+             amrex::Real &uz) noexcept {
+  amrex::ignore_unused(idx, time, par, xref, yref, zref);
+  x = x0;
+  y = y0;
+  z = z0;
+  ux = amrex::Real(0.0);
+  uy = amrex::Real(0.0);
+  uz = amrex::Real(0.0);
+}
+
+} // namespace lbm_user_ibm_geometry
+#endif
 
 namespace {
 
@@ -114,6 +160,27 @@ box_target_velocity(Real x, Real y, Real z, MarkerIBParams const &par,
   }
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE void
+rigid_target_velocity(Real x, Real y, Real z, Real x0, Real y0, Real z0,
+                      MarkerIBParams const &par, Real wall_tol, Real time,
+                      Real &ux, Real &uy, Real &uz) noexcept {
+  amrex::ignore_unused(time);
+  if (par.geometry_type == MarkerIBParams::GeometryBox) {
+    box_target_velocity(x, y, z, par, wall_tol, ux, uy, uz);
+    return;
+  }
+
+  Real om[3] = {par.omx, par.omy, par.omz};
+  const Real rx = x - x0;
+  const Real ry = y - y0;
+  const Real rz = z - z0;
+  Real urx, ury, urz;
+  omega_cross_r(om, rx, ry, rz, urx, ury, urz);
+  ux = par.ubx + urx;
+  uy = par.uby + ury;
+  uz = par.ubz + urz;
+}
+
 } // namespace
 
 IBMarkerDF::IBMarkerDF(Geometry const &geom, DistributionMapping const &dm,
@@ -142,6 +209,8 @@ void IBMarkerDF::build_markers(DistributionMapping const &dm,
   int Ml = m_par.n_marker;
   Real dv = amrex::Real(0.0);
   const bool use_box = (m_par.geometry_type == MarkerIBParams::GeometryBox);
+  const bool use_custom =
+      (m_par.geometry_type == MarkerIBParams::GeometryUserDefined);
 
   std::vector<Real> phi_h;
   std::vector<Real> theta_h;
@@ -277,6 +346,26 @@ void IBMarkerDF::build_markers(DistributionMapping const &dm,
     m_phiK_h.clear();
     m_thetaK_h.clear();
 #endif
+  } else if (use_custom) {
+    lbm_user_ibm_geometry::build_markers(m_geom, m_par, h, x_ref, y_ref, z_ref,
+                                         dv, m_wall_tol);
+    Ml = static_cast<int>(x_ref.size()) - 1;
+    AMREX_ALWAYS_ASSERT(Ml > 0);
+
+    m_xref_d.resize(Ml + 1);
+    m_yref_d.resize(Ml + 1);
+    m_zref_d.resize(Ml + 1);
+    m_xref_h = x_ref;
+    m_yref_h = y_ref;
+    m_zref_h = z_ref;
+    Gpu::copy(Gpu::hostToDevice, x_ref.begin(), x_ref.end(), m_xref_d.begin());
+    Gpu::copy(Gpu::hostToDevice, y_ref.begin(), y_ref.end(), m_yref_d.begin());
+    Gpu::copy(Gpu::hostToDevice, z_ref.begin(), z_ref.end(), m_zref_d.begin());
+
+    m_phiK_d.resize(0);
+    m_thetaK_d.resize(0);
+    m_phiK_h.clear();
+    m_thetaK_h.clear();
   } else {
 #if (AMREX_SPACEDIM == 2)
     if (Ml <= 0) {
@@ -383,7 +472,7 @@ void IBMarkerDF::build_markers(DistributionMapping const &dm,
   // in device memory after Redistribute.
   m_start_id = 0;
 
-  update_lagrangian_marker();
+  update_lagrangian_marker(amrex::Real(0.0));
 
   if (m_par.verbose) {
     amrex::Print() << "[IBMarkerDF] Built " << num_markers()
@@ -391,7 +480,10 @@ void IBMarkerDF::build_markers(DistributionMapping const &dm,
                    << " geometry="
                    << ((m_par.geometry_type == MarkerIBParams::GeometryBox)
                            ? "box"
-                           : "cylinder")
+                           : ((m_par.geometry_type ==
+                               MarkerIBParams::GeometryUserDefined)
+                                  ? lbm_user_ibm_geometry::label()
+                                  : "cylinder"))
                    << " delta_type=" << m_par.delta_type
                    << " loop_ns=" << m_par.loop_ns
                    << " id_range=[1," << Ml
@@ -404,7 +496,7 @@ void IBMarkerDF::build_markers(DistributionMapping const &dm,
   }
 }
 
-void IBMarkerDF::update_lagrangian_marker() const {
+void IBMarkerDF::update_lagrangian_marker(Real time) const {
   // IAMReX semantics: update positions and reset per-marker arrays to zero,
   // then Redistribute.
   const auto *phiK = m_phiK_d.data();
@@ -416,14 +508,19 @@ void IBMarkerDF::update_lagrangian_marker() const {
   const Real y0 = m_y0;
 #if (AMREX_SPACEDIM == 3)
   const Real z0 = m_z0;
+#else
+  const Real z0 = amrex::Real(0.0);
 #endif
   const Real R = m_R;
   const int start_id = m_start_id;
   const int use_box =
       (m_par.geometry_type == MarkerIBParams::GeometryBox) ? 1 : 0;
-  const int max_idx = (use_box != 0)
+  const int use_custom =
+      (m_par.geometry_type == MarkerIBParams::GeometryUserDefined) ? 1 : 0;
+  const int max_idx = (use_box != 0 || use_custom != 0)
                           ? static_cast<int>(m_xref_d.size()) - 1
                           : static_cast<int>(m_phiK_d.size()) - 1;
+  const int max_idx_ref = static_cast<int>(m_xref_d.size()) - 1;
 
   for (MarkerParIter pti(*m_markers, 0); pti.isValid(); ++pti) {
     auto *particles = pti.GetArrayOfStructs().data();
@@ -459,6 +556,31 @@ void IBMarkerDF::update_lagrangian_marker() const {
 #if (AMREX_SPACEDIM == 3)
         particles[i].pos(2) = zref[idx];
 #endif
+        mxP[i] = amrex::Real(0.0);
+        myP[i] = amrex::Real(0.0);
+        mzP[i] = amrex::Real(0.0);
+      } else if (use_custom != 0) {
+        int ridx = idx;
+        if (max_idx_ref > 0 && (ridx < 1 || ridx > max_idx_ref)) {
+          ridx = ((ridx - 1) % max_idx_ref + max_idx_ref) % max_idx_ref + 1;
+        }
+        Real px = x0;
+        Real py = y0;
+        Real pz = z0;
+        Real utx = amrex::Real(0.0);
+        Real uty = amrex::Real(0.0);
+        Real utz = amrex::Real(0.0);
+        lbm_user_ibm_geometry::marker_state(ridx, time, m_par, x0, y0, z0,
+                                            xref, yref, zref, px, py, pz, utx,
+                                            uty, utz);
+        particles[i].pos(0) = px;
+        particles[i].pos(1) = py;
+#if (AMREX_SPACEDIM == 3)
+        particles[i].pos(2) = pz;
+#endif
+        mxP[i] = utx;
+        myP[i] = uty;
+        mzP[i] = utz;
       } else {
         // Position on the sphere/circle.
         particles[i].pos(0) =
@@ -468,6 +590,9 @@ void IBMarkerDF::update_lagrangian_marker() const {
 #if (AMREX_SPACEDIM == 3)
         particles[i].pos(2) = z0 + R * std::cos(thetaK[idx]);
 #endif
+        mxP[i] = amrex::Real(0.0);
+        myP[i] = amrex::Real(0.0);
+        mzP[i] = amrex::Real(0.0);
       }
 
       uP[i] = amrex::Real(0.0);
@@ -476,9 +601,6 @@ void IBMarkerDF::update_lagrangian_marker() const {
       fxP[i] = amrex::Real(0.0);
       fyP[i] = amrex::Real(0.0);
       fzP[i] = amrex::Real(0.0);
-      mxP[i] = amrex::Real(0.0);
-      myP[i] = amrex::Real(0.0);
-      mzP[i] = amrex::Real(0.0);
     });
   }
 
@@ -615,7 +737,7 @@ void IBMarkerDF::velocity_interpolation(MultiFab const &EulerVel,
   }
 }
 
-void IBMarkerDF::compute_lagrangian_force_explicit(Real dt) const {
+void IBMarkerDF::compute_lagrangian_force_explicit(Real dt, Real time) const {
   // Matches IAMReX: F = (Ub + omega x r - U_marker) / dt
   const Real relax =
       amrex::max(amrex::Real(0.0), amrex::min(amrex::Real(1.0), m_par.mdf_relax));
@@ -635,18 +757,18 @@ void IBMarkerDF::compute_lagrangian_force_explicit(Real dt) const {
 #endif
   const int kernel_type = delta_type_to_kernel(m_par.delta_type);
 
-  const Real ub[3] = {m_par.ubx, m_par.uby, m_par.ubz};
-  const Real om[3] = {m_par.omx, m_par.omy, m_par.omz};
   const Real x0 = m_x0;
   const Real y0 = m_y0;
   const Real dv = m_dv;
 #if (AMREX_SPACEDIM == 3)
   const Real z0 = m_z0;
+#else
+  const Real z0 = amrex::Real(0.0);
 #endif
-  const int use_box =
-      (m_par.geometry_type == MarkerIBParams::GeometryBox) ? 1 : 0;
   const Real wall_tol = m_wall_tol;
   const MarkerIBParams par = m_par;
+  const int use_custom =
+      (m_par.geometry_type == MarkerIBParams::GeometryUserDefined) ? 1 : 0;
 
   for (MarkerParIter pti(*m_markers, 0); pti.isValid(); ++pti) {
     auto *particles = pti.GetArrayOfStructs().data();
@@ -659,33 +781,28 @@ void IBMarkerDF::compute_lagrangian_force_explicit(Real dt) const {
     auto *fxP = soa.GetRealData(Fx_Marker).data();
     auto *fyP = soa.GetRealData(Fy_Marker).data();
     auto *fzP = soa.GetRealData(Fz_Marker).data();
+    auto const *txP = soa.GetRealData(Mx_Marker).data();
+    auto const *tyP = soa.GetRealData(My_Marker).data();
+    auto const *tzP = soa.GetRealData(Mz_Marker).data();
 
     ParallelFor(np, [=] AMREX_GPU_DEVICE(int i) noexcept {
       Real Ux = amrex::Real(0.0);
       Real Uy = amrex::Real(0.0);
       Real Uz = amrex::Real(0.0);
-      if (use_box != 0) {
+      const Real px = particles[i].pos(0);
+      const Real py = particles[i].pos(1);
 #if (AMREX_SPACEDIM == 3)
-        box_target_velocity(particles[i].pos(0), particles[i].pos(1),
-                            particles[i].pos(2), par, wall_tol, Ux, Uy, Uz);
+      const Real pz = particles[i].pos(2);
 #else
-        box_target_velocity(particles[i].pos(0), particles[i].pos(1),
-                            amrex::Real(0.0), par, wall_tol, Ux, Uy, Uz);
+      const Real pz = amrex::Real(0.0);
 #endif
+      if (use_custom != 0) {
+        Ux = txP[i];
+        Uy = tyP[i];
+        Uz = tzP[i];
       } else {
-        const Real rx = particles[i].pos(0) - x0;
-        const Real ry = particles[i].pos(1) - y0;
-#if (AMREX_SPACEDIM == 3)
-        const Real rz = particles[i].pos(2) - z0;
-#else
-        const Real rz = amrex::Real(0.0);
-#endif
-
-        Real urx, ury, urz;
-        omega_cross_r(om, rx, ry, rz, urx, ury, urz);
-        Ux = ub[0] + urx;
-        Uy = ub[1] + ury;
-        Uz = ub[2] + urz;
+        rigid_target_velocity(px, py, pz, x0, y0, z0, par, wall_tol, time, Ux,
+                              Uy, Uz);
       }
 
       // IAMReX direct-forcing form: acceleration that drives marker velocity
@@ -755,15 +872,20 @@ void IBMarkerDF::compute_lagrangian_force_explicit(Real dt) const {
 }
 
 void IBMarkerDF::gather_marker_state(std::vector<int> &ids,
-                                     std::vector<Real> &data) const {
+                                     std::vector<Real> &data,
+                                     Real time) const {
   ids.clear();
   data.clear();
 
   const bool use_box = (m_par.geometry_type == MarkerIBParams::GeometryBox);
+  const bool use_custom =
+      (m_par.geometry_type == MarkerIBParams::GeometryUserDefined);
   const Real x0 = m_x0;
   const Real y0 = m_y0;
 #if (AMREX_SPACEDIM == 3)
   const Real z0 = m_z0;
+#else
+  const Real z0 = amrex::Real(0.0);
 #endif
 
   for (MarkerParIter pti(*m_markers, 0); pti.isValid(); ++pti) {
@@ -811,6 +933,14 @@ void IBMarkerDF::gather_marker_state(std::vector<int> &ids,
           pz = m_zref_h[idx];
 #endif
         }
+      } else if (use_custom) {
+        Real utx = amrex::Real(0.0);
+        Real uty = amrex::Real(0.0);
+        Real utz = amrex::Real(0.0);
+        lbm_user_ibm_geometry::marker_state(
+            idx, time, m_par, x0, y0, z0,
+            m_xref_h.data(), m_yref_h.data(), m_zref_h.data(),
+            px, py, pz, utx, uty, utz);
       } else if (idx < static_cast<int>(m_phiK_h.size()) &&
                  idx < static_cast<int>(m_thetaK_h.size())) {
         const Real phi = m_phiK_h[idx];
@@ -1007,7 +1137,7 @@ void IBMarkerDF::build_ivc_operator(std::vector<Real> const &x_global,
   }
 }
 
-void IBMarkerDF::compute_lagrangian_force_ivc(Real dt) const {
+void IBMarkerDF::compute_lagrangian_force_ivc(Real dt, Real time) const {
   const int nmark = static_cast<int>(num_markers());
   if (nmark <= 0) {
     return;
@@ -1021,7 +1151,7 @@ void IBMarkerDF::compute_lagrangian_force_ivc(Real dt) const {
 
   std::vector<int> ids_local;
   std::vector<Real> marker_local;
-  gather_marker_state(ids_local, marker_local);
+  gather_marker_state(ids_local, marker_local, time);
 
   const int local_n = static_cast<int>(ids_local.size());
   const int nprocs = ParallelDescriptor::NProcs();
@@ -1073,6 +1203,7 @@ void IBMarkerDF::compute_lagrangian_force_ivc(Real dt) const {
   std::vector<Real> u_global(nmark, amrex::Real(0.0));
   std::vector<Real> v_global(nmark, amrex::Real(0.0));
   std::vector<Real> w_global(nmark, amrex::Real(0.0));
+  std::vector<int> marker_id_global(static_cast<std::size_t>(nmark), 0);
 
   for (int n = 0; n < total_n; ++n) {
     const int idx = ids_all[n] - 1;
@@ -1086,6 +1217,13 @@ void IBMarkerDF::compute_lagrangian_force_ivc(Real dt) const {
     u_global[idx] = marker_all[o + 3];
     v_global[idx] = marker_all[o + 4];
     w_global[idx] = marker_all[o + 5];
+    marker_id_global[idx] = ids_all[n];
+  }
+
+  for (int i = 0; i < nmark; ++i) {
+    if (marker_id_global[i] <= 0) {
+      marker_id_global[i] = i + 1;
+    }
   }
 
   if (!m_ivc_operator_ready || m_ivc_nmark != nmark ||
@@ -1098,7 +1236,7 @@ void IBMarkerDF::compute_lagrangian_force_ivc(Real dt) const {
       amrex::Print() << "  [ibm_marker_ivc] LU factorization failed; falling back"
                      << " to explicit direct forcing.\n";
     }
-    compute_lagrangian_force_explicit(dt);
+    compute_lagrangian_force_explicit(dt, time);
     return;
   }
 
@@ -1111,29 +1249,25 @@ void IBMarkerDF::compute_lagrangian_force_ivc(Real dt) const {
     std::vector<Real> by(nmark, amrex::Real(0.0));
     std::vector<Real> bz(nmark, amrex::Real(0.0));
 
-    const bool use_box =
-        (m_par.geometry_type == MarkerIBParams::GeometryBox);
-    const Real ub[3] = {m_par.ubx, m_par.uby, m_par.ubz};
-    const Real om[3] = {m_par.omx, m_par.omy, m_par.omz};
     const Real wall_tol = m_wall_tol;
+
+    const bool use_custom =
+        (m_par.geometry_type == MarkerIBParams::GeometryUserDefined);
 
     for (int i = 0; i < nmark; ++i) {
       Real Ux = amrex::Real(0.0);
       Real Uy = amrex::Real(0.0);
       Real Uz = amrex::Real(0.0);
-      if (use_box) {
-        box_target_velocity(x_global[i], y_global[i], z_global[i], m_par,
-                            wall_tol, Ux, Uy, Uz);
+      if (use_custom) {
+        Real px = m_x0;
+        Real py = m_y0;
+        Real pz = m_z0;
+        lbm_user_ibm_geometry::marker_state(
+            marker_id_global[i], time, m_par, m_x0, m_y0, m_z0, m_xref_h.data(),
+            m_yref_h.data(), m_zref_h.data(), px, py, pz, Ux, Uy, Uz);
       } else {
-        const Real rx = x_global[i] - m_x0;
-        const Real ry = y_global[i] - m_y0;
-        const Real rz = z_global[i] - m_z0;
-
-        Real urx, ury, urz;
-        omega_cross_r(om, rx, ry, rz, urx, ury, urz);
-        Ux = ub[0] + urx;
-        Uy = ub[1] + ury;
-        Uz = ub[2] + urz;
+        rigid_target_velocity(x_global[i], y_global[i], z_global[i], m_x0, m_y0,
+                              m_z0, m_par, wall_tol, time, Ux, Uy, Uz);
       }
 
       // Match explicit direct forcing scaling for the IVC solve.
@@ -1369,7 +1503,7 @@ void IBMarkerDF::velocity_correction(MultiFab &EulerVel,
 void IBMarkerDF::update_forcing(MultiFab const &rhocc, MultiFab const &ucc,
                                 MultiFab const &vcc, MultiFab const &wcc,
                                 MultiFab &Fx, MultiFab &Fy, MultiFab &Fz,
-                                Real dt, MultiFab const *prev_Fx,
+                                Real dt, Real time, MultiFab const *prev_Fx,
                                 MultiFab const *prev_Fy,
                                 MultiFab const *prev_Fz) const {
   // Build Euler velocity scratch: (u,v,w)
@@ -1424,7 +1558,7 @@ void IBMarkerDF::update_forcing(MultiFab const &rhocc, MultiFab const &ucc,
   for (int it = 0; it < nloop; ++it) {
     EulerForceIter.setVal(0.0);
 
-    update_lagrangian_marker();
+    update_lagrangian_marker(time);
     velocity_interpolation(EulerVel, 0, m_par.delta_type);
 
     // Optional diagnostics: kernel partition (should be ~1) and slip at markers
@@ -1617,9 +1751,9 @@ void IBMarkerDF::update_forcing(MultiFab const &rhocc, MultiFab const &ucc,
     }
 
     if (use_ivc) {
-      compute_lagrangian_force_ivc(dt);
+      compute_lagrangian_force_ivc(dt, time);
     } else {
-      compute_lagrangian_force_explicit(dt);
+      compute_lagrangian_force_explicit(dt, time);
     }
     force_spreading(EulerForceIter, 0, m_par.delta_type);
 

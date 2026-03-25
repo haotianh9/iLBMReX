@@ -8,7 +8,8 @@
 struct MarkerIBParams {
   enum GeometryType {
     GeometryCylinder = 0,
-    GeometryBox = 1
+    GeometryBox = 1,
+    GeometryUserDefined = 2
   };
 
   enum CouplingMethod {
@@ -45,8 +46,9 @@ struct MarkerIBParams {
   amrex::Real explicit_diag_eps{1.0e-8};
 
   // Marker geometry:
-  //   cylinder : legacy circular/spherical marker shell
-  //   box      : axis-aligned marker box (2D cavity-style walls)
+  //   cylinder     : legacy circular/spherical marker shell
+  //   box          : axis-aligned marker box (2D cavity-style walls)
+  //   user_defined : geometry and motion supplied by the example directory
   int geometry_type{GeometryCylinder};
 
   // Axis-aligned marker box bounds (used when geometry_type=box).

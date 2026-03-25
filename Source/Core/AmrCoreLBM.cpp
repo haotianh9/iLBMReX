@@ -23,6 +23,76 @@
 #include <fstream>
 #include <iomanip> // optional, for nicer formatting
 
+#if defined(__has_include)
+#  if __has_include("IBMUserDefinedGeometry.H")
+#    include "IBMUserDefinedGeometry.H"
+#    define LBM_HAVE_USER_DEFINED_IBM_GEOMETRY 1
+#  endif
+#endif
+
+#ifndef LBM_HAVE_USER_DEFINED_IBM_GEOMETRY
+#  define LBM_HAVE_USER_DEFINED_IBM_GEOMETRY 0
+#endif
+
+#if !LBM_HAVE_USER_DEFINED_IBM_GEOMETRY
+namespace lbm_user_ibm_geometry {
+
+inline bool refinement_region(amrex::Real x0, amrex::Real y0, amrex::Real z0,
+                              MarkerIBParams const &par, amrex::Real dx,
+                              amrex::Real &xlo, amrex::Real &xhi,
+                              amrex::Real &ylo, amrex::Real &yhi,
+                              amrex::Real &zlo,
+                              amrex::Real &zhi) noexcept {
+  amrex::ignore_unused(x0, y0, z0, par, dx, xlo, xhi, ylo, yhi, zlo, zhi);
+  return false;
+}
+
+} // namespace lbm_user_ibm_geometry
+#endif
+
+namespace {
+
+inline amrex::Real ib_refine_padding(amrex::Real dx) noexcept {
+  return amrex::max(amrex::Real(6.0) * dx, amrex::Real(2.0));
+}
+
+inline bool immersed_boundary_refinement_region(
+    amrex::Real x0, amrex::Real y0, amrex::Real z0, amrex::Real radius,
+    MarkerIBParams const &par, amrex::Real dx, amrex::Real &xlo,
+    amrex::Real &xhi, amrex::Real &ylo, amrex::Real &yhi, amrex::Real &zlo,
+    amrex::Real &zhi) noexcept {
+  const amrex::Real pad = ib_refine_padding(dx);
+
+  if (par.geometry_type == MarkerIBParams::GeometryBox) {
+    xlo = par.box_xlo - pad;
+    xhi = par.box_xhi + pad;
+    ylo = (par.box_lid_only > 0) ? (par.box_yhi - pad) : (par.box_ylo - pad);
+    yhi = par.box_yhi + pad;
+    zlo = par.box_zlo - pad;
+    zhi = par.box_zhi + pad;
+    return true;
+  }
+
+  if (par.geometry_type == MarkerIBParams::GeometryUserDefined) {
+    return lbm_user_ibm_geometry::refinement_region(
+        x0, y0, z0, par, dx, xlo, xhi, ylo, yhi, zlo, zhi);
+  }
+
+  if (radius > amrex::Real(0.0)) {
+    xlo = x0 - radius - pad;
+    xhi = x0 + radius + pad;
+    ylo = y0 - radius - pad;
+    yhi = y0 + radius + pad;
+    zlo = z0 - radius - pad;
+    zhi = z0 + radius + pad;
+    return true;
+  }
+
+  return false;
+}
+
+} // namespace
+
 using namespace amrex;
 
 void AmrCoreLBM::ResetIBMBackend() { m_ibm.reset(); }
@@ -798,15 +868,27 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
 
   // Max vorticity (component 4) on this level
   amrex::Real vortMax = curMacro.max(4);
-  const bool marker_box_ibm =
-      (m_ib_method == IBMMethodMarker &&
-       m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
-  if (m_use_cylinder && !marker_box_ibm && m_ls && m_ls->has_level(lev)) {
+  const amrex::Real dx_min = xCellSize[lev];
+  const auto dx = geom[lev].CellSizeArray();
+  const auto problo = geom[lev].ProbLoArray();
+  Real refine_xlo = amrex::Real(0.0);
+  Real refine_xhi = amrex::Real(0.0);
+  Real refine_ylo = amrex::Real(0.0);
+  Real refine_yhi = amrex::Real(0.0);
+  Real refine_zlo = amrex::Real(0.0);
+  Real refine_zhi = amrex::Real(0.0);
+  const bool have_body_refine_region =
+      m_use_cylinder &&
+      immersed_boundary_refinement_region(
+          m_ls_par.x0, m_ls_par.y0, m_ls_par.z0, m_ls_par.R, m_marker_par,
+          dx_min, refine_xlo, refine_xhi, refine_ylo, refine_yhi, refine_zlo,
+          refine_zhi);
+  const bool marker_levelset_ibm =
+      (m_ib_method != IBMMethodMarker ||
+       m_marker_par.geometry_type == MarkerIBParams::GeometryCylinder);
+  if (m_use_cylinder && marker_levelset_ibm && m_ls && m_ls->has_level(lev)) {
     // Level set φ for this level
     MultiFab &phi_mf = m_ls->phi_at(lev);
-
-    // Characteristic cell size (assuming dx = dy = dz for now)
-    amrex::Real dx_min = xCellSize[lev];
 
     //    const int clearval = TagBox::CLEAR;
     const int tagval = TagBox::SET;
@@ -838,15 +920,25 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
               // Tag by level-set band around structure
               levelset_tagging(i, j, k, tagfab, phi_arr, dx_min, n_cells_band,
                                tagval);
+
+              if (have_body_refine_region) {
+                const Real x = problo[0] + (Real(i) + Real(0.5)) * dx[0];
+                const Real y = problo[1] + (Real(j) + Real(0.5)) * dx[1];
+#if (AMREX_SPACEDIM == 3)
+                const Real z = problo[2] + (Real(k) + Real(0.5)) * dx[2];
+#else
+                const Real z = amrex::Real(0.0);
+#endif
+                if (x >= refine_xlo && x <= refine_xhi && y >= refine_ylo &&
+                    y <= refine_yhi && z >= refine_zlo && z <= refine_zhi) {
+                  tagfab(i, j, k) = tagval;
+                }
+              }
             });
       }
     }
 
   } else {
-
-    // Characteristic cell size (assuming dx = dy = dz for now)
-    amrex::Real dx_min = xCellSize[lev];
-
     //    const int clearval = TagBox::CLEAR;
     const int tagval = TagBox::SET;
 
@@ -871,6 +963,20 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
             bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
               // Tag by vorticity
               vorticity_tagging(i, j, k, tagfab, vort, threshold, tagval);
+
+              if (have_body_refine_region) {
+                const Real x = problo[0] + (Real(i) + Real(0.5)) * dx[0];
+                const Real y = problo[1] + (Real(j) + Real(0.5)) * dx[1];
+#if (AMREX_SPACEDIM == 3)
+                const Real z = problo[2] + (Real(k) + Real(0.5)) * dx[2];
+#else
+                const Real z = amrex::Real(0.0);
+#endif
+                if (x >= refine_xlo && x <= refine_xhi && y >= refine_ylo &&
+                    y <= refine_yhi && z >= refine_zlo && z <= refine_zhi) {
+                  tagfab(i, j, k) = tagval;
+                }
+              }
             });
       }
     }
@@ -998,6 +1104,9 @@ void AmrCoreLBM::ReadParameters() {
       pp_ibm.query("marker_geometry", marker_geometry);
       if (marker_geometry == "box" || marker_geometry == "cavity_box") {
         m_marker_par.geometry_type = MarkerIBParams::GeometryBox;
+      } else if (marker_geometry == "user_defined" ||
+                 marker_geometry == "custom") {
+        m_marker_par.geometry_type = MarkerIBParams::GeometryUserDefined;
       } else {
         m_marker_par.geometry_type = MarkerIBParams::GeometryCylinder;
       }
@@ -1066,6 +1175,9 @@ void AmrCoreLBM::ReadParameters() {
         if (pp_mdf.query("geometry", marker_geometry_mdf)) {
           if (marker_geometry_mdf == "box" || marker_geometry_mdf == "cavity_box") {
             m_marker_par.geometry_type = MarkerIBParams::GeometryBox;
+          } else if (marker_geometry_mdf == "user_defined" ||
+                     marker_geometry_mdf == "custom") {
+            m_marker_par.geometry_type = MarkerIBParams::GeometryUserDefined;
           } else {
             m_marker_par.geometry_type = MarkerIBParams::GeometryCylinder;
           }
@@ -1107,7 +1219,10 @@ void AmrCoreLBM::ReadParameters() {
                      << ((m_marker_par.geometry_type ==
                           MarkerIBParams::GeometryBox)
                              ? "box"
-                             : "cylinder")
+                             : ((m_marker_par.geometry_type ==
+                                 MarkerIBParams::GeometryUserDefined)
+                                    ? "user_defined"
+                                    : "cylinder"))
                      << "\n";
       amrex::Print() << "               force_eval_method = " << force_eval_method
                      << " (" << m_force_eval_method << ")\n";
@@ -1132,7 +1247,10 @@ void AmrCoreLBM::ReadParameters() {
       ResetIBMBackend();
     }
 
-    int n_phi = (m_use_cylinder ? 1 : 0);
+    int n_phi = (m_use_cylinder &&
+                 m_marker_par.geometry_type == MarkerIBParams::GeometryCylinder)
+                    ? 1
+                    : 0;
     amrex::Print() << "Number signed distance functions = " << n_phi
                    << std::endl;
     totalNumberVar = nmac + ndir + n_phi;
@@ -1439,10 +1557,10 @@ amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
   const int n_macro_out = 6; // rho, ux, uy, uz, vor, Pressure
   const int f_first_comp = n_macro_out;
 
-  const bool marker_box_ibm =
-      (m_ib_method == IBMMethodMarker &&
-       m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
-  const bool want_phi = (m_use_cylinder && m_ls && !marker_box_ibm);
+  const bool marker_levelset_ibm =
+      (m_ib_method != IBMMethodMarker ||
+       m_marker_par.geometry_type == MarkerIBParams::GeometryCylinder);
+  const bool want_phi = (m_use_cylinder && m_ls && marker_levelset_ibm);
 
   for (int lev = 0; lev <= finest_level; ++lev) {
     amrex::Print() << "Preparing plotfile data at level " << lev << "\n";
@@ -1492,7 +1610,7 @@ amrex::Vector<std::unique_ptr<amrex::MultiFab>> AmrCoreLBM::PlotFileMF() const {
       // macroscopic fields in plot output so visualization reflects the
       // physical exterior flow.
       if (m_ib_method == IBMMethodMarker &&
-          m_marker_par.geometry_type != MarkerIBParams::GeometryBox) {
+          m_marker_par.geometry_type == MarkerIBParams::GeometryCylinder) {
         const amrex::Real ubx = m_marker_par.ubx;
         const amrex::Real uby = m_marker_par.uby;
         const amrex::Real ubz = m_marker_par.ubz;
@@ -1530,11 +1648,11 @@ Vector<std::string> AmrCoreLBM::PlotFileVarNames() const {
   // Use level 0 as reference (all levels have the same nComp layout)
   const int nmacro = macro_new[0].nComp();
   const int nmeso = f_new[0].nComp();
-  const bool marker_box_ibm =
-      (m_ib_method == IBMMethodMarker &&
-       m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
+  const bool marker_levelset_ibm =
+      (m_ib_method != IBMMethodMarker ||
+       m_marker_par.geometry_type == MarkerIBParams::GeometryCylinder);
   const bool have_phi =
-      (m_use_cylinder && m_ls && m_ls->has_level(0) && !marker_box_ibm);
+      (m_use_cylinder && m_ls && m_ls->has_level(0) && marker_levelset_ibm);
   const int nphi = have_phi ? 1 : 0;
 
   // --- Macroscopic variables ---
@@ -1936,10 +2054,10 @@ void AmrCoreLBM::GetDataMacro(int lev, Real time, Vector<MultiFab *> &data,
 }
 
 void AmrCoreLBM::BuildLevelSetOnLevel(int lev) {
-  const bool marker_box_ibm =
-      (m_ib_method == IBMMethodMarker &&
-       m_marker_par.geometry_type == MarkerIBParams::GeometryBox);
-  if (!m_use_cylinder || !m_ls || marker_box_ibm)
+  const bool marker_levelset_ibm =
+      (m_ib_method != IBMMethodMarker ||
+       m_marker_par.geometry_type == MarkerIBParams::GeometryCylinder);
+  if (!m_use_cylinder || !m_ls || !marker_levelset_ibm)
     return;
 
   // Use the *macro* MultiFab as the reference for BA/DM

@@ -81,6 +81,7 @@ public:
                       amrex::MultiFab &Fy,
                       amrex::MultiFab &Fz,
                       amrex::Real dt,
+                      amrex::Real time,
                       amrex::MultiFab const *prev_Fx = nullptr,
                       amrex::MultiFab const *prev_Fy = nullptr,
                       amrex::MultiFab const *prev_Fz = nullptr) const;
@@ -93,13 +94,15 @@ public:
   void build_markers(amrex::DistributionMapping const &dm,
                      amrex::BoxArray const &ba);
 
-  void update_lagrangian_marker() const;
+  void update_lagrangian_marker(amrex::Real time) const;
 
   void velocity_interpolation(amrex::MultiFab const &EulerVel,
                               int euler_vel_comp, int delta_type) const;
 
-  void compute_lagrangian_force_explicit(amrex::Real dt) const;
-  void compute_lagrangian_force_ivc(amrex::Real dt) const;
+  void compute_lagrangian_force_explicit(amrex::Real dt,
+                                         amrex::Real time) const;
+  void compute_lagrangian_force_ivc(amrex::Real dt,
+                                    amrex::Real time) const;
 
   void force_spreading(amrex::MultiFab &EulerForce, int euler_force_comp,
                        int delta_type) const;
@@ -110,7 +113,8 @@ public:
                            amrex::Real dt) const;
 
   void gather_marker_state(std::vector<int> &ids,
-                           std::vector<amrex::Real> &data) const;
+                           std::vector<amrex::Real> &data,
+                           amrex::Real time) const;
 
   void scatter_marker_force(std::vector<amrex::Real> const &fx_global,
                             std::vector<amrex::Real> const &fy_global,
@@ -189,7 +193,7 @@ public:
 
   void update_forcing(amrex::MultiFab const&, amrex::MultiFab const&, amrex::MultiFab const&,
                       amrex::MultiFab const&, amrex::MultiFab&, amrex::MultiFab&,
-                      amrex::MultiFab&, amrex::Real,
+                      amrex::MultiFab&, amrex::Real, amrex::Real,
                       amrex::MultiFab const* = nullptr,
                       amrex::MultiFab const* = nullptr,
                       amrex::MultiFab const* = nullptr) const {

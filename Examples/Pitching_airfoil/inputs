@@ -1,34 +1,34 @@
-# Single 2D flow-past-cylinder case (BGK + marker IBM).
-# Primary validation uses Re=100 (nu=0.0096, U0=0.03, D=32).
-# Secondary check uses Re=200 by overriding nu=0.0048 at runtime.
-# Lateral direction is periodic (not wall-bounded).
+# 2D pitching-airfoil IBM example.
+# Geometry and pitching motion are defined in IBMUserDefinedGeometry.H.
+# The default shape is a symmetric NACA 0012 airfoil pitching about its
+# leading edge with amplitude 15 deg = 0.2617993877991494 rad, frequency
+# f = U/c = 0.0015, and Reynolds number Re = U*c/nu = 200.
 
-max_step  = 20000
-stop_time = 20000
+max_step  = 6000
+stop_time = 6000
 
 geometry.prob_lo     = 0.0 0.0 0.0
-geometry.prob_hi     = 512.0 256.0 8.0
+geometry.prob_hi     = 384.0 192.0 8.0
 geometry.is_periodic = 0 1 1
 
 amr.v = 1
-amr.n_cell = 512 256 8
+amr.n_cell = 384 192 8
 amr.max_level = 1
 amr.ref_ratio = 2 2 2 2
 amr.blocking_factor_x = 8
 amr.blocking_factor_y = 8
 amr.blocking_factor_z = 8
-amr.max_grid_size = 256
+amr.max_grid_size = 192
 amr.regrid_int = 20
 
-amr.plot_file = out_cylinder/plt
-amr.plot_int  = 2000
+amr.plot_file = out_pitching_airfoil/plt
+amr.plot_int  = 500
 amr.chk_file  = chk
 amr.chk_int   = -1
 
 amrvorth.thresholdRatio = 0.85 0.90
 
-# Re = U*D/nu = 100 with U=0.03, D=32 => nu=0.0096
-lbmPhysicalParameters.nu   = 0.0096
+lbmPhysicalParameters.nu   = 0.003
 lbmPhysicalParameters.nmac = 6
 lbmPhysicalParameters.U0   = 0.03
 
@@ -40,30 +40,32 @@ lbm2d.diry   = 0.0  0.0  1.0  0.0   -1.0 1.0  1.0  -1.0 -1.0
 lbm2d.dirz   = 0.0  0.0  0.0  0.0   0.0  0.0  0.0  0.0  0.0
 
 # BC codes: int_dir=0, foextrap=2, ext_dir=3
-# Inlet: prescribed velocity (ext_dir), Outlet: first-order extrapolation.
 amrbc.bc_lo = 3 0
 amrbc.bc_hi = 2 0
 amrbc.bc_lo_0_rho_val = 1.0
 amrbc.bc_lo_0_ux_val  = 0.03
-# Tiny inlet cross-flow bias to break perfect symmetry.
-amrbc.bc_lo_0_uy_val  = 1.0e-4
+amrbc.bc_lo_0_uy_val  = 0.0
 
-# Marker IBM (Wu-Shu IVC coupling)
 ibm.use_cylinder = 1
-ibm.method = 1
+ibm.method = iamr_marker
+
+# Leading-edge pivot location
 ibm.x0 = 96.0
-# Slightly biased placement to trigger shedding and avoid symmetry lock-in.
-ibm.y0 = 127.9
+ibm.y0 = 96.0
 ibm.z0 = 0.0
-ibm.R  = 16.0
+
+# Reference length used for drag/lift normalization: D_ref = 2*R = chord
+ibm.R = 10.0
+
+ibm.marker_geometry = user_defined
+
 ibm.force_interval = 1
-ibm.force_eval_method = momentum_exchange
+ibm.force_eval_method = marker
 ibm.force_eval_debug = 0
 
 ibm.delta_type = 4
 ibm.loop_ns = 1
 ibm.n_marker = 0
-# Literature-consistent implicit velocity correction (Wu & Shu)
 ibm.coupling_method = wu_shu
 ibm.ivc_diag_reg = 1.3
 ibm.ivc_rebuild_matrix = 0

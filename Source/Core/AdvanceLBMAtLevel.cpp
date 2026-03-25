@@ -88,7 +88,7 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
     }
     // IAMReX-style multi-direct-forcing with delta-kernel
     m_ibm->update_forcing(rhocc, ucc, vcc, wcc, fx_cc, fy_cc, fz_cc, dt_lev,
-                          prevFxAlias.get(), prevFyAlias.get(),
+                          time, prevFxAlias.get(), prevFyAlias.get(),
                           prevFzAlias.get());
   }
 #endif // LBM_USE_IBM

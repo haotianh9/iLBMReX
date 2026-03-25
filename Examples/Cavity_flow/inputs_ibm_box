@@ -1,6 +1,6 @@
 # IBM cavity flow: moving lid enforced by marker-IBM on an immersed cavity box
-max_step  = 1200
-stop_time = 1200
+max_step  = 4000
+stop_time = 4000
 
 geometry.prob_lo     = 0.0 0.0 0.0
 geometry.prob_hi     = 64.0 96.0 8.0
@@ -8,17 +8,20 @@ geometry.is_periodic = 0 0 1
 
 amr.v = 1
 amr.n_cell = 64 96 8
-amr.max_level = 0
+amr.max_level = 1
+amr.ref_ratio = 2 2 2 2
 amr.max_grid_size = 64
 amr.blocking_factor_x = 8
 amr.blocking_factor_y = 8
 amr.blocking_factor_z = 8
-amr.regrid_int = 100
+amr.regrid_int = 20
 
 amr.plot_file = out_ibm/plt
-amr.plot_int  = 400
+amr.plot_int  = 500
 amr.chk_file  = chk
 amr.chk_int   = -1
+
+amrvorth.thresholdRatio = 0.90 0.95
 
 lbmPhysicalParameters.nu   = 0.02
 lbmPhysicalParameters.nmac = 6

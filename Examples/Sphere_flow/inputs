@@ -1,0 +1,67 @@
+# 3D IBM sphere example at Re = 200.
+# Use U = 0.02, D = 20, nu = 0.002 => Re = U*D/nu = 200.
+
+max_step  = 5000
+stop_time = 5000
+
+geometry.prob_lo     = 0.0 0.0 0.0
+geometry.prob_hi     = 160.0 96.0 96.0
+geometry.is_periodic = 0 1 1
+
+amr.v = 1
+amr.n_cell = 160 96 96
+amr.max_level = 1
+amr.ref_ratio = 2 2 2 2
+amr.blocking_factor_x = 8
+amr.blocking_factor_y = 8
+amr.blocking_factor_z = 8
+amr.max_grid_size = 64
+amr.regrid_int = 20
+
+amr.plot_file = out_sphere/plt
+amr.plot_int  = 500
+amr.chk_file  = chk
+amr.chk_int   = -1
+
+amrvorth.thresholdRatio = 0.85 0.90
+
+lbmPhysicalParameters.nu   = 0.002
+lbmPhysicalParameters.nmac = 6
+lbmPhysicalParameters.U0   = 0.02
+
+lbm3d.ndir  = 27
+lbm3d.wis   = 8.0 2.0 2.0 2.0 2.0 2.0 2.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+lbm3d.wim   = 27.0 27.0 27.0 27.0 27.0 27.0 27.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 54.0 216.0 216.0 216.0 216.0 216.0 216.0 216.0 216.0
+lbm3d.dirx  = 0 1 -1 0 0 0 0 1 -1 1 -1 0 0 1 -1 1 -1 0 0 1 -1 1 -1 1 -1 -1 1
+lbm3d.diry  = 0 0 0 1 -1 0 0 1 -1 0 0 1 -1 -1 1 0 0 1 -1 1 -1 1 -1 -1 1 1 -1
+lbm3d.dirz  = 0 0 0 0 0 1 -1 0 0 1 -1 1 -1 0 0 -1 1 -1 1 1 -1 -1 1 1 -1 1 -1
+
+# BC codes: int_dir=0, foextrap=2, ext_dir=3
+amrbc.bc_lo = 3 0 0
+amrbc.bc_hi = 2 0 0
+amrbc.bc_lo_0_rho_val = 1.0
+amrbc.bc_lo_0_ux_val  = 0.02
+amrbc.bc_lo_0_uy_val  = 0.0
+amrbc.bc_lo_0_uz_val  = 0.0
+
+ibm.use_cylinder = 1
+ibm.method = iamr_marker
+ibm.x0 = 48.0
+ibm.y0 = 48.0
+ibm.z0 = 48.0
+ibm.R  = 10.0
+ibm.force_interval = 1
+ibm.force_eval_method = momentum_exchange
+ibm.force_eval_debug = 0
+
+ibm.delta_type = 4
+ibm.loop_ns = 1
+ibm.n_marker = 0
+ibm.coupling_method = wu_shu
+ibm.ivc_diag_reg = 1.3
+ibm.ivc_rebuild_matrix = 0
+ibm.ivc_verbose = 0
+ibm.delta_renorm = 0
+ibm.print_force_balance = 0
+ibm.print_delta_partition = 0
+ibm.verbose = 0
