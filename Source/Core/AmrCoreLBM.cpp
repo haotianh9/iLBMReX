@@ -17,6 +17,7 @@
 #include "DebugNaN.H"
 
 #include "IBM/IBMarkerDF.H"
+#include "IBM/IBForceEval.H"
 #include "LevelSet/LevelSet.H"
 #include <AMReX_GpuContainers.H>
 
@@ -79,23 +80,92 @@ inline bool immersed_boundary_refinement_region(
   }
 
   if (radius > amrex::Real(0.0)) {
-    xlo = x0 - radius - pad;
-    xhi = x0 + radius + pad;
-    ylo = y0 - radius - pad;
-    yhi = y0 + radius + pad;
-    zlo = z0 - radius - pad;
-    zhi = z0 + radius + pad;
+    if (par.refine_upstream > amrex::Real(0.0) &&
+        par.refine_downstream > amrex::Real(0.0) &&
+        par.refine_cross > amrex::Real(0.0)) {
+      xlo = x0 - par.refine_upstream * radius - pad;
+      xhi = x0 + par.refine_downstream * radius + pad;
+      ylo = y0 - par.refine_cross * radius - pad;
+      yhi = y0 + par.refine_cross * radius + pad;
+      zlo = z0 - par.refine_cross * radius - pad;
+      zhi = z0 + par.refine_cross * radius + pad;
+    } else {
+      xlo = x0 - radius - pad;
+      xhi = x0 + radius + pad;
+      ylo = y0 - radius - pad;
+      yhi = y0 + radius + pad;
+      zlo = z0 - radius - pad;
+      zhi = z0 + radius + pad;
+    }
     return true;
   }
 
   return false;
 }
 
+void update_derived_macro_fields_impl(amrex::MultiFab &curMacro,
+                                      amrex::MultiFab const &macro_patch,
+                                      amrex::Real dx, amrex::Real dy,
+                                      amrex::Real dz,
+                                      amrex::Real T0_local) {
+#ifdef AMREX_USE_OMP
+#pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
+#endif
+  for (amrex::MFIter mfi(macro_patch, amrex::TilingIfNotGPU()); mfi.isValid();
+       ++mfi) {
+    const amrex::Box &vbx = mfi.validbox();
+    const int K = mfi.index();
+
+    auto const rho = macro_patch[K].array(0);
+    auto const u = macro_patch[K].array(1);
+    auto const v = macro_patch[K].array(2);
+    auto const w = macro_patch[K].array(3);
+
+    auto const vor = curMacro[K].array(4);
+    auto const P = curMacro[K].array(5);
+
+    amrex::ParallelFor(vbx, [=] AMREX_GPU_DEVICE(int i, int j,
+                                                 int k) noexcept {
+      visPara(i, j, k, rho, u, v, w, vor, P, dx, dy, dz, T0_local);
+    });
+  }
+}
+
 } // namespace
 
 using namespace amrex;
 
-void AmrCoreLBM::ResetIBMBackend() { m_ibm.reset(); }
+void AmrCoreLBM::ResetIBMBackend() {
+  m_ibm.reset();
+  m_ibm_level = -1;
+}
+
+void AmrCoreLBM::ResetForceHistory() {
+  if (m_force_ofs.is_open()) {
+    m_force_ofs.close();
+  }
+  m_force_output_initialized = false;
+  m_have_prev_body_force = false;
+  m_prev_body_force = {amrex::Real(0.0), amrex::Real(0.0), amrex::Real(0.0)};
+}
+
+void AmrCoreLBM::UpdateDerivedMacroFields(int lev, Real time) {
+  constexpr int derive_ncomp = 4; // rho, ux, uy, uz(dummy in 2D)
+  MultiFab macro_patch(grids[lev], dmap[lev], derive_ncomp, 1);
+  FillPatchMacro(lev, time, macro_patch, 0, derive_ncomp);
+
+  MultiFab &curMacro = macro_new[lev];
+  const Real tempdx = xCellSize[lev];
+  const Real tempdy = yCellSize[lev];
+#if (AMREX_SPACEDIM == 3)
+  const Real tempdz = zCellSize[lev];
+#else
+  const Real tempdz = Real(0.0);
+#endif
+  const Real T0_local = T0;
+  update_derived_macro_fields_impl(curMacro, macro_patch, tempdx, tempdy,
+                                   tempdz, T0_local);
+}
 
 void AmrCoreLBM::EnsureIBMBackend(int lev, DistributionMapping const &dm,
                                   BoxArray const &ba) {
@@ -104,10 +174,11 @@ void AmrCoreLBM::EnsureIBMBackend(int lev, DistributionMapping const &dm,
     return;
   }
 
-  if (!m_ibm) {
+  if (!m_ibm || m_ibm_level != lev) {
     m_ibm = std::make_unique<IBMarkerDF>(geom[lev], dm, ba, m_ls_par.x0,
                                          m_ls_par.y0, m_ls_par.z0, m_ls_par.R,
                                          m_marker_par);
+    m_ibm_level = lev;
     amrex::Print() << "Initialized marker IBM backend on level " << lev
                    << "\n";
   }
@@ -374,7 +445,7 @@ amrex::Print() << std::setprecision(12)
   }
 }
 
-void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
+void AmrCoreLBM::ComputeIBForce(Real time, int step) {
   if (!m_use_cylinder) {
     return; // no IBM
   }
@@ -398,7 +469,15 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
   Real Fx_marker = amrex::Real(0.0), Fy_marker = amrex::Real(0.0), Fz_marker = amrex::Real(0.0);
   Real Fx_me = amrex::Real(0.0), Fy_me = amrex::Real(0.0), Fz_me = amrex::Real(0.0);
 
-  // Eulerian force integral from forcing field actually coupled into LBM.
+  const Real dt_lev = dt[lev];
+
+  // Eulerian body force recovered from the LBM forcing field actually coupled
+  // into the solve.
+  //
+  // forcing[lev] stores the Guo source in lattice form, i.e.
+  //   (dt * force_density)
+  // so the domain integral must be divided by dt_lev to recover a force-like
+  // quantity that is comparable across AMR levels and with the marker sum.
   {
     const amrex::Box &domain = geom[lev].Domain();
     Real Fx_sum = forcing[lev].sum(domain, 0, false);
@@ -416,12 +495,14 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
 #if (AMREX_SPACEDIM == 3)
     dV *= dx[2];
 #endif
-    Fx_eul = -Fx_sum * dV;
-    Fy_eul = -Fy_sum * dV;
-    Fz_eul = -Fz_sum * dV;
+    Fx_eul = -(Fx_sum * dV) / dt_lev;
+    Fy_eul = -(Fy_sum * dV) / dt_lev;
+    Fz_eul = -(Fz_sum * dV) / dt_lev;
   }
 
-  // Marker force integral from Lagrangian direct-forcing data.
+  // Marker force integral from Lagrangian direct-forcing data. The marker
+  // backend stores acceleration-like forcing, so this sum is already in the
+  // same per-time-step units as the dt-corrected Eulerian force above.
   if (m_ib_method == IBMMethodMarker && m_ibm) {
     auto Fm = m_ibm->last_marker_force_sum();
     Fx_marker = -Fm[0];
@@ -429,11 +510,30 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
     Fz_marker = -Fm[2];
   }
 
-  // For the validated marker IBM, hydrodynamic reaction is the
-  // Lagrangian forcing integral by construction.
-  Fx_me = Fx_marker;
-  Fy_me = Fy_marker;
-  Fz_me = Fz_marker;
+  // Link-wise momentum exchange is only meaningful when solid-side
+  // populations are actually part of the boundary model. For the current
+  // marker direct-forcing IBM, the robust body-force diagnostic is the
+  // Eulerian forcing integral, while the raw marker-force integral remains
+  // available separately as a Lagrangian consistency diagnostic.
+  Fx_me = Fx_eul;
+  Fy_me = Fy_eul;
+  Fz_me = Fz_eul;
+  if (m_ib_method != IBMMethodMarker) {
+    auto Fme = IBForceEval::ComputeMomentumExchangeBodyForce(
+        f_new[lev], geom[lev], dirx, diry, dirz, ndir, m_ls_par, false);
+    Fx_me = Fme[0];
+    Fy_me = Fme[1];
+    Fz_me = Fme[2];
+  } else if (m_force_eval_method == ForceEvalMomentumExchange) {
+    static bool warned_marker_me_fallback = false;
+    if (!warned_marker_me_fallback && amrex::ParallelDescriptor::IOProcessor()) {
+      warned_marker_me_fallback = true;
+      amrex::Print()
+          << "NOTE: ibm.force_eval_method = momentum_exchange falls back to "
+             "the Eulerian IBM-force integral for marker IBM. "
+             "The raw marker-force sum is still reported separately.\n";
+    }
+  }
 
   Real Fx_body = Fx_eul;
   Real Fy_body = Fy_eul;
@@ -450,33 +550,33 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
 
   // Time-centered body force for Guo-forced LBM diagnostics:
   // use midpoint (n+1/2) estimate from consecutive whole-step forces.
-  static bool have_prev_body = false;
-  static Real Fx_body_prev = amrex::Real(0.0);
-  static Real Fy_body_prev = amrex::Real(0.0);
-  static Real Fz_body_prev = amrex::Real(0.0);
   Real Fx_body_tc = Fx_body;
   Real Fy_body_tc = Fy_body;
   Real Fz_body_tc = Fz_body;
-  if (have_prev_body) {
-    Fx_body_tc = amrex::Real(0.5) * (Fx_body_prev + Fx_body);
-    Fy_body_tc = amrex::Real(0.5) * (Fy_body_prev + Fy_body);
-    Fz_body_tc = amrex::Real(0.5) * (Fz_body_prev + Fz_body);
+  if (m_have_prev_body_force) {
+    Fx_body_tc = amrex::Real(0.5) * (m_prev_body_force[0] + Fx_body);
+    Fy_body_tc = amrex::Real(0.5) * (m_prev_body_force[1] + Fy_body);
+    Fz_body_tc = amrex::Real(0.5) * (m_prev_body_force[2] + Fz_body);
   }
-  Fx_body_prev = Fx_body;
-  Fy_body_prev = Fy_body;
-  Fz_body_prev = Fz_body;
-  have_prev_body = true;
+  m_prev_body_force[0] = Fx_body;
+  m_prev_body_force[1] = Fy_body;
+  m_prev_body_force[2] = Fz_body;
+  m_have_prev_body_force = true;
+#if (AMREX_SPACEDIM != 3)
+  amrex::ignore_unused(Fz_body_tc);
+#endif
 
   // --------------------------------------------------------------------
-  // 2) Drag / lift coefficients
+  // 2) Force coefficients
   //
-  //   Cd = Fx_body / (0.5 * rho_ref * U_ref^2 * D)
-  //   Cl = Fy_body / (0.5 * rho_ref * U_ref^2 * D)
+  // In 2D, use the usual cylinder normalization with reference length D.
+  // In 3D, use the frontal area A = pi R^2.
   //
-  // Here:
-  //   - rho_ref ≈ 1 (LBM)
-  //   - U_ref   = U0 (already set in ReadParameters)
-  //   - D       = 2*R, with R from the cylinder level-set params
+  //   2D: Cx = Fx / (0.5 * rho_ref * U_ref^2 * D)
+  //   3D: Cx = Fx / (0.5 * rho_ref * U_ref^2 * A)
+  //
+  // The second reported coefficient keeps the historical "Cl" column name,
+  // but in 3D it is simply the y-direction lateral-force coefficient.
   // --------------------------------------------------------------------
   Real rho_ref = amrex::Real(1.0);            // standard LBM choice
   Real U_ref = U0;                  // set earlier in ReadParameters()
@@ -487,8 +587,21 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
   Real Cd_eul = amrex::Real(0.0), Cl_eul = amrex::Real(0.0);
   Real Cd_marker = amrex::Real(0.0), Cl_marker = amrex::Real(0.0);
   Real Cd_me = amrex::Real(0.0), Cl_me = amrex::Real(0.0);
+#if (AMREX_SPACEDIM == 3)
+  Real Cz = amrex::Real(0.0);
+  Real Cz_raw = amrex::Real(0.0);
+  Real Cz_eul = amrex::Real(0.0);
+  Real Cz_marker = amrex::Real(0.0);
+  Real Cz_me = amrex::Real(0.0);
+#endif
 
-  Real denom = amrex::Real(0.5) * rho_ref * U_ref * U_ref * D_ref;
+  Real denom = amrex::Real(0.0);
+#if (AMREX_SPACEDIM == 3)
+  const Real A_ref = Math::pi<Real>() * m_ls_par.R * m_ls_par.R;
+  denom = amrex::Real(0.5) * rho_ref * U_ref * U_ref * A_ref;
+#else
+  denom = amrex::Real(0.5) * rho_ref * U_ref * U_ref * D_ref;
+#endif
   if (denom > amrex::Real(0.0)) {
     Cd_raw = Fx_body / denom;
     Cl_raw = Fy_body / denom;
@@ -500,6 +613,13 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
     Cl_marker = Fy_marker / denom;
     Cd_me = Fx_me / denom;
     Cl_me = Fy_me / denom;
+#if (AMREX_SPACEDIM == 3)
+    Cz_raw = Fz_body / denom;
+    Cz = Fz_body_tc / denom;
+    Cz_eul = Fz_eul / denom;
+    Cz_marker = Fz_marker / denom;
+    Cz_me = Fz_me / denom;
+#endif
   }
 
   // --------------------------------------------------------------------
@@ -507,42 +627,66 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
   // --------------------------------------------------------------------
   if (amrex::ParallelDescriptor::IOProcessor()) {
 
-    static std::ofstream ofs;
-    static bool initialized = false;
-
-    if (!initialized) {
-      ofs.open("force.dat");
-      if (!ofs) {
-        amrex::Print() << "WARNING: could not open force.dat\n";
+    if (!m_force_output_initialized) {
+      m_force_ofs.open(m_force_file);
+      if (!m_force_ofs) {
+        amrex::Print() << "WARNING: could not open " << m_force_file << "\n";
         return;
       }
-      ofs << "# step  time  Fx_body_tc  Fy_body_tc  Cd  Cl"
-             "  Fx_body_raw  Fy_body_raw  Cd_raw  Cl_raw"
-             "  Fx_eul  Fy_eul  Cd_eul  Cl_eul"
-             "  Fx_marker  Fy_marker  Cd_marker  Cl_marker"
-             "  Fx_me  Fy_me  Cd_me  Cl_me  t_conv\n";
-      initialized = true;
+#if (AMREX_SPACEDIM == 3)
+      m_force_ofs << "# 3D coefficients are normalized by frontal area A = pi R^2.\n";
+      m_force_ofs << "# In 3D, the historical Cl columns represent the y-force coefficient.\n";
+      m_force_ofs << "# Additional z-force and Cz columns are appended after t_conv.\n";
+#else
+      m_force_ofs << "# 2D coefficients are normalized by reference length D = 2R.\n";
+#endif
+      m_force_ofs << "# step  time  Fx_body_tc  Fy_body_tc  Cd  Cl"
+                     "  Fx_body_raw  Fy_body_raw  Cd_raw  Cl_raw"
+                     "  Fx_eul  Fy_eul  Cd_eul  Cl_eul"
+                     "  Fx_marker  Fy_marker  Cd_marker  Cl_marker"
+                     "  Fx_me  Fy_me  Cd_me  Cl_me  t_conv";
+#if (AMREX_SPACEDIM == 3)
+      m_force_ofs << "  Fz_body_tc  Cz"
+                     "  Fz_body_raw  Cz_raw"
+                     "  Fz_eul  Cz_eul"
+                     "  Fz_marker  Cz_marker"
+                     "  Fz_me  Cz_me";
+#endif
+      m_force_ofs << "\n";
+      m_force_output_initialized = true;
     }
 
     const Real t_conv = (D_ref > amrex::Real(0.0))
                             ? (time * U_ref / D_ref)
                             : amrex::Real(0.0);
 
-    ofs << step << "  " << time << "  "
-        << Fx_body_tc << "  " << Fy_body_tc << "  " << Cd << "  " << Cl << "  "
-        << Fx_body << "  " << Fy_body << "  " << Cd_raw << "  " << Cl_raw << "  "
-        << Fx_eul << "  " << Fy_eul << "  " << Cd_eul << "  " << Cl_eul << "  "
-        << Fx_marker << "  " << Fy_marker << "  " << Cd_marker << "  " << Cl_marker << "  "
-        << Fx_me << "  " << Fy_me << "  " << Cd_me << "  " << Cl_me << "  "
-        << t_conv << "\n";
-    ofs.flush();
+    m_force_ofs << step << "  " << time << "  "
+                << Fx_body_tc << "  " << Fy_body_tc << "  " << Cd << "  "
+                << Cl << "  " << Fx_body << "  " << Fy_body << "  "
+                << Cd_raw << "  " << Cl_raw << "  " << Fx_eul << "  "
+                << Fy_eul << "  " << Cd_eul << "  " << Cl_eul << "  "
+                << Fx_marker << "  " << Fy_marker << "  " << Cd_marker << "  "
+                << Cl_marker << "  " << Fx_me << "  " << Fy_me << "  "
+                << Cd_me << "  " << Cl_me << "  " << t_conv;
+#if (AMREX_SPACEDIM == 3)
+    m_force_ofs << "  " << Fz_body_tc << "  " << Cz << "  " << Fz_body
+                << "  " << Cz_raw << "  " << Fz_eul << "  " << Cz_eul
+                << "  " << Fz_marker << "  " << Cz_marker << "  " << Fz_me
+                << "  " << Cz_me;
+#endif
+    m_force_ofs << "\n";
+    m_force_ofs.flush();
 
     if (m_force_eval_debug > 0) {
       amrex::Print() << "[force_eval] step=" << step
                      << " primary(" << m_force_eval_method << "): Cd=" << Cd
-                     << " Cl=" << Cl << " (raw Cd,Cl)=(" << Cd_raw << "," << Cl_raw << ")"
-                     << " | eulerian(Cd,Cl)=(" << Cd_eul << "," << Cl_eul << ")"
-                     << " marker=(" << Cd_marker << "," << Cl_marker << ")"
+                     << " Cl=" << Cl
+#if (AMREX_SPACEDIM == 3)
+                     << " Cz=" << Cz
+#endif
+                     << " (raw Cd,Cl)=(" << Cd_raw << "," << Cl_raw << ")"
+                     << " | eulerian(Cd,Cl)=(" << Cd_eul << "," << Cl_eul
+                     << ") marker=(" << Cd_marker << "," << Cl_marker << ")"
                      << " me=(" << Cd_me << "," << Cl_me << ")\n";
     }
   }
@@ -550,12 +694,22 @@ void AmrCoreLBM::ComputeIBForce(Real time, int step) const {
 
 // initializes multilevel data
 void AmrCoreLBM::InitData() {
+  ResetForceHistory();
+
   if (restart_chkfile == "") {
     // start simulation from the beginning
     const Real time = 0.0;
     InitFromScratch(time);
 
     AverageDown();
+    // Derived fields such as vorticity/pressure must be refreshed after
+    // initialization-level averaging so the t=0 plotfile reflects the
+    // initialized velocity field instead of whatever placeholder values
+    // were written by the problem setup.
+    for (int lev = 0; lev <= finest_level; ++lev) {
+      UpdateDerivedMacroFields(lev, time);
+      MultiFab::Copy(macro_old[lev], macro_new[lev], 0, 0, nmac, nghost);
+    }
     if (m_use_cylinder && m_ls) {
       for (int lev = 0; lev <= finest_level; ++lev) {
         BuildLevelSetOnLevel(lev);
@@ -570,6 +724,11 @@ WriteCheckpointFile();
   } else {
     // restart from a checkpoint
     // ReadCheckpointFile();
+    for (int lev = 0; lev <= finest_level; ++lev) {
+      if (macro_new[lev].ok()) {
+        UpdateDerivedMacroFields(lev, t_new[lev]);
+      }
+    }
   }
 
   if (plot_int > 0) {
@@ -655,8 +814,11 @@ void AmrCoreLBM::MakeNewLevelFromCoarse(int lev, Real time, const BoxArray &ba,
 
   // --- IBM object only for current finest (optional) ---
   if (lev == finestLevel()) {
+    ResetIBMBackend();
     EnsureIBMBackend(lev, dm, ba);
   }
+
+  UpdateDerivedMacroFields(lev, time);
 }
 
 // Remake an existing level using provided BoxArray and DistributionMapping and
@@ -736,8 +898,11 @@ void AmrCoreLBM::RemakeLevel(int lev, Real time, const BoxArray &ba,
 
   // --- IBM object only for current finest (optional) ---
   if (lev == finestLevel()) {
+    ResetIBMBackend();
     EnsureIBMBackend(lev, dm, ba);
   }
+
+  UpdateDerivedMacroFields(lev, time);
 }
 
 // Delete level data
@@ -775,6 +940,7 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
 
   // --- IBM object only for current finest (optional) ---
   if (lev == finestLevel()) {
+    ResetIBMBackend();
     EnsureIBMBackend(lev, dm, ba);
   }
 
@@ -802,32 +968,7 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
     });
   }
 
-  MultiFab &curMacro = macro_new[lev];
-  amrex::Real tempdx = xCellSize[lev];
-  amrex::Real tempdy = yCellSize[lev];
-  amrex::Real tempdz = zCellSize[lev];
-  Real T0_local = T0;
-#ifdef AMREX_USE_OMP
-#pragma omp parallel if (Gpu::notInLaunchRegion())
-#endif
-  for (MFIter mfi(curMacro, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
-
-    const Box &vbx = mfi.validbox();
-    const Box &tbx = mfi.tilebox();
-    const Box &gtbx = amrex::grow(tbx, nghost);
-
-    Array4<Real> rho = curMacro[mfi].array(0);
-    Array4<Real> u = curMacro[mfi].array(1);
-    Array4<Real> v = curMacro[mfi].array(2);
-    Array4<Real> vor = curMacro[mfi].array(4);
-    Array4<Real> P = curMacro[mfi].array(5);
-    amrex::ParallelFor(gtbx, [=] AMREX_GPU_DEVICE(int i, int j,
-                                                  int k) noexcept {
-      if (vbx.contains(i, j, k)) {
-        visPara(i, j, k, rho, u, v, vor, P, tempdx, tempdy, tempdz, T0_local);
-      }
-    });
-  }
+  UpdateDerivedMacroFields(lev, time);
 
   MultiFab::Copy(macro_old[lev], macro_new[lev], 0, 0, nmac, nghost);
 
@@ -836,7 +977,7 @@ void AmrCoreLBM::MakeNewLevelFromScratch(int lev, Real time, const BoxArray &ba,
 
 // tag all cells for refinement
 // overrides the pure virtual function in AmrCore
-void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
+void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real time,
                           int /*ngrow*/) {
 
   static bool first = true;
@@ -864,10 +1005,38 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
     }
   }
 
-  MultiFab &curMacro = macro_new[lev];
+  MultiFab macro_tag(grids[lev], dmap[lev], 4, 1);
+  FillPatchMacro(lev, time, macro_tag, 0, 4);
+  MultiFab vort_for_tag(grids[lev], dmap[lev], 1, 0);
 
-  // Max vorticity (component 4) on this level
-  amrex::Real vortMax = curMacro.max(4);
+  const auto dx_arr = geom[lev].CellSizeArray();
+  const Real dx_tag = dx_arr[0];
+  const Real dy_tag = dx_arr[1];
+#if (AMREX_SPACEDIM == 3)
+  const Real dz_tag = dx_arr[2];
+#else
+  const Real dz_tag = Real(0.0);
+#endif
+
+#ifdef AMREX_USE_OMP
+#pragma omp parallel if (Gpu::notInLaunchRegion())
+#endif
+  for (MFIter mfi(vort_for_tag, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
+    const Box &bx = mfi.validbox();
+    const int K = mfi.index();
+    auto const u = macro_tag[K].array(1);
+    auto const v = macro_tag[K].array(2);
+    auto const w = macro_tag[K].array(3);
+    auto const vort = vort_for_tag[K].array(0);
+    amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+      vort(i, j, k) = vorticityDiagnostic(i, j, k, u, v, w, dx_tag, dy_tag,
+                                          dz_tag);
+    });
+  }
+
+  // Max vorticity used for tagging on this level, computed from a
+  // coarse/fine-consistent ghost-filled macro patch.
+  amrex::Real vortMax = vort_for_tag.max(0);
   const amrex::Real dx_min = xCellSize[lev];
   const auto dx = geom[lev].CellSizeArray();
   const auto problo = geom[lev].ProbLoArray();
@@ -898,19 +1067,19 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
 #endif
     {
 
-      for (MFIter mfi(curMacro, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
+      for (MFIter mfi(vort_for_tag, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
         const Box &bx = mfi.validbox();
+        const int K = mfi.index();
 
-        // vorticity: macro_new[lev] component 4
-        auto const &vort = curMacro[mfi].const_array(4);
+        auto const &vort = vort_for_tag[K].const_array(0);
         // level set φ: component 0 of m_ls->phi_at(lev)
 
-        auto const &phi_arr = phi_mf[mfi].const_array(0);
+        auto const &phi_arr = phi_mf[K].const_array(0);
 
-        auto const &tagfab = tags[mfi].array();
+        auto const &tagfab = tags[K].array();
 
         Real threshold = thresholdRatio[lev] * vortMax;
-        int n_cells_band = 5; // you can set 3–5 as you like
+        constexpr int n_cells_band = 5;
 
         amrex::ParallelFor(
             bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
@@ -947,17 +1116,16 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real /*time*/,
 #endif
     {
 
-      for (MFIter mfi(curMacro, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
+      for (MFIter mfi(vort_for_tag, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
         const Box &bx = mfi.validbox();
+        const int K = mfi.index();
 
-        // vorticity: macro_new[lev] component 4
-        auto const &vort = curMacro[mfi].const_array(4);
+        auto const &vort = vort_for_tag[K].const_array(0);
         // level set φ: component 0 of m_ls->phi_at(lev)
 
-        auto const &tagfab = tags[mfi].array();
+        auto const &tagfab = tags[K].array();
 
         Real threshold = thresholdRatio[lev] * vortMax;
-        int n_cells_band = 5; // you can set 3–5 as you like
 
         amrex::ParallelFor(
             bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
@@ -1099,6 +1267,9 @@ void AmrCoreLBM::ReadParameters() {
       pp_ibm.query("loop_ns", m_marker_par.loop_ns);
       pp_ibm.query("mdf_relax", m_marker_par.mdf_relax);
       pp_ibm.query("n_marker", m_marker_par.n_marker);
+      pp_ibm.query("refine_upstream", m_marker_par.refine_upstream);
+      pp_ibm.query("refine_downstream", m_marker_par.refine_downstream);
+      pp_ibm.query("refine_cross", m_marker_par.refine_cross);
       pp_ibm.query("rd", m_marker_par.rd);
       std::string marker_geometry = "cylinder";
       pp_ibm.query("marker_geometry", marker_geometry);
@@ -1144,6 +1315,7 @@ void AmrCoreLBM::ReadParameters() {
       pp_ibm.query("ivc_rebuild_matrix", m_marker_par.ivc_rebuild_matrix);
       pp_ibm.query("ivc_verbose", m_marker_par.ivc_verbose);
       pp_ibm.query("force_interval", m_force_interval);
+      pp_ibm.query("force_file", m_force_file);
       std::string force_eval_method = "momentum_exchange";
       pp_ibm.query("force_eval_method", force_eval_method);
       if (force_eval_method == "eulerian") {
@@ -1171,6 +1343,9 @@ void AmrCoreLBM::ReadParameters() {
         pp_mdf.query("renormalize_delta", m_marker_par.renormalize_delta);
         pp_mdf.query("mdf_relax", m_marker_par.mdf_relax);
         pp_mdf.query("explicit_diag_eps", m_marker_par.explicit_diag_eps);
+        pp_mdf.query("refine_upstream", m_marker_par.refine_upstream);
+        pp_mdf.query("refine_downstream", m_marker_par.refine_downstream);
+        pp_mdf.query("refine_cross", m_marker_par.refine_cross);
         std::string marker_geometry_mdf;
         if (pp_mdf.query("geometry", marker_geometry_mdf)) {
           if (marker_geometry_mdf == "box" || marker_geometry_mdf == "cavity_box") {
@@ -1223,9 +1398,12 @@ void AmrCoreLBM::ReadParameters() {
                                  MarkerIBParams::GeometryUserDefined)
                                     ? "user_defined"
                                     : "cylinder"))
-                     << "\n";
+                     << " (refine_upstream=" << m_marker_par.refine_upstream
+                     << ", refine_downstream=" << m_marker_par.refine_downstream
+                     << ", refine_cross=" << m_marker_par.refine_cross << ")\n";
       amrex::Print() << "               force_eval_method = " << force_eval_method
-                     << " (" << m_force_eval_method << ")\n";
+                     << " (" << m_force_eval_method << ")"
+                     << ", force_file = " << m_force_file << "\n";
       amrex::Print() << "               marker_coupling = "
                      << ((m_marker_par.coupling_method ==
                           MarkerIBParams::CouplingIVC)
@@ -1535,6 +1713,10 @@ void AmrCoreLBM::timeStepWithSubcycling(int lev, Real time, int iteration) {
     }
 
     AverageDownTo(lev); // average lev+1 down to lev
+    // AverageDown updates rho/u/v(/w) on the coarse level. Refresh derived
+    // diagnostics afterwards so plotfile output remains consistent with the
+    // velocity field after coarse-fine synchronization.
+    UpdateDerivedMacroFields(lev, t_new[lev]);
   }
 }
 

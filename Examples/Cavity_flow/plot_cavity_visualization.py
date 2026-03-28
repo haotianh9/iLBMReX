@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yt
 
+VOR_CLIM = 1.0e-2
+
 
 def latest_plotfile(root: str) -> str:
     cands = [p for p in glob.glob(os.path.join(root, "plt*")) if os.path.isdir(p)]
@@ -16,62 +18,123 @@ def latest_plotfile(root: str) -> str:
     return cands[-1]
 
 
-def load_field2d(plotfile: str, name: str) -> np.ndarray:
+def latest_common_plotfiles(bc_root: str, ibm_root: str) -> tuple[str, str]:
+    bc_plots = [p for p in glob.glob(os.path.join(bc_root, "plt*")) if os.path.isdir(p)]
+    ibm_plots = [p for p in glob.glob(os.path.join(ibm_root, "plt*")) if os.path.isdir(p)]
+    if not bc_plots:
+        raise FileNotFoundError(f"No plotfiles found under {bc_root}")
+    if not ibm_plots:
+        raise FileNotFoundError(f"No plotfiles found under {ibm_root}")
+
+    bc_by_name = {os.path.basename(p): p for p in bc_plots}
+    common = sorted(name for name in bc_by_name if os.path.isdir(os.path.join(ibm_root, name)))
+    if not common:
+        raise RuntimeError(f"No common BC/IBM plotfiles found under {bc_root} and {ibm_root}")
+
+    name = common[-1]
+    return bc_by_name[name], os.path.join(ibm_root, name)
+
+
+def load_state2d(plotfile: str) -> dict[str, np.ndarray | float]:
     ds = yt.load(plotfile)
-    dims = tuple(int(v) for v in ds.domain_dimensions)
-    cg = ds.covering_grid(level=0, left_edge=ds.domain_left_edge, dims=dims)
-    arr = cg[("boxlib", name)].to_ndarray()
-    if arr.ndim == 3:
-        arr = arr[:, :, arr.shape[2] // 2]
-    return np.asarray(arr, dtype=np.float64)
+    base_dims = np.array(ds.domain_dimensions, dtype=int)
+    max_lev = int(ds.index.max_level)
+    dims = base_dims * (int(ds.refine_by) ** max_lev)
+    cg = ds.covering_grid(level=max_lev, left_edge=ds.domain_left_edge, dims=dims, num_ghost_zones=0)
+
+    ux = cg[("boxlib", "ux")].to_ndarray()
+    uy = cg[("boxlib", "uy")].to_ndarray()
+    vor = cg[("boxlib", "vor")].to_ndarray()
+    if ux.ndim == 3:
+        k = ux.shape[2] // 2
+        ux = ux[:, :, k]
+        uy = uy[:, :, k]
+        vor = vor[:, :, k]
+
+    lo = np.array(ds.domain_left_edge[:2], dtype=np.float64)
+    hi = np.array(ds.domain_right_edge[:2], dtype=np.float64)
+    nx, ny = ux.shape
+    dx = (hi[0] - lo[0]) / float(nx)
+    dy = (hi[1] - lo[1]) / float(ny)
+    xc = lo[0] + (np.arange(nx, dtype=np.float64) + 0.5) * dx
+    yc = lo[1] + (np.arange(ny, dtype=np.float64) + 0.5) * dy
+
+    return {
+        "time": float(ds.current_time),
+        "ux": np.asarray(ux, dtype=np.float64),
+        "uy": np.asarray(uy, dtype=np.float64),
+        "vor": np.asarray(vor, dtype=np.float64),
+        "lo": lo,
+        "hi": hi,
+        "xc": xc,
+        "yc": yc,
+    }
 
 
-def draw_triplet(ux: np.ndarray, uy: np.ndarray, vor: np.ndarray, title: str, out_png: str) -> None:
-    speed = np.sqrt(ux * ux + uy * uy)
-    extent = [0, ux.shape[0], 0, ux.shape[1]]
+def crop_ibm_to_cavity(bc: dict, ibm: dict) -> tuple[dict, dict]:
+    if bc["ux"].shape == ibm["ux"].shape:
+        return bc, ibm
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4.6), constrained_layout=True)
-    fields = [("ux", ux), ("uy", uy), ("vorticity", vor)]
-    for ax, (name, arr) in zip(axes, fields):
-        im = ax.imshow(arr.T, origin="lower", extent=extent, cmap="viridis")
-        ax.set_title(f"{title}: {name}")
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        fig.colorbar(im, ax=ax, shrink=0.9)
+    nxb, nyb = bc["ux"].shape
+    nxi, nyi = ibm["ux"].shape
+    if nxb == nxi and nyi >= nyb:
+        ibm = ibm.copy()
+        for key in ("ux", "uy", "vor"):
+            ibm[key] = ibm[key][:, :nyb]
+        ibm["yc"] = ibm["yc"][:nyb]
+        ibm["hi"] = np.array([ibm["hi"][0], bc["hi"][1]], dtype=np.float64)
+        return bc, ibm
 
-    fig.suptitle(f"{title} (|u| max={speed.max():.4f})")
+    raise RuntimeError(f"Shape mismatch: BC {bc['ux'].shape}, IBM {ibm['ux'].shape}")
+
+
+def draw_vorticity(vor: np.ndarray, lo: np.ndarray, hi: np.ndarray, title: str, out_png: str, clim: float) -> None:
+    extent = [float(lo[0]), float(hi[0]), float(lo[1]), float(hi[1])]
+    clim = max(float(clim), 1.0e-14)
+
+    fig, ax = plt.subplots(figsize=(6.2, 5.0), constrained_layout=True)
+    im = ax.imshow(
+        vor.T,
+        origin="lower",
+        extent=extent,
+        cmap="RdBu_r",
+        vmin=-clim,
+        vmax=clim,
+    )
+    ax.set_title(f"{title}: vorticity")
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    fig.colorbar(im, ax=ax, shrink=0.9, label="vorticity")
     fig.savefig(out_png, dpi=180)
     plt.close(fig)
 
 
-def draw_centerlines(ux_bc: np.ndarray, uy_bc: np.ndarray, ux_ibm: np.ndarray, uy_ibm: np.ndarray, out_png: str) -> None:
-    if ux_bc.shape != ux_ibm.shape:
-        nxb, nyb = ux_bc.shape
-        nxi, nyi = ux_ibm.shape
-        if nxb == nxi and nyi >= nyb:
-            ux_ibm = ux_ibm[:, :nyb]
-            uy_ibm = uy_ibm[:, :nyb]
-        else:
-            raise RuntimeError(f"Shape mismatch: BC {ux_bc.shape}, IBM {ux_ibm.shape}")
+def draw_centerlines(bc: dict, ibm: dict, out_png: str) -> None:
+    xmid = 0.5 * (bc["lo"][0] + bc["hi"][0])
+    ymid = 0.5 * (bc["lo"][1] + bc["hi"][1])
 
-    nx, ny = ux_bc.shape
-    ix = nx // 2
-    iy = ny // 2
-    y = np.arange(ny)
-    x = np.arange(nx)
+    ix_bc = int(np.argmin(np.abs(bc["xc"] - xmid)))
+    ix_ibm = int(np.argmin(np.abs(ibm["xc"] - xmid)))
+    iy_bc = int(np.argmin(np.abs(bc["yc"] - ymid)))
+    iy_ibm = int(np.argmin(np.abs(ibm["yc"] - ymid)))
+
+    u_bc = bc["ux"][ix_bc, :]
+    v_bc = bc["uy"][:, iy_bc]
+    u_ibm = np.interp(bc["yc"], ibm["yc"], ibm["ux"][ix_ibm, :])
+    v_ibm = np.interp(bc["xc"], ibm["xc"], ibm["uy"][:, iy_ibm])
 
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.2), constrained_layout=True)
 
-    axes[0].plot(ux_bc[ix, :], y, lw=2, label="BC")
-    axes[0].plot(ux_ibm[ix, :], y, "--", lw=2, label="IBM")
+    axes[0].plot(u_bc, bc["yc"], lw=2, label="BC")
+    axes[0].plot(u_ibm, bc["yc"], "--", lw=2, label="IBM")
     axes[0].set_title("u(y) at x=L/2")
     axes[0].set_xlabel("u")
     axes[0].set_ylabel("y")
     axes[0].grid(alpha=0.25)
     axes[0].legend()
 
-    axes[1].plot(x, uy_bc[:, iy], lw=2, label="BC")
-    axes[1].plot(x, uy_ibm[:, iy], "--", lw=2, label="IBM")
+    axes[1].plot(bc["xc"], v_bc, lw=2, label="BC")
+    axes[1].plot(bc["xc"], v_ibm, "--", lw=2, label="IBM")
     axes[1].set_title("v(x) at y=L/2")
     axes[1].set_xlabel("x")
     axes[1].set_ylabel("v")
@@ -90,27 +153,24 @@ def main() -> None:
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
-    bc_plot = latest_plotfile(args.bc_root)
-    ibm_plot = latest_plotfile(args.ibm_root)
+    bc_plot, ibm_plot = latest_common_plotfiles(args.bc_root, args.ibm_root)
 
-    ux_bc = load_field2d(bc_plot, "ux")
-    uy_bc = load_field2d(bc_plot, "uy")
-    vor_bc = load_field2d(bc_plot, "vor")
+    bc = load_state2d(bc_plot)
+    ibm = load_state2d(ibm_plot)
+    bc, ibm = crop_ibm_to_cavity(bc, ibm)
 
-    ux_ibm = load_field2d(ibm_plot, "ux")
-    uy_ibm = load_field2d(ibm_plot, "uy")
-    vor_ibm = load_field2d(ibm_plot, "vor")
-
-    draw_triplet(ux_bc, uy_bc, vor_bc, "BC cavity", os.path.join(args.out_dir, "cavity_bc_fields.png"))
-    draw_triplet(ux_ibm, uy_ibm, vor_ibm, "IBM cavity", os.path.join(args.out_dir, "cavity_ibm_fields.png"))
-    draw_centerlines(
-        ux_bc, uy_bc, ux_ibm, uy_ibm, os.path.join(args.out_dir, "cavity_centerlines_bc_vs_ibm.png")
+    draw_vorticity(
+        bc["vor"], bc["lo"], bc["hi"], "BC cavity", os.path.join(args.out_dir, "cavity_bc_vorticity.png"), VOR_CLIM
     )
+    draw_vorticity(
+        ibm["vor"], ibm["lo"], ibm["hi"], "IBM cavity", os.path.join(args.out_dir, "cavity_ibm_vorticity.png"), VOR_CLIM
+    )
+    draw_centerlines(bc, ibm, os.path.join(args.out_dir, "cavity_centerlines_bc_vs_ibm.png"))
 
     print(f"BC plotfile : {bc_plot}")
     print(f"IBM plotfile: {ibm_plot}")
-    print(f"Wrote: {os.path.join(args.out_dir, 'cavity_bc_fields.png')}")
-    print(f"Wrote: {os.path.join(args.out_dir, 'cavity_ibm_fields.png')}")
+    print(f"Wrote: {os.path.join(args.out_dir, 'cavity_bc_vorticity.png')}")
+    print(f"Wrote: {os.path.join(args.out_dir, 'cavity_ibm_vorticity.png')}")
     print(f"Wrote: {os.path.join(args.out_dir, 'cavity_centerlines_bc_vs_ibm.png')}")
 
 

@@ -184,13 +184,6 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
                    << ")\n"
                    << std::defaultfloat;
   }
-  const Real tempdx = xCellSize[lev];
-  const Real tempdy = yCellSize[lev];
-#if (AMREX_SPACEDIM == 3)
-  const Real tempdz = zCellSize[lev];
-#else
-  const Real tempdz = Real(0.0);
-#endif
   const Real temptau = tau[lev];
 
 #ifdef AMREX_USE_OMP
@@ -394,31 +387,7 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
                             ((plot_int > 0) && (((step_lev + 1) % plot_int) == 0));
 
   if (do_vorticity) {
-
-    macro_new[lev].FillBoundary(geom[lev].periodicity());
-
-    const Real T0_local = T0; // <--- NEW: copy the member value
-    for (MFIter mfi(sF_new, TilingIfNotGPU()); mfi.isValid(); ++mfi) {
-      const Box &vbx = mfi.validbox();
-      const Box &tbx = mfi.tilebox();
-      Box gtbx = mfi.growntilebox(nghost); // <-- safe grown box, clamped to FAB
-      Array4<Real> rho = sM_new[mfi].array(0);
-      Array4<Real> u = sM_new[mfi].array(1);
-      Array4<Real> v = sM_new[mfi].array(2);
-      Array4<Real> w = sM_new[mfi].array(3);
-      Array4<Real> vor = sM_new[mfi].array(4);
-      Array4<Real> P = sM_new[mfi].array(5);
-
-      amrex::ParallelFor(gtbx, [=] AMREX_GPU_DEVICE(int i, int j,
-                                                    int k) noexcept {
-        // Ensure that the calculation area is within the
-        // valid range
-        if (vbx.contains(i, j, k)) {
-
-          visPara(i, j, k, rho, u, v, vor, P, tempdx, tempdy, tempdz, T0_local);
-        }
-      });
-    }
+    UpdateDerivedMacroFields(lev, t_new[lev]);
   }
 
 #ifdef AMREX_DEBUG

@@ -172,6 +172,9 @@ private:
   mutable int m_ivc_nmark{0};
   mutable std::vector<amrex::Real> m_ivc_lu;
   mutable std::vector<int> m_ivc_pivot;
+  mutable std::vector<amrex::Real> m_ivc_x_cached;
+  mutable std::vector<amrex::Real> m_ivc_y_cached;
+  mutable std::vector<amrex::Real> m_ivc_z_cached;
 };
 
 #else

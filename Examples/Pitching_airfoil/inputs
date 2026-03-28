@@ -68,6 +68,8 @@ ibm.loop_ns = 1
 ibm.n_marker = 0
 ibm.coupling_method = wu_shu
 ibm.ivc_diag_reg = 1.3
+# Keep this at 0: the moving airfoil already rebuilds the IVC operator
+# automatically when marker positions change, so forcing rebuilds is redundant.
 ibm.ivc_rebuild_matrix = 0
 ibm.ivc_verbose = 0
 ibm.delta_renorm = 0

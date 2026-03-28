@@ -4,6 +4,7 @@
 #include <limits>
 #include <memory>
 #include <string>
+#include <fstream>
 
 #ifdef AMREX_USE_OMP
 #include <omp.h>
@@ -38,7 +39,7 @@ public:
   void Evolve();
 
   // integrated IBM force on the immersed body
-  void ComputeIBForce(amrex::Real time, int step) const;
+  void ComputeIBForce(amrex::Real time, int step);
 
   // initializes multilevel data
   void InitData();
@@ -80,6 +81,9 @@ public:
   // enclosing member functions in this code path.
   void FillPatchMesoscopic(int lev, amrex::Real time, amrex::MultiFab &mf,
                            int icomp, int ncomp);
+
+  // Same CUDA/NVCC restriction as FillPatchMesoscopic.
+  void UpdateDerivedMacroFields(int lev, amrex::Real time);
 
   // Define the advection velocity as the curl of a scalar field
   void DefineVelocityAtLevel(int lev, amrex::Real time);
@@ -153,6 +157,7 @@ private:
   void check_ghost_cells_nonzero2(const amrex::MultiFab &mf, int comp, int lev);
 
   void BuildLevelSetOnLevel(int lev);
+  void ResetForceHistory();
   ////////////////
   // private data members
 
@@ -216,6 +221,7 @@ private:
   int chk_int = -1;
 
   int m_force_interval = -1;
+  std::string m_force_file{"force.dat"};
 
   enum ForceEvalMethod {
     ForceEvalEulerian = 0,
@@ -224,6 +230,11 @@ private:
   };
   int m_force_eval_method{ForceEvalMomentumExchange};
   int m_force_eval_debug{0};
+  std::ofstream m_force_ofs;
+  bool m_force_output_initialized{false};
+  bool m_have_prev_body_force{false};
+  amrex::GpuArray<amrex::Real, 3> m_prev_body_force{
+      {amrex::Real(0.0), amrex::Real(0.0), amrex::Real(0.0)}};
 
   // ------------------------------
   // Prescribed (user) forcing for LBM validation / simple test cases
@@ -299,6 +310,7 @@ private:
   // Backends (opaque handles)
   std::unique_ptr<LevelSetManager> m_ls;
   std::unique_ptr<IBMarkerDF> m_ibm;
+  int m_ibm_level{-1};
 
   // state per level
   amrex::Vector<std::unique_ptr<amrex::MultiFab>> m_state; // distribution f

@@ -540,6 +540,7 @@ void IBMarkerDF::update_lagrangian_marker(Real time) const {
 
     const bool renorm = (m_par.renormalize_delta != 0) &&
                         (m_par.coupling_method != MarkerIBParams::CouplingIVC);
+    const MarkerIBParams par = m_par;
     ParallelFor(np, [=] AMREX_GPU_DEVICE(int i) noexcept {
       const int m_id = particles[i].id();
       int idx = midP[i];
@@ -570,7 +571,7 @@ void IBMarkerDF::update_lagrangian_marker(Real time) const {
         Real utx = amrex::Real(0.0);
         Real uty = amrex::Real(0.0);
         Real utz = amrex::Real(0.0);
-        lbm_user_ibm_geometry::marker_state(ridx, time, m_par, x0, y0, z0,
+        lbm_user_ibm_geometry::marker_state(ridx, time, par, x0, y0, z0,
                                             xref, yref, zref, px, py, pz, utx,
                                             uty, utz);
         particles[i].pos(0) = px;
@@ -1128,6 +1129,9 @@ void IBMarkerDF::build_ivc_operator(std::vector<Real> const &x_global,
   const Real tiny = amrex::max(m_par.ivc_diag_reg * amrex::Real(1.0e-4),
                                amrex::Real(1.0e-30));
   m_ivc_operator_ready = lu_factorize(m_ivc_lu, m_ivc_pivot, nmark, tiny);
+  m_ivc_x_cached = x_global;
+  m_ivc_y_cached = y_global;
+  m_ivc_z_cached = z_global;
 
   if (m_par.ivc_verbose > 0 && ParallelDescriptor::IOProcessor()) {
     amrex::Print() << "  [ibm_marker_ivc] operator build n=" << nmark
@@ -1226,8 +1230,23 @@ void IBMarkerDF::compute_lagrangian_force_ivc(Real dt, Real time) const {
     }
   }
 
+  bool geometry_changed =
+      (static_cast<int>(m_ivc_x_cached.size()) != nmark) ||
+      (static_cast<int>(m_ivc_y_cached.size()) != nmark) ||
+      (static_cast<int>(m_ivc_z_cached.size()) != nmark);
+  if (!geometry_changed) {
+    constexpr Real rebuild_tol = amrex::Real(1.0e-12);
+    for (int i = 0; i < nmark; ++i) {
+      if (amrex::Math::abs(x_global[i] - m_ivc_x_cached[i]) > rebuild_tol ||
+          amrex::Math::abs(y_global[i] - m_ivc_y_cached[i]) > rebuild_tol ||
+          amrex::Math::abs(z_global[i] - m_ivc_z_cached[i]) > rebuild_tol) {
+        geometry_changed = true;
+        break;
+      }
+    }
+  }
   if (!m_ivc_operator_ready || m_ivc_nmark != nmark ||
-      m_par.ivc_rebuild_matrix > 0) {
+      m_par.ivc_rebuild_matrix > 0 || geometry_changed) {
     build_ivc_operator(x_global, y_global, z_global);
   }
 

@@ -80,6 +80,13 @@ struct MarkerIBParams {
   // If 0, a heuristic is used (IAMReX-like for spheres).
   int n_marker{0};
 
+  // Optional AMR refinement envelope around cylinder/sphere-style IBM bodies,
+  // expressed in multiples of the body radius.
+  // If <= 0, the legacy body-only refinement box is used.
+  amrex::Real refine_upstream{-1.0};
+  amrex::Real refine_downstream{-1.0};
+  amrex::Real refine_cross{-1.0};
+
   // IAMReX 'rd' parameter used in their Ml/dv formula for spherical shells.
   // (Defaults to 0.0; keep it configurable for reproducibility.)
   amrex::Real rd{0.0};
