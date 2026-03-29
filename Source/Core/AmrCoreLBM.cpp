@@ -420,6 +420,11 @@ amrex::Print() << std::setprecision(12)
 
     if (plot_int > 0 && (step + 1) % plot_int == 0) {
       last_plot_file_step = step + 1;
+      // Keep derived diagnostics (e.g. vorticity/pressure) synchronized with
+      // the just-advanced velocity field on every level at plot output times.
+      for (int lev_plot = 0; lev_plot <= finest_level; ++lev_plot) {
+        UpdateDerivedMacroFields(lev_plot, t_new[lev_plot]);
+      }
       WritePlotFile();
     }
 
@@ -441,6 +446,9 @@ amrex::Print() << std::setprecision(12)
   }
 
   if (plot_int > 0 && istep[0] > last_plot_file_step) {
+    for (int lev_plot = 0; lev_plot <= finest_level; ++lev_plot) {
+      UpdateDerivedMacroFields(lev_plot, t_new[lev_plot]);
+    }
     WritePlotFile();
   }
 }
