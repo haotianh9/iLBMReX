@@ -13,7 +13,7 @@
   </a>
 </p> -->
 
-  <p><strong>Adaptive Immersed-Boundary Lattice Boltzmann Solver</strong></p>
+  <p><strong>Immersed-Boundary Lattice Boltzmann Solver with Adaptive Mesh Refinement</strong></p>
 
 [Overview](#overview) -
 [Sample Cases](#sample-cases) -
