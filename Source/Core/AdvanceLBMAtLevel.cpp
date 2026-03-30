@@ -184,72 +184,83 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
                    << ")\n"
                    << std::defaultfloat;
   }
+
+  // Keep forcing ghost cells consistent across FAB boundaries before the
+  // collide kernel touches grown boxes. Without this, ghost cells can retain
+  // stale zeros at internal box interfaces and imprint weak grid-aligned
+  // artifacts in vorticity.
+  fx_cc.FillBoundary(geom[lev].periodicity());
+  fy_cc.FillBoundary(geom[lev].periodicity());
+  fz_cc.FillBoundary(geom[lev].periodicity());
+
   const Real temptau = tau[lev];
+
+  auto const *dirx_d = dirx_dev.data();
+  auto const *diry_d = diry_dev.data();
+  auto const *dirz_d = dirz_dev.data();
+  auto const *wi_d = wi_dev.data();
+  const int ndir_l = ndir;
 
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
-  // We update ghost cells in `gtbx`, so tiled iteration would create
-  // overlapping grown regions and collide some cells multiple times.
   for (MFIter mfi(sF_new, false); mfi.isValid(); ++mfi) {
     const Box &vbx = mfi.validbox();
-    Box gtbx = mfi.growntilebox(nghost); // <-- safe grown box, clamped to FAB
 
-    // staging views
     Array4<Real> rho_old = smSborder[mfi].array(0);
     Array4<Real> u_old = smSborder[mfi].array(1);
     Array4<Real> v_old = smSborder[mfi].array(2);
     Array4<Real> w_old = smSborder[mfi].array(3);
+    Array4<Real> statein = sfSborder[mfi].array(); // f* (post-collision)
 
-    Array4<Real> statein = sfSborder[mfi].array(); // f*
-    Array4<Real> stateout = sF_new[mfi].array();   // post-stream
+    auto fx = fx_cc[mfi].array(0);
+    auto fy = fy_cc[mfi].array(0);
+    auto fz = fz_cc[mfi].array(0);
+
+    // Collide only on valid cells.
+    // Ghost cells are synchronized from neighboring valid data below via
+    // FillBoundary to avoid box-edge inconsistencies.
+    amrex::ParallelFor(
+        vbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+          const amrex::Real rho_loc = rho_old(i, j, k);
+          const amrex::Real u_loc = u_old(i, j, k);
+          const amrex::Real v_loc = v_old(i, j, k);
+          const amrex::Real w_loc = w_old(i, j, k);
+
+          amrex::Real feq_loc[BCBuf::MAX_NDIR];
+          for (int q = 0; q < ndir_l; ++q) {
+            feq_loc[q] = feqFunction(wi_d[q], dirx_d[q], diry_d[q], dirz_d[q],
+                                     rho_loc, u_loc, v_loc, w_loc);
+          }
+
+          collide_forced(i, j, k, statein, feq_loc, ndir_l, temptau, wi_d,
+                         dirx_d, diry_d, dirz_d, rho_loc, u_loc, v_loc, w_loc,
+                         fx(i, j, k), fy(i, j, k), fz(i, j, k));
+        });
+  }
+
+  // Synchronize post-collision populations across FAB interfaces so pull
+  // streaming always sees neighbor-valid values in ghost cells.
+  sfSborder.FillBoundary(geom[lev].periodicity());
+
+#ifdef AMREX_USE_OMP
+#pragma omp parallel if (Gpu::notInLaunchRegion())
+#endif
+  for (MFIter mfi(sF_new, false); mfi.isValid(); ++mfi) {
+    const Box &vbx = mfi.validbox();
+    Box gtbx = mfi.growntilebox(nghost); // clamped to FAB
+
+    Array4<Real> statein = sfSborder[mfi].array();
+    Array4<Real> stateout = sF_new[mfi].array();
 
     Array4<Real> rho = sM_new[mfi].array(0);
     Array4<Real> u = sM_new[mfi].array(1);
     Array4<Real> v = sM_new[mfi].array(2);
     Array4<Real> w = sM_new[mfi].array(3);
-    Array4<Real> vor = sM_new[mfi].array(4);
-    Array4<Real> P = sM_new[mfi].array(5);
 
-    // local force views
     auto fx = fx_cc[mfi].array(0);
     auto fy = fy_cc[mfi].array(0);
     auto fz = fz_cc[mfi].array(0);
-
-    const int ndir_l = ndir;
-    auto const *dirx_d = dirx_dev.data();
-    auto const *diry_d = diry_dev.data();
-    auto const *dirz_d = dirz_dev.data();
-    auto const *wi_d = wi_dev.data();
-    // -------- Collide (BGK) --------
-    amrex::ParallelFor(
-        gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-          // local macros from last stage
-          const amrex::Real rho_loc = rho_old(i, j, k);
-          const amrex::Real u_loc = u_old(i, j, k);
-          const amrex::Real v_loc = v_old(i, j, k);
-          const amrex::Real w_loc = w_old(i, j, k);
-          // build feq
-
-          amrex::Real feq_loc[BCBuf::MAX_NDIR];
-
-          for (int q = 0; q < ndir_l; ++q) {
-            feq_loc[q] = feqFunction(wi_d[q], dirx_d[q], diry_d[q], dirz_d[q],
-                                     rho_loc, u_loc, v_loc, w_loc);
-          }
-          collide_forced(i, j, k, statein, feq_loc, ndir_l, temptau, wi_d,
-                         dirx_d, diry_d, dirz_d, rho_loc, u_loc, v_loc, w_loc,
-                         fx(i, j, k), fy(i, j, k), fz(i, j, k));
-
-          // amrex::Real fx_loc = 0.0;
-          // amrex::Real fy_loc = 0.0;
-          // amrex::Real fz_loc = 0.0;
-
-          // // Inside ParallelFor, instead of passing fx(i,j,k) etc:
-          // collide_forced(i, j, k, statein, feq_loc, ndir, temptau, wi_loc,
-          //                dirx_loc, diry_loc, dirz_loc, mac[0], mac[1],
-          //                mac[2], mac[3], fx_loc, fy_loc, fz_loc);
-        });
 
     const amrex::Box domain = geom[lev].Domain();
     const amrex::BCRec bc_rec =
@@ -361,26 +372,18 @@ void AmrCoreLBM::AdvancePhiAtLevel(int lev, Real time, Real dt_lev,
           }
         });
 
-    // // -------- Stream --------
+    // -------- Stream --------
     amrex::ParallelFor(
-        gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-          if (vbx.contains(i, j, k)) {
-            stream(i, j, k, stateout, statein, dirx_d, diry_d, dirz_d, ndir_l);
-          }
+        vbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+          stream(i, j, k, stateout, statein, dirx_d, diry_d, dirz_d, ndir_l);
         });
 
     // -------- Macros w/ forcing + diagnostics --------
     amrex::ParallelFor(
-        gtbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-          // Ensure that the calculation area is within the valid range
-          if (vbx.contains(i, j, k)) {
-            calculateMacroForcing(i, j, k, stateout, rho, u, v, w, fx, fy, fz,
-                                  ndir_l, dirx_d, diry_d, dirz_d);
-            // calculateMacro(i, j, k, stateout, rho, u, v, w, ndir, dirx, diry,
-            // dirz);
-          }
+        vbx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+          calculateMacroForcing(i, j, k, stateout, rho, u, v, w, fx, fy, fz,
+                                ndir_l, dirx_d, diry_d, dirz_d);
         });
-
   }
   const int step_lev = istep[lev];
   const bool do_vorticity = (((step_lev + 1) % regrid_int) == 0) ||

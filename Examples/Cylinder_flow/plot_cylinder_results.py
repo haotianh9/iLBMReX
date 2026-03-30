@@ -95,53 +95,77 @@ def parse_cylinder_geometry(inputs_path: Path) -> tuple[float, float, float]:
 
 
 def latest_plotfile(root: Path) -> Path:
-    cands = []
-    for p in root.glob("plt*"):
-        if p.is_dir() and re.fullmatch(r"plt\d+", p.name):
-            cands.append(p)
+    cands = list_plotfiles(root)
     if not cands:
         raise FileNotFoundError(f"No plotfile directories like pltNNNNN under {root}")
-    cands.sort()
     return cands[-1]
 
 
-def finest_covering_grid(ds):
+def list_plotfiles(root: Path) -> list[Path]:
+    plots = [p for p in root.glob("plt*") if p.is_dir() and re.fullmatch(r"plt\d+", p.name)]
+    plots.sort(key=lambda p: int(p.name[3:]))
+    return plots
+
+
+def finest_resolution_2d(ds) -> tuple[int, int]:
     level = int(ds.index.max_level)
     dims = np.array(ds.domain_dimensions, dtype=np.int64)
     if level > 0:
         ref = int(np.prod(np.asarray(ds.ref_factors[:level], dtype=np.int64)))
         dims *= ref
-    # For AMR visualization, yt's smoothed covering grid gives a continuous
-    # stitched field across refinement patches. For BoxLib/AMReX plotfiles on
-    # a non-periodic inlet/outlet, force_periodicity() is only used here in
-    # postprocessing so yt can build the smoothed sample without complaining
-    # about a one-cell internal stencil overshoot at the x-boundary.
-    ds.force_periodicity()
-    return ds.smoothed_covering_grid(
-        level=level,
-        left_edge=ds.domain_left_edge,
-        dims=tuple(int(v) for v in dims),
-        num_ghost_zones=0,
-    )
+    return int(dims[0]), int(dims[1])
+
+
+def compute_vorticity_from_velocity(
+    ux: np.ndarray, uy: np.ndarray, extent: list[float]
+) -> np.ndarray:
+    nx, ny = ux.shape
+    dx = (extent[1] - extent[0]) / float(nx)
+    dy = (extent[3] - extent[2]) / float(ny)
+    dudy = np.gradient(ux, dy, axis=1, edge_order=2)
+    dvdx = np.gradient(uy, dx, axis=0, edge_order=2)
+    return np.asarray(dvdx - dudy, dtype=np.float64)
 
 
 def load_fields2d(plotfile: Path) -> tuple[list[float], np.ndarray, np.ndarray, np.ndarray]:
     ds = yt.load(str(plotfile))
-    cg = finest_covering_grid(ds)
 
-    def field(name: str) -> np.ndarray:
-        arr = cg[("boxlib", name)].to_ndarray()
-        if arr.ndim == 3:
-            arr = arr[:, :, arr.shape[2] // 2]
-        return np.asarray(arr, dtype=np.float64)
+    xlo = float(ds.domain_left_edge[0])
+    xhi = float(ds.domain_right_edge[0])
+    ylo = float(ds.domain_left_edge[1])
+    yhi = float(ds.domain_right_edge[1])
+    zlo = float(ds.domain_left_edge[2])
+    zhi = float(ds.domain_right_edge[2])
 
-    extent = [
-        float(ds.domain_left_edge[0]),
-        float(ds.domain_right_edge[0]),
-        float(ds.domain_left_edge[1]),
-        float(ds.domain_right_edge[1]),
-    ]
-    return extent, field("ux"), field("uy"), field("vor")
+    nx, ny = finest_resolution_2d(ds)
+    zmid = 0.5 * (zlo + zhi)
+    xmid = 0.5 * (xlo + xhi)
+    ymid = 0.5 * (ylo + yhi)
+
+    sl = ds.slice(2, zmid)
+    frb = sl.to_frb(
+        width=(xhi - xlo, "code_length"),
+        height=(yhi - ylo, "code_length"),
+        resolution=(nx, ny),
+        center=(xmid, ymid, zmid),
+    )
+
+    # yt FRB returns image arrays with shape (ny, nx). Transpose to (nx, ny)
+    # so x is axis-0 and y is axis-1, consistent with the rest of this script.
+    ux = np.asarray(frb[("boxlib", "ux")], dtype=np.float64).T
+    uy = np.asarray(frb[("boxlib", "uy")], dtype=np.float64).T
+    extent = [xlo, xhi, ylo, yhi]
+    vor = compute_vorticity_from_velocity(ux, uy, extent)
+    return extent, ux, uy, vor
+
+
+def compute_vlim(plotfiles: list[Path], q: float) -> float:
+    vmax = 0.0
+    for pf in plotfiles:
+        _, _, _, vor = load_fields2d(pf)
+        local = float(np.quantile(np.abs(vor), q))
+        vmax = max(vmax, local)
+    return max(vmax, 1.0e-12)
 
 
 def add_cylinder(ax: plt.Axes, x0: float, y0: float, r: float) -> None:
@@ -231,10 +255,14 @@ def plot_flow_fields(
     x0: float,
     y0: float,
     r: float,
+    vor_vlim: float | None = None,
 ) -> None:
     extent, ux, uy, vor = load_fields2d(plotfile)
     speed = np.sqrt(ux * ux + uy * uy)
-    vmax_vor = float(np.max(np.abs(vor)))
+    if vor_vlim is None:
+        vmax_vor = float(np.max(np.abs(vor)))
+    else:
+        vmax_vor = float(max(vor_vlim, 1.0e-12))
     vor_norm = mcolors.TwoSlopeNorm(vcenter=0.0, vmin=-vmax_vor, vmax=vmax_vor)
 
     fig, ax = plt.subplots(2, 2, figsize=(12, 8), constrained_layout=True)
@@ -274,6 +302,17 @@ def main() -> None:
     ap.add_argument("--inputs", default="inputs")
     ap.add_argument("--out-dir", default="_artifacts")
     ap.add_argument(
+        "--vort-quantile",
+        type=float,
+        default=0.995,
+        help="Quantile in [0,1] used to set a consistent |vorticity| color limit across plotfiles.",
+    )
+    ap.add_argument(
+        "--skip-spectrum",
+        action="store_true",
+        help="Skip Cl spectrum figure generation.",
+    )
+    ap.add_argument(
         "--cd-ylim-ignore-frac",
         type=float,
         default=0.05,
@@ -284,10 +323,20 @@ def main() -> None:
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    p100 = resolve_force(args.re100_force, "force_re100_*.dat")
-    p200 = resolve_force(args.re200_force, "force_re200_*.dat")
+    auto_discover = (args.re100_force is None and args.re200_force is None)
+    if auto_discover:
+        p100 = resolve_force(None, "force_re100_*.dat")
+        p200 = resolve_force(None, "force_re200_*.dat")
+    else:
+        p100 = Path(args.re100_force) if args.re100_force else None
+        p200 = Path(args.re200_force) if args.re200_force else None
+        if p100 is not None and not p100.exists():
+            raise FileNotFoundError(p100)
+        if p200 is not None and not p200.exists():
+            raise FileNotFoundError(p200)
+
     current = Path("force.dat")
-    if p100 is None and p200 is None and current.exists():
+    if auto_discover and p100 is None and p200 is None and current.exists():
         p100 = current
 
     if p100 is not None:
@@ -301,14 +350,15 @@ def main() -> None:
             cl100,
             args.cd_ylim_ignore_frac,
         )
-        plot_spectrum(
-            out_dir / f"{tag100}_cl_spectrum.png",
-            f"{tag100}: Cl Spectrum",
-            t100,
-            cl100,
-        )
         print(out_dir / f"{tag100}_cd_cl_time.png")
-        print(out_dir / f"{tag100}_cl_spectrum.png")
+        if not args.skip_spectrum:
+            plot_spectrum(
+                out_dir / f"{tag100}_cl_spectrum.png",
+                f"{tag100}: Cl Spectrum",
+                t100,
+                cl100,
+            )
+            print(out_dir / f"{tag100}_cl_spectrum.png")
     else:
         t100 = cd100 = cl100 = None
         tag100 = None
@@ -324,14 +374,15 @@ def main() -> None:
             cl200,
             args.cd_ylim_ignore_frac,
         )
-        plot_spectrum(
-            out_dir / f"{tag200}_cl_spectrum.png",
-            f"{tag200}: Cl Spectrum",
-            t200,
-            cl200,
-        )
         print(out_dir / f"{tag200}_cd_cl_time.png")
-        print(out_dir / f"{tag200}_cl_spectrum.png")
+        if not args.skip_spectrum:
+            plot_spectrum(
+                out_dir / f"{tag200}_cl_spectrum.png",
+                f"{tag200}: Cl Spectrum",
+                t200,
+                cl200,
+            )
+            print(out_dir / f"{tag200}_cl_spectrum.png")
     else:
         t200 = cd200 = cl200 = None
         tag200 = None
@@ -354,6 +405,12 @@ def main() -> None:
     plot_root = Path(args.plot_root)
     if plot_root.exists():
         plotfile = latest_plotfile(plot_root)
+        vlim = None
+        if 0.0 < args.vort_quantile <= 1.0:
+            plotfiles = list_plotfiles(plot_root)
+            if plotfiles:
+                vlim = compute_vlim(plotfiles, args.vort_quantile)
+                print(f"# vorticity color limit |omega|max = {vlim:g} (q={args.vort_quantile})")
         x0, y0, r = parse_cylinder_geometry(Path(args.inputs))
         plot_flow_fields(
             out_dir / "latest_flow_fields.png",
@@ -362,6 +419,7 @@ def main() -> None:
             x0,
             y0,
             r,
+            vor_vlim=vlim,
         )
         print(out_dir / "latest_flow_fields.png")
 
