@@ -1,11 +1,23 @@
 ---
 title: "iLBMReX: an adaptive immersed-boundary lattice Boltzmann solver built on AMReX"
+tags:
+
+  - Fluid dynamics
+  - Computational Fluid dynamics
+  - Lattice Boltzmann Method (LBM)
+  - Immersed Boundary Method (IBM)
+  - Adaptive Mesh Refinement (AMR)
+  - AMReX
 authors:
   - name: Haotian Hang
+    orcid: 0000-0001-5217-8124
+    corresponding: true 
     affiliation: "1,2"
   - name: Feihu Zhang
+    orcid: 0000-0000-0000-0000
     affiliation: "3"
   - name: Yadong Zeng
+    orcid: 0000-0000-0000-0000
     affiliation: "4"
 affiliations:
   - index: 1
