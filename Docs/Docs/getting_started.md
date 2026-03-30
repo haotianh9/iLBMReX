@@ -18,41 +18,53 @@ Before compiling iLBMReX you will need:
 
 ## Installing AMReX
 
-Following the official guidelines in (https://amrex-codes.github.io).
-
-After installation, set the `AMREX_HOME` environment variable to point
-to the installation directory if the installer does not place AMReX in a
-standard location.
+Follow the official installation guidelines at the AMReX website
+(<https://amrex-codes.github.io>). When building with GPU support,
+select the appropriate backend (CUDA or HIP). Once installed, set the
+`AMREX_HOME` environment variable so that CMake can locate AMReX if it
+is not installed in a standard location.
 
 ## Building iLBMReX
 
-Clone this repository and create a build directory:
+Clone this repository and build the example problems using the provided
+Makefiles.  Each example directory under ``Examples/`` contains a
+Makefile that automatically locates AMReX and builds both CPU and
+GPU executables (if a CUDA or HIP compiler is available).
+
+For instance, to build the cylinder‑flow example:
 
 ```sh
 git clone https://github.com/haotianh9/lattice_boltzmann_method.git
-cd lattice_boltzmann_method
-cd Examples
-cd Cylinder_flow
-cmake .. 
-make -j
+cd lattice_boltzmann_method/Examples/Cylinder_flow
+make -j        # builds main2d and (if available) GPU executables
 ```
 
-
-
-This will generate one or more executables, typically `main2d.gnu.ex` and
-`main2d.gnu.CUDA.ex`, depending on the compilation setting.
+The default target builds an executable named `main2d.gnu.ex` for CPU
+runs.  When a compatible GPU compiler is detected (e.g. ``nvcc`` or
+``hipcc``), the Makefile also builds a GPU version (usually
+``main2d.gnu.CUDA.ex`` or similar).  You can run the build with
+``make VERBOSE=1`` to see which commands are executed.
 
 ## Running a test case
 
-To run the 2D cylinder wake example, execute from the build directory:
+From within the example directory you can run the 2D cylinder case
+directly after building:
 
 ```sh
-cd ./Examples/Cylinder_flow
 ./main2d.gnu.ex inputs
 ```
 
-Output plotfiles will be written to a new directory in
-`Examples/Cylinder_flow/out_cylinder`. You can visualize these using python's
-`yt` package or with general‑purpose visualization software such as
-ParaView or VisIt.
+This reads the `inputs` file in the current directory, runs the solver
+and writes plotfiles to a subdirectory such as `out_cylinder`.  Use
+tools like Python’s `yt` package, ParaView or VisIt to visualise the
+results.
 
+## Advanced options
+
+The root `CMakeLists.txt` file exposes numerous options. You can enable
+or disable GPU support (`WITH_GPU`), choose the GPU backend
+(`AMREX_GPU_BACKEND`), enable AMR subcycling (`WITH_SUBCYCLING`), and
+build in debug mode (`CMAKE_BUILD_TYPE=Debug`). Refer to
+`Docs/design_overview.md` for more information about the solver
+architecture and to the source code in the `Source/` directory for
+implementation details.

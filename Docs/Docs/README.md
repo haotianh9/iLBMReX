@@ -7,18 +7,18 @@ design notes.
 
 ## Contents
 
-* `getting_started.md` – step‑by‑step instructions for installing
+* `getting_started.md` – step-by-step instructions for installing
   dependencies, compiling the solver and running a first example.
-* `examples.md` – descriptions of the example problems included in the
+* `examples.md` – descriptions of the example problems included in the
   repository with notes on expected results.
-* `design_overview.md` – a high‑level description of the solver
-  architecture, including the AMR hierarchy, lattice Boltzmann update
-  sequence and immersed‑boundary coupling strategy.
-* `api_reference.md` – a brief reference to key classes and functions used
+* `design_overview.md` – a high-level description of the solver
+  architecture, including the AMR hierarchy, lattice Boltzmann update
+  sequence and immersed-boundary coupling strategy.
+* `api_reference.md` – a brief reference to key classes and functions used
   in the solver.
-* `joss_paper` – the manuscript prepared for submission to the Journal of
-  Open Source Software, including `paper.md` and the accompanying
-  `paper.bib`.
+* `../JOSS_paper/` – the manuscript prepared for submission to the Journal of
+  Open Source Software, including `paper.md` and the accompanying
+  `paper.bib` (located in the repository root).
 
 ## Building the documentation
 

@@ -1,8 +1,9 @@
 # API reference (brief)
 
-The current release of iLBMReX is both a usable library and a learning tool for lattice-boltzmann method and immersed boudnary methods in the framework of AMRES. Nevertheless,
-advanced users and developers may find the following classes and
-functions of interest:
+The current release of iLBMReX is both a usable library and a
+learning tool for lattice‑Boltzmann and immersed‑boundary methods
+within the AMReX framework. Nevertheless, advanced users and
+developers may find the following classes and functions of interest:
 
 * **`AmrCoreLBM`** – the main driver class. It manages the AMR hierarchy,
   time stepping, collision and streaming operations, regridding and
@@ -19,4 +20,4 @@ functions of interest:
   to file.
 
 Full details of these classes can be found in the source code under
-`Source/`. 
+`Source/`.
