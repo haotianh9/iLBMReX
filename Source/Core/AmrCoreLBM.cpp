@@ -990,6 +990,8 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real time,
 
   static bool first = true;
   static Vector<Real> thresholdRatio;
+  static Real no_refine_xlo = amrex::Real(0.0);
+  static Real no_refine_xhi = amrex::Real(0.0);
 
   // only do this during the first call to ErrorEst
   if (first) {
@@ -1004,6 +1006,8 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real time,
     if (n > 0) {
       pp.getarr("thresholdRatio", thresholdRatio, 0, n);
     }
+    pp.query("no_refine_xlo", no_refine_xlo);
+    pp.query("no_refine_xhi", no_refine_xhi);
 
     // Ensure thresholdRatio is defined for all levels [0..max_level]
     if (thresholdRatio.empty()) {
@@ -1048,6 +1052,9 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real time,
   const amrex::Real dx_min = xCellSize[lev];
   const auto dx = geom[lev].CellSizeArray();
   const auto problo = geom[lev].ProbLoArray();
+  const auto probhi = geom[lev].ProbHiArray();
+  const Real no_refine_xlo_local = no_refine_xlo;
+  const Real no_refine_xhi_local = no_refine_xhi;
   Real refine_xlo = amrex::Real(0.0);
   Real refine_xhi = amrex::Real(0.0);
   Real refine_ylo = amrex::Real(0.0);
@@ -1067,7 +1074,7 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real time,
     // Level set φ for this level
     MultiFab &phi_mf = m_ls->phi_at(lev);
 
-    //    const int clearval = TagBox::CLEAR;
+    const int clearval = TagBox::CLEAR;
     const int tagval = TagBox::SET;
 
 #ifdef AMREX_USE_OMP
@@ -1091,6 +1098,15 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real time,
 
         amrex::ParallelFor(
             bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+              const Real x = problo[0] + (Real(i) + Real(0.5)) * dx[0];
+              const Real xlo_block = problo[0] + no_refine_xlo_local;
+              const Real xhi_block = probhi[0] - no_refine_xhi_local;
+              if (no_refine_xlo_local > Real(0.0) || no_refine_xhi_local > Real(0.0)) {
+                if (x <= xlo_block || x >= xhi_block) {
+                  tagfab(i, j, k) = clearval;
+                  return;
+                }
+              }
               // Tag by vorticity
               vorticity_tagging(i, j, k, tagfab, vort, threshold, tagval);
 
@@ -1116,7 +1132,7 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real time,
     }
 
   } else {
-    //    const int clearval = TagBox::CLEAR;
+    const int clearval = TagBox::CLEAR;
     const int tagval = TagBox::SET;
 
 #ifdef AMREX_USE_OMP
@@ -1137,6 +1153,15 @@ void AmrCoreLBM::ErrorEst(int lev, TagBoxArray &tags, Real time,
 
         amrex::ParallelFor(
             bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+              const Real x = problo[0] + (Real(i) + Real(0.5)) * dx[0];
+              const Real xlo_block = problo[0] + no_refine_xlo_local;
+              const Real xhi_block = probhi[0] - no_refine_xhi_local;
+              if (no_refine_xlo_local > Real(0.0) || no_refine_xhi_local > Real(0.0)) {
+                if (x <= xlo_block || x >= xhi_block) {
+                  tagfab(i, j, k) = clearval;
+                  return;
+                }
+              }
               // Tag by vorticity
               vorticity_tagging(i, j, k, tagfab, vort, threshold, tagval);
 

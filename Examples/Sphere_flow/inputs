@@ -1,16 +1,16 @@
 # 3D IBM sphere example at Re = 200.
 # Use U = 0.02, D = 20, nu = 0.002 => Re = U*D/nu = 200.
 
-max_step  = 5000
-stop_time = 5000
+max_step  = 190000
+stop_time = 190000
 
 geometry.prob_lo     = 0.0 0.0 0.0
 geometry.prob_hi     = 160.0 96.0 96.0
 geometry.is_periodic = 0 1 1
 
 amr.v = 1
-amr.n_cell = 160 96 96
-amr.max_level = 1
+amr.n_cell = 80 48 48
+amr.max_level = 2
 amr.ref_ratio = 2 2 2 2
 amr.blocking_factor_x = 8
 amr.blocking_factor_y = 8
@@ -18,12 +18,14 @@ amr.blocking_factor_z = 8
 amr.max_grid_size = 64
 amr.regrid_int = 20
 
-amr.plot_file = out_sphere/plt
-amr.plot_int  = 500
+amr.plot_file = out_sphere_full/plt
+amr.plot_int  = 200
 amr.chk_file  = chk
 amr.chk_int   = -1
 
-amrvorth.thresholdRatio = 0.85 0.90
+amrvorth.thresholdRatio = 0.60 0.70 0.80
+amrvorth.no_refine_xlo = 24.0
+amrvorth.no_refine_xhi = 24.0
 
 lbmPhysicalParameters.nu   = 0.002
 lbmPhysicalParameters.nmac = 6
@@ -47,9 +49,12 @@ amrbc.bc_lo_0_uz_val  = 0.0
 ibm.use_cylinder = 1
 ibm.method = iamr_marker
 ibm.x0 = 48.0
-ibm.y0 = 48.0
-ibm.z0 = 48.0
+ibm.y0 = 48.5
+ibm.z0 = 47.5
 ibm.R  = 10.0
+ibm.refine_upstream = 1.0
+ibm.refine_downstream = 4.0
+ibm.refine_cross = 2.0
 ibm.force_interval = 1
 ibm.force_eval_method = momentum_exchange
 ibm.force_eval_debug = 0
