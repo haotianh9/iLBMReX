@@ -82,7 +82,7 @@ standard location.
 Clone this repository and build the cylinder-flow example:
 
 ```sh
-git clone https://github.com/haotianh9/lattice_boltzmann_method.git
+git clone  --recurse-submodules https://github.com/haotianh9/lattice_boltzmann_method.git
 cd lattice_boltzmann_method
 cd Examples
 cd Cylinder_flow
