@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>iLBMReX</h1>
+  <!-- <h1>iLBMReX</h1> -->
 <img src="./logo.png" alt="title" width="300">
 <!-- <p align="center">
   <a href="https://joss.theoj.org/papers/10.21105/joss.08080">
