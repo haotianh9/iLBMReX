@@ -1,6 +1,6 @@
 <div align="center">
   <h1>iLBMReX</h1>
-<!-- <img src="./README_figures/IAMReX.png" alt="title" width="300"> -->
+<img src="./logo" alt="title" width="300">
 <!-- <p align="center">
   <a href="https://joss.theoj.org/papers/10.21105/joss.08080">
   <img src="https://img.shields.io/badge/JOSS-10.21105%2Fjoss.08080-green" alt="JOSS">
