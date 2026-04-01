@@ -25,7 +25,7 @@ affiliations:
   - index: 2
     name: "Department of Aerospace and Mechanical Engineering, University of Southern California, 854 Downey Way, Los Angeles, CA 90089, USA"
   - index: 3
-    name: "Sun Yat-sen University, China"
+    name: "School of Aeronautics and Astronautics, Sun Yat-sen University, Guangzhou 510275, China"
   - index: 4
     name: "Affiliation to be completed before submission"
 date: 25 March 2026
