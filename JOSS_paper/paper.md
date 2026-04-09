@@ -17,17 +17,17 @@ authors:
     orcid: 0000-0000-0000-0000
     affiliation: "3"
   - name: Yadong Zeng
-    orcid: 0000-0000-0000-0000
+    orcid: 0009-0001-7944-3597
     affiliation: "4"
 affiliations:
   - index: 1
     name: "Institut de Recherche sur les Phénomènes Hors Équilibre, AMU, CNRS, Marseille, 13013, France"
   - index: 2
-    name: "Department of Aerospace and Mechanical Engineering, University of Southern California, 854 Downey Way, Los Angeles, CA 90089, USA"
+    name: "Department of Aerospace and Mechanical Engineering, University of Southern California, Los Angeles, CA 90089, USA"
   - index: 3
     name: "School of Aeronautics and Astronautics, Sun Yat-sen University, Guangzhou 510275, China"
   - index: 4
-    name: "Affiliation to be completed before submission"
+    name: "Department of Computer Science, University of Texas at Austin, Austin, 78712, USA"
 date: 25 March 2026
 bibliography: paper.bib
 ---
