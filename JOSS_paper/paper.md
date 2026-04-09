@@ -14,7 +14,6 @@ authors:
     corresponding: true 
     affiliation: "1,2"
   - name: Feihu Zhang
-    orcid: 0000-0000-0000-0000
     affiliation: "3"
   - name: Yadong Zeng
     orcid: 0009-0001-7944-3597
