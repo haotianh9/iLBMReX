@@ -30,9 +30,9 @@ Key Components
 GPU Implementation
 ~~~~~~~~~~~~~~~~~~
 
-All computational kernels are implemented as portable CUDA/HIP/CPU code using
-AMReX's ``AMREX_FOR_*`` macros and ``ParallelFor`` constructs, enabling
-efficient execution on both CPU and GPU devices.
+Computational kernels use AMReX ``ParallelFor`` constructs and GPU-device
+annotations, enabling CPU execution and configured AMReX GPU backends. The
+provided GNUmake examples expose CUDA builds through ``USE_CUDA``.
 
 Source Code Organization
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,8 +40,9 @@ Source Code Organization
 The source code is organized in the ``Source/`` directory with the following
 major components:
 
-* ``Solver/`` - Main solver driver and time advancement
-* ``DataTypes/`` - Data structure and field definitions
-* ``Utils/`` - Utility functions and I/O routines
-* ``IB/`` - Immersed boundary implementation
-* ``Init/`` - Problem initialization and input parsing
+* ``Core/`` - AMR driver, time advancement, I/O, and input parsing
+* ``LBM/`` - Collision, streaming, forcing, and macroscopic kernels
+* ``BC/`` - Physical boundary-condition helpers and prescribed boundary values
+* ``IBM/`` - Marker-based immersed-boundary implementation and force diagnostics
+* ``LevelSet/`` - Signed-distance support for cylinder-style geometry/refinement
+* ``Utils/`` - Utility helpers

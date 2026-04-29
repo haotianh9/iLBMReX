@@ -68,11 +68,11 @@ method accurately captures 3D flow physics with adaptive mesh refinement. The
 solver resolves wake vortex dynamics and maintains coupling stability through
 time-dependent regridding. See ``Examples/Sphere_flow`` for the input file.
 
-Cavity Flow (3D)
-----------------
+Cavity Flow with Immersed Box (2D)
+----------------------------------
 
-Driven square cavity flow with immersed boundary structure demonstrates the
-capability to handle complex 3D flows with interior obstacles.
+Driven cavity flow with marker-IBM box forcing demonstrates immersed-boundary
+coupling for internal flows in 2D.
 
 .. figure:: _static/figures/cavity_ibm_vorticity.png
    :align: center
@@ -84,10 +84,11 @@ capability to handle complex 3D flows with interior obstacles.
 
 **Problem Setup:**
 
-- Cavity: :math:`[0, 1]^3` with moving lid
-- Lid velocity: :math:`U_{lid} = 1` m/s in x-direction
-- Immersed boundary: Interior square block
-- Reynolds number (based on lid velocity): Re = 100
+- 2D cavity-style domain (with thin periodic z-extent in the input file)
+- Lid motion imposed either by physical BC (``inputs_bc_ref``) or by marker box
+  IBM (``inputs_ibm_box``)
+- Marker geometry: axis-aligned box (``ibm.marker_geometry = box``)
+- Reynolds number based on lid speed and cavity length (case-dependent)
 
 **Validation Metrics:**
 
@@ -95,9 +96,9 @@ capability to handle complex 3D flows with interior obstacles.
 - Comparison with boundary-resolved non-IBM results
 - Convergence with AMR refinement
 
-This case demonstrates the ability to simulate internal flows with immersed
-structures using the direct-forcing IBM approach. See ``Examples/Cavity_flow``
-for the input file.
+This case demonstrates internal-flow IBM capability and consistency against a
+boundary-condition reference case. See ``Examples/Cavity_flow`` for inputs and
+comparison scripts.
 
 Pitching NACA 0012 Airfoil (2D)
 -------------------------------
@@ -201,17 +202,16 @@ The iLBMReX repository includes example problems in the ``Examples/`` directory:
 
 * ``Examples/Couette_flow`` - 2D Couette flow benchmark
 * ``Examples/Cylinder_flow`` - 2D cylinder wake
-* ``Examples/Cavity_flow`` - 3D driven cavity with immersed obstacle
+* ``Examples/Cavity_flow`` - 2D driven cavity with immersed marker box
 * ``Examples/Sphere_flow`` - 3D flow over a sphere
 * ``Examples/SquareDuct_flow`` - 3D duct flow
 * ``Examples/Pitching_airfoil`` - 2D pitching NACA 0012 airfoil
 
 Each example directory contains:
 
-- Input file (``inputs``) for problem parameters
-- Makefile for compilation
-- Python visualization scripts for post-processing AMReX plotfiles
-- README with problem description and expected results
+- Input file(s) for problem parameters
+- GNUmake build files
+- Python visualization or validation scripts where applicable
 
 All visualizations shown above are generated directly from iLBMReX simulation
 outputs using the example input files. The results demonstrate the solver's

@@ -16,17 +16,15 @@ design notes.
   sequence and immersed-boundary coupling strategy.
 * `api_reference.md` – a brief reference to key classes and functions used
   in the solver.
-* `../JOSS_paper/` – the manuscript prepared for submission to the Journal of
-  Open Source Software, including `paper.md` and the accompanying
-  `paper.bib` (located in the repository root).
+* `../../JOSS_paper/` – manuscript and bibliography files (`paper.md`,
+  `paper.bib`) for publication-related metadata.
 
 ## Building the documentation
 
 At present, the documentation consists of plain Markdown files. You can
 read them directly or import them into a static site generator (e.g.
 Sphinx or MkDocs) if you wish to produce HTML output. A simple
-`pandoc` script is included in the root of the repository to convert
-`paper.md` into a PDF for review.
+`pandoc` helper script is available in this directory.
 
 ## Contributing
 

@@ -11,11 +11,11 @@ Overview
 The IB algorithm operates on the finest refinement level where the body surface is discretised by a set of markers.  At each time step the following operations are performed:
 
 #. **Interpolation:** The Eulerian velocity field obtained from the previous collision and streaming stages is interpolated to the marker positions using a discrete delta kernel to obtain the current fluid velocity on the surface.
-#. **Desired velocity:** The desired velocity of each marker is computed from either a prescribed rigid‑body motion or by integrating the translational and rotational equations of motion for freely moving bodies.
+#. **Desired velocity:** The desired velocity of each marker is computed from prescribed rigid-body inputs, marker-box lid inputs, or an example-local user-defined geometry hook.
 #. **Lagrangian force:** The difference between the desired and interpolated velocities, scaled by the time step, defines a Lagrangian force density on each marker.
 #. **Spreading:** The marker forces are spread back to the Eulerian mesh using the same discrete delta kernel to produce a body‑force field :math:`\boldsymbol{F}`.
 #. **Fluid update:** The body force is incorporated into the Guo forcing term of the lattice Boltzmann equation during the next collision stage (see :ref:`FluidEquations:LBM`).  The distribution functions themselves are not directly modified.
-#. **Marker update:** The marker positions are advanced using the desired velocity.  For freely moving bodies this velocity is obtained by solving Newton’s equations, as described below.
+#. **Marker update:** Built-in circle/sphere and box geometries rebuild marker positions from their prescribed geometry. User-defined geometries can provide time-dependent marker positions through ``IBMUserDefinedGeometry.H``.
 
 Multi‑direct forcing
 --------------------
@@ -40,19 +40,24 @@ To improve enforcement of the no‑slip condition the direct‑forcing IB scheme
 
 In iLBMReX the force field :math:`\boldsymbol{F}^{(m)}` is used exclusively through the Guo forcing term in the lattice Boltzmann collision operator.  Empirically two or three sub‑iterations (:math:`N_s \in [2,3]`) are sufficient to obtain accurate no‑slip enforcement.
 
-Rigid‑body motion
+Prescribed motion
 -----------------
 
-For a prescribed motion the marker positions and velocities are known functions of time.  For freely moving bodies the translational and rotational equations of motion are solved concurrently with the fluid:
+The current marker backend supports prescribed kinematics.  For built-in
+circle/sphere geometries, ``ibm.ubx``, ``ibm.uby``, ``ibm.ubz`` and
+``ibm.omx``, ``ibm.omy``, ``ibm.omz`` define the target translational and
+angular marker velocity used in the force computation.  For marker boxes,
+``ibm.box_lid_ux``, ``ibm.box_lid_uy`` and ``ibm.box_lid_uz`` define the
+moving-lid target velocity.  More general time-dependent marker positions and
+velocities are supplied by adding ``IBMUserDefinedGeometry.H`` in the example
+directory, as done by the pitching-airfoil example.
 
-.. math::
-
-   m \frac{d \mathbf{U}_r}{dt} = \int_{S_b} \boldsymbol{F}\, dS + m\, \boldsymbol{g}, \qquad
-   I \frac{d \boldsymbol{\Omega}}{dt} = \int_{S_b} \mathbf{r} \times \boldsymbol{F}\, dS,
-
-where :math:`m` and :math:`I` are the mass and moment of inertia of the body, :math:`\boldsymbol{g}` is gravity, :math:`\mathbf{r}` is the vector from the centre of mass to the marker position, and :math:`S_b` is the body surface.  The surface integrals are approximated by summing over the marker forces.  The updated translational velocity :math:`\mathbf{U}_r` and angular velocity :math:`\boldsymbol{\Omega}` are then used to compute the desired marker velocity :math:`\mathbf{U}^d` for the next iteration.
+Freely moving rigid-body dynamics are not solved by the current code base.
 
 Implementation considerations
 ----------------------------
 
-The IB coupling is implemented as portable CUDA/HIP/CPU kernels using AMReX’s `ParallelFor` constructs.  Markers are stored only on the finest AMR level to reduce memory consumption, and ghost‑cell synchronization ensures that body forces influence coarser levels correctly.  When multiple bodies are present the coupling loop is executed sequentially for each body, and the accumulated force field accounts for all immersed objects.
+The IB coupling is implemented with AMReX CPU/GPU ``ParallelFor`` constructs.
+Markers are stored on the finest AMR level to keep interpolation and spreading
+localized.  The current implementation is scoped to one marker body/backend per
+simulation.

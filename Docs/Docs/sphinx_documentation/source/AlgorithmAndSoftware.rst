@@ -12,50 +12,52 @@ AMR Hierarchy
 The solver inherits from ``amrex::AmrCore`` through the class ``AmrCoreLBM``.
 This driver manages a hierarchy of refinement levels with user-specified maximum
 level and refinement ratios. At each regridding step the solver tags cells for
-refinement based on vorticity, density gradients and (for IB cases) proximity to
-immersed boundaries. Subcycling in time is optional and can reduce computational
-cost by taking larger time steps on coarser levels.
+refinement based primarily on vorticity and, for marker/cylinder IBM cases,
+optional level-set/body proximity criteria. The current time integration path
+advances with AMR subcycling by refinement ratio.
 
 Lattice Boltzmann Update
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Within each time step the solver performs the following operations in sequence:
 
-1. **Collision:** Apply the Bhatnagar–Gross–Krook (BGK) relaxation operator to
-   compute post-collision distribution functions.
+1. **FillPatch stage:** synchronize mesoscopic/macroscopic state and ghost cells.
 
-2. **Immersed-boundary forcing:** If IB markers are present, interpolate velocity
-   from the Eulerian grid to the Lagrangian markers, compute forcing from body
-   motion and spread forces back to the grid.
+2. **Immersed-boundary force construction (finest level if enabled):**
+   interpolate Eulerian velocity to markers, compute marker forces
+   (explicit or IVC), and spread them back to Eulerian forcing fields.
 
-3. **Streaming:** Shift distribution functions along discrete lattice directions.
+3. **Collision:** apply BGK relaxation with forcing through the
+   ``collide_forced`` kernel.
 
-4. **Boundary conditions:** Apply bounce-back or no-slip conditions on solid walls,
-   periodic boundaries on domain edges, and moving wall conditions where specified.
+4. **Boundary and ghost handling:** fill internal/periodic boundaries and apply
+   supported wall treatments (including ``user_1`` bounce-back handling).
 
-5. **Macroscopic update:** Compute density and velocity moments from the distribution
-   functions; compute derived quantities such as vorticity or pressure perturbation.
+5. **Streaming:** pull-stream distributions into the new state.
 
-These operations are implemented as portable CUDA/HIP/CPU kernels using AMReX's
-parallel-for constructs.
+6. **Macroscopic update:** reconstruct density, velocity, vorticity, and pressure
+   components.
+
+These operations are implemented with AMReX CPU/GPU parallel-for constructs.
 
 Immersed-Boundary Coupling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 iLBMReX implements a direct-forcing IB method using Lagrangian markers attached
 to immersed bodies. Markers exist on the finest AMR level to simplify interpolation
-and force spreading. Supported geometries include circles, spheres, axis-aligned
-boxes and user-defined marker sets. Moving bodies are specified via time-dependent
-position and velocity functions read from the inputs file. Tagging for IB cases
-ensures that the region surrounding the body remains on the finest level throughout
-the simulation.
+and force spreading. Supported marker geometries include circle/sphere shells
+(``marker_geometry = cylinder``), axis-aligned boxes (``marker_geometry = box``,
+currently 2D-only), and user-defined marker sets via
+``IBMUserDefinedGeometry.H``.
 
 Diagnostics and I/O
 ~~~~~~~~~~~~~~~~~~~
 
 The solver writes plotfiles at user-defined intervals. Each plotfile contains
 macroscopic fields (density, velocity components), vorticity magnitude, pressure
-perturbation and force contributions. For IB cases, integrated lift and drag forces
-are written to a separate text file. Checkpoint files are also supported.
-Post-processing can be performed with AMReX's built-in tools or with generic
-visualization software (e.g. ParaView or VisIt).
+diagnostics, and all distribution-function components. For cylinder/level-set
+paths, ``phi`` is also written. IB force fields are not currently written as
+dedicated plotfile components; integrated force diagnostics are written to a
+separate text file (default ``force.dat``) when ``ibm.force_interval > 0``.
+Checkpoint files are also supported. Post-processing can be performed with
+AMReX-compatible tools (e.g. ParaView, VisIt, yt).

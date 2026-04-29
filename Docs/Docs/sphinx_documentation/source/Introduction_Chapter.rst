@@ -12,12 +12,12 @@ significant efficiency gains.
 Key Features
 -----------
 
-* **Lattice Boltzmann Method (LBM):** BGK collision operator with portable CUDA/HIP/CPU kernels
+* **Lattice Boltzmann Method (LBM):** BGK collision operator with AMReX CPU/GPU kernels
 * **Immersed-Boundary Coupling:** Marker-based direct-forcing approach for moving geometries
 * **Adaptive Mesh Refinement (AMR):** Block-structured AMR via AMReX with dynamic regridding
-* **GPU Support:** Portable GPU kernels via AMReX back-end (CUDA, HIP, or CPU execution)
+* **GPU Support:** Portable GPU kernels via AMReX back-end; the provided GNUmake examples expose CUDA builds
 * **Diagnostic Output:** Plotfiles compatible with ParaView, VisIt, and the yt package
-* **Moving Boundaries:** Support for time-dependent position and velocity functions
+* **Moving Boundaries:** Support for prescribed marker kinematics through example-local geometry hooks
 * **Parallel I/O:** CheckPointing and plotfile output with AMReX native I/O
 
 Code Philosophy

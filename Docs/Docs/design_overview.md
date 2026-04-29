@@ -10,50 +10,50 @@ overview summarizes the key components and design choices.
 The solver inherits from `amrex::AmrCore` through the class
 `AmrCoreLBM`. This driver manages a hierarchy of refinement levels with
 user‑specified maximum level and refinement ratios. At each regridding
-step the solver tags cells for refinement based on vorticity, density
-gradients and (for IB cases) proximity to immersed boundaries. Subcycling
-in time is optional and can reduce computational cost by taking larger
-time steps on coarser levels.
+step the solver tags cells for refinement based primarily on vorticity and,
+for marker/cylinder IBM cases, optional level-set/body proximity criteria.
+The current time-integration path advances with AMR subcycling by refinement
+ratio (`timeStepWithSubcycling`).
 
 ## Lattice Boltzmann update
 
 Within each time step the solver performs the following operations in
 sequence:
 
-1. **Collision:** apply the Bhatnagar–Gross–Krook (BGK) relaxation
-   operator to compute post‑collision distribution functions.
-2. **Immersed‑boundary forcing:** if IB markers are present, interpolate
-   velocity from the Eulerian grid to the Lagrangian markers, compute
-   forcing from body motion and spread forces back to the grid.
-3. **Streaming:** shift distribution functions along discrete lattice
-   directions.
-4. **Boundary conditions:** apply bounce‑back or no‑slip conditions on
-   solid walls, periodic boundaries on domain edges, and moving wall
-   conditions where specified.
-5. **Macroscopic update:** compute density and velocity moments from the
-   distribution functions; compute derived quantities such as vorticity or
-   pressure perturbation.
+1. **FillPatch stage:** synchronize mesoscopic/macroscopic state and ghost
+   cells for the current level.
+2. **Immersed-boundary force construction (if enabled on finest level):**
+   interpolate Eulerian velocity to markers, compute marker forces (explicit
+   or IVC), and spread to Eulerian forcing fields.
+3. **Collision:** apply BGK relaxation, using the forcing term in the
+   `collide_forced` kernel.
+4. **Boundary and ghost handling:** fill internal/periodic boundaries and apply
+   supported wall treatments (including `user_1` bounce-back handling).
+5. **Streaming:** pull-stream distributions into `f_new`.
+6. **Macroscopic update:** reconstruct `rho`, velocity, and derived fields
+   (vorticity and pressure component in `macro_new`).
 
-These operations are implemented as portable CUDA/HIP/CPU kernels using
-AMReX’s parallel‑for constructs.
+These operations are implemented with AMReX CPU/GPU parallel-for constructs.
 
 ## Immersed‑boundary coupling
 
 iLBMReX implements a direct‑forcing IB method using Lagrangian markers
 attached to immersed bodies. Markers exist on the finest AMR level to
 simplify interpolation and force spreading. Supported geometries include
-circles, spheres, axis‑aligned boxes and user‑defined marker sets.
-Moving bodies are specified via time‑dependent position and velocity
-functions read from the inputs file. Tagging for IB cases ensures that
-the region surrounding the body remains on the finest level throughout
-the simulation.
+circle/sphere shells (`marker_geometry = cylinder`), axis-aligned marker boxes
+(`marker_geometry = box`, currently 2D-only), and user-defined geometries via
+`IBMUserDefinedGeometry.H` in an example directory.
+Rigid-body motion can be prescribed through translational/rotational inputs
+(`ub*`, `om*`), or fully custom marker-state logic in the user-defined
+geometry hook.
 
 ## Diagnostics and I/O
 
 The solver writes plotfiles at user‑defined intervals. Each plotfile
 contains macroscopic fields (density, velocity components), vorticity
-magnitude, pressure perturbation and force contributions. For IB cases,
-integrated lift and drag forces are written to a separate text file.
-Checkpoint files are also supported. Post‑processing can be performed
-with AMReX’s built‑in tools or with generic visualization software (e.g.
-ParaView or VisIt).
+magnitude, pressure, all `f_i` distribution components, and optionally level-set
+`phi` (for cylinder/level-set paths). IB force fields are not currently written
+as dedicated plotfile components; integrated force diagnostics are written to a
+separate text file (default `force.dat`) when `ibm.force_interval > 0`.
+Checkpoint files are also supported. Post-processing can be performed with
+AMReX-compatible tools (e.g. ParaView, VisIt, yt).

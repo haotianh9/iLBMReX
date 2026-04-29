@@ -83,7 +83,7 @@ where:
 
    \rho = \sum_i f_i
 
-   \rho U = \sum_i f_i \mathbf{e}_i
+   \rho U = \sum_i f_i \mathbf{e}_i + \frac{1}{2}{\bf F}
 
    p = c_s^2 \rho
 
@@ -92,13 +92,15 @@ where :math:`c_s = 1/\sqrt{3}` is the lattice sound speed.
 Time Integration
 ----------------
 
-iLBMReX uses the BGK collision operator with a two-step explicit time advancement:
+iLBMReX uses the BGK collision operator with explicit time advancement:
 
-1. **Collision**: Update distribution functions based on local equilibrium
-2. **Streaming**: Advect distribution functions to neighboring lattice sites
+1. **FillPatch and forcing**: synchronize ghost cells and construct any prescribed or immersed-boundary force
+2. **Collision**: update distribution functions based on local equilibrium and the Guo forcing term
+3. **Boundary and ghost handling**: synchronize internal, periodic, and supported physical boundary ghost cells
+4. **Streaming**: pull-stream distributions from neighboring lattice sites
+5. **Macroscopic update**: recover density, velocity, and diagnostics
 
-This process is repeated for each time step, with immersed boundary forces
-applied during the collision step via the Guo forcing term.
+This process is repeated for each time step and AMR refinement level.
 
 Incompressibility Constraint
 -----------------------------
@@ -120,7 +122,11 @@ The immersed boundary forcing is applied via:
 
 .. math::
 
-   F_i = \left( 1 - \frac{1}{2\tau} \right) w_i \frac{\mathbf{e}_i - U}{c_s^4} \cdot \mathbf{F}
+   F_i = \left( 1 - \frac{1}{2\tau} \right) w_i
+   \left[
+   \frac{\mathbf{e}_i - U}{c_s^2}
+   + \frac{(\mathbf{e}_i \cdot U)\mathbf{e}_i}{c_s^4}
+   \right] \cdot \mathbf{F}
 
 where :math:`w_i` are the lattice weights and :math:`\mathbf{F}` is the
 force density at the grid point.
@@ -130,8 +136,8 @@ Physical Parameters
 
 Key physical parameters in iLBMReX:
 
-* **Kinematic viscosity**: :math:`\nu` (set in inputs as ``lbm.nu``)
-* **Density**: :math:`\rho` (set in inputs as ``lbm.density``, typically 1.0 for normalized simulations)
+* **Kinematic viscosity**: :math:`\nu` (set in inputs as ``lbmPhysicalParameters.nu``)
+* **Reference inlet/body velocity**: set where needed as ``lbmPhysicalParameters.U0`` or boundary-condition values
 * **Domain size**: Physical domain dimensions (set in inputs)
 * **Grid resolution**: Base grid cells and refinement ratio (set in inputs)
 

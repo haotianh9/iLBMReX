@@ -25,7 +25,12 @@ At each cell the solver stores a population of distribution functions for each d
 Discrete velocity sets
 ----------------------
 
-The code supports both two‑ and three‑dimensional lattices.  In 2D a D2Q9 lattice with nine discrete velocities is used, and in 3D a D3Q19 lattice with 19 velocities is used.  Each direction has an associated velocity vector :math:`\boldsymbol{c}_i` and weight :math:`w_i`.  The lattice sound speed is :math:`c_s = 1/\sqrt{3}` for these lattices.
+The code supports both two- and three-dimensional lattices. In 2D the examples
+use D2Q9. In 3D, the lattice is selected from the input file; current examples
+include D3Q19 (square duct) and D3Q27 (sphere/cavity-style inputs). Each
+direction has an associated velocity vector :math:`\boldsymbol{c}_i` and weight
+:math:`w_i`. The lattice sound speed is :math:`c_s = 1/\sqrt{3}` for these
+lattices.
 
 Equilibrium distribution
 -----------------------
@@ -53,7 +58,7 @@ Here :math:`\tau` is the relaxation time.  It controls the viscosity through
 where :math:`\nu` is the kinematic viscosity.  The term :math:`F_i` accounts for external forcing and is computed using the Guo forcing scheme:
 
 .. math::
-   F_i = w_i \left[ \frac{\boldsymbol{c}_i - \boldsymbol{u}}{c_s^2} + \frac{(\boldsymbol{c}_i\cdot \boldsymbol{u}) \boldsymbol{c}_i}{c_s^4} \right] \cdot \boldsymbol{F},
+   F_i = \left(1 - \frac{1}{2\tau}\right) w_i \left[ \frac{\boldsymbol{c}_i - \boldsymbol{u}}{c_s^2} + \frac{(\boldsymbol{c}_i\cdot \boldsymbol{u}) \boldsymbol{c}_i}{c_s^4} \right] \cdot \boldsymbol{F},
 
 where :math:`\boldsymbol{F}` is the macroscopic force per unit volume.
 
@@ -63,24 +68,28 @@ Macroscopic quantities
 After the collision and streaming stages, macroscopic quantities are obtained by summing over the updated distributions:
 
 .. math::
-   \rho = \sum_i f_i, \qquad \rho\,\boldsymbol{u} = \sum_i \boldsymbol{c}_i f_i.
+   \rho = \sum_i f_i, \qquad \rho\,\boldsymbol{u} = \sum_i \boldsymbol{c}_i f_i + \frac{1}{2}\boldsymbol{F}.
 
 Derived quantities such as vorticity magnitude and pressure perturbation are computed from the velocity and density fields for diagnostics and adaptive mesh refinement.
 
 Boundary conditions
 -------------------
 
-The solver implements bounce–back boundary conditions to enforce no–slip walls, periodic conditions on domain edges and moving wall conditions when specified.  Bounce–back is enforced by reflecting post‑collision populations in ghost cells located outside the physical domain.  For immersed boundaries the body force :math:`\boldsymbol{F}` is provided by the immersed‑boundary algorithm described in :ref:`ImmersedBoundary`.
+The solver supports periodic boundaries, AMReX ``ext_dir``/``foextrap`` style
+physical boundaries, and user wall treatments such as bounce-back
+(``user_1``) or face-mirrored prescribed wall states (``user_2``). For
+immersed boundaries the body force :math:`\boldsymbol{F}` is provided by the
+immersed-boundary algorithm described in :ref:`ImmersedBoundary`.
 
 Time integration
 ----------------
 
 Each time step on a given AMR level proceeds through the following stages:
 
-1. **Collision:** local distributions :math:`f_i` are relaxed towards equilibrium using the BGK operator with forcing.
-2. **Boundary conditions:** ghost cells on physical boundaries are populated using halfway bounce–back; ghost cells on immersed boundaries are populated via the immersed‑boundary forcing described in :ref:`ImmersedBoundary`.
-3. **Streaming:** post‑collision distributions are streamed along the discrete velocity directions to neighbouring cells.
-4. **Macroscopic update:** density and velocity are recomputed from the streamed distributions; derived diagnostics such as vorticity magnitude are updated.
+1. **FillPatch and forcing:** mesoscopic/macroscopic ghost cells are filled and optional prescribed or immersed-boundary forcing is constructed.
+2. **Collision:** local distributions :math:`f_i` are relaxed toward equilibrium using the BGK operator with the Guo forcing increment.
+3. **Boundary and ghost handling:** internal, periodic, and supported physical boundary ghost cells are synchronized.
+4. **Streaming:** post-collision distributions are pull-streamed along the discrete velocity directions.
+5. **Macroscopic update:** density and velocity are recomputed from the streamed distributions, including the half-step forcing correction; derived diagnostics are refreshed for output and regridding.
 
 When adaptive mesh refinement is enabled, the above operations are performed on each refinement level with inter‑level synchronization.
-

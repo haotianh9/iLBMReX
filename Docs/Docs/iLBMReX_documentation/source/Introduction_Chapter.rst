@@ -15,12 +15,12 @@ and supports dynamic regridding, checkpointing, and run-time diagnostics.
 Key Features
 -----------
 
-* **Lattice Boltzmann Method (LBM):** BGK collision operator with portable CUDA/HIP/CPU kernels
+* **Lattice Boltzmann Method (LBM):** BGK collision operator with AMReX CPU/GPU kernels
 * **Immersed-Boundary Coupling:** Marker-based direct-forcing approach for moving geometries
 * **Adaptive Mesh Refinement (AMR):** Block-structured AMR via AMReX with dynamic regridding
-* **GPU Support:** Portable GPU kernels via AMReX back-end (CUDA, HIP, or CPU execution)
+* **GPU Support:** Portable GPU kernels via AMReX back-end; the provided GNUmake examples expose CUDA builds
 * **Diagnostic Output:** Plotfiles compatible with ParaView, VisIt, and the yt package
-* **Moving Boundaries:** Support for time-dependent position and velocity functions
+* **Moving Boundaries:** Support for prescribed marker kinematics through example-local geometry hooks
 * **Parallel I/O:** Checkpointing and plotfile output
 
 Research Infrastructure
@@ -40,7 +40,7 @@ Example simulations included in this repository cover:
 
 * **Canonical validation cases:** Couette flow and Taylor-Green vortex decay
 * **Immersed-boundary benchmarks:** Flow past a cylinder, flow over a sphere, pitching NACA 0012 airfoil
-* **3D cases:** Immersed cavity box and duct flow
+* **Additional cases:** 2D immersed cavity box and 3D square-duct flow
 
 Each example includes an inputs file and, when applicable, Python scripts for
 visualizing output fields from AMReX plotfiles.

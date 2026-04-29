@@ -21,9 +21,22 @@ The level‑set field is not used to solve two‑phase flow problems in iLBMReX;
 Use with adaptive mesh refinement
 ---------------------------------
 
-When block‑structured AMR is enabled the solver tags cells for refinement based on vorticity magnitude, density gradients and proximity to immersed boundaries.  For level‑set geometries the signed‑distance field is used to identify cells near the solid surface.  Cells with :math:`|\phi| < \epsilon` for a user‑specified threshold :math:`\epsilon` are tagged to remain on the finest level.  This ensures that the boundary is resolved even when the bulk flow can be computed on a coarser grid.
+When block-structured AMR is enabled the solver tags cells for refinement based
+primarily on vorticity magnitude and (for level-set-enabled cylinder paths)
+proximity to immersed boundaries. For level-set geometries the signed-distance
+field is used to identify cells near the solid surface. Cells with
+:math:`|\phi| < \epsilon` for a user-specified threshold :math:`\epsilon` are
+tagged to remain on the finest level. This ensures that the boundary is
+resolved even when the bulk flow can be computed on a coarser grid.
 
 Marker‑based representation
 ---------------------------
 
-For moving and deformable bodies a marker‑based representation is employed.  A set of Lagrangian markers is placed on the body surface and these markers move with the body.  The markers are used by the immersed‑boundary algorithm to apply forcing to the fluid and to update the rigid‑body or structural dynamics.  Markers are stored only on the finest AMR level to minimise memory usage.  The geometry representation via markers is described in more detail in :ref:`ImmersedBoundary`.
+For immersed bodies a marker-based representation is employed. A set of
+Lagrangian markers is placed on the body surface and is used by the
+immersed-boundary algorithm to apply forcing to the fluid. Built-in marker
+geometries include circle/sphere shells and 2D axis-aligned boxes; more general
+marker motion can be supplied by an example-local ``IBMUserDefinedGeometry.H``.
+Markers are stored only on the finest AMR level to minimise memory usage. The
+geometry representation via markers is described in more detail in
+:ref:`ImmersedBoundary`.

@@ -1,15 +1,14 @@
 Direct-Forcing Immersed Boundary Method
 =========================================
 
-iLBMReX implements a direct-forcing immersed-boundary (IBM) method for simulating
-fluid-structure interaction with moving boundaries. This section describes the
-API and implementation of the direct-forcing approach.
+iLBMReX implements a marker-based direct-forcing immersed-boundary (IBM) method.
+This section describes the current implementation surface.
 
 Overview
 --------
 
 The direct-forcing IBM in iLBMReX uses a marker-based representation of immersed bodies.
-For each moving body:
+For the active marker backend:
 
 1. **Marker points** are placed on the body surface and distributed on the finest
    AMR level to ensure accurate coupling.
@@ -17,14 +16,15 @@ For each moving body:
 2. **Velocity interpolation** interpolates the fluid velocity from Eulerian grid
    points to Lagrangian marker points using a smooth interpolation kernel.
 
-3. **Force computation** calculates the force required to maintain the desired body
-   velocity (typically prescribed kinematics or rigid body dynamics).
+3. **Force computation** calculates the force required to maintain the desired
+   marker velocity (prescribed by built-in geometry inputs or by a user-defined
+   geometry hook).
 
-4. **Force spreading** distributes the computed force back to the Eulerian grid
-   using the Guo forcing term in the lattice Boltzmann collision operator.
+4. **Force spreading** distributes the computed force to the Eulerian grid; the
+   LBM update then incorporates it through the Guo forcing term.
 
 The approach maintains the simplicity and efficiency of the lattice Boltzmann method
-while enabling accurate simulation of arbitrary moving body geometries.
+while enabling prescribed immersed geometries.
 
 Supported Geometries
 --------------------
@@ -32,9 +32,9 @@ Supported Geometries
 The current implementation supports:
 
 * **Circles and spheres** - Marker points distributed over surface
-* **Axis-aligned boxes** - Rectangular immersed boundaries
-* **User-defined geometries** - Custom marker distributions via input files
-* **Moving boundaries** - Time-dependent position and velocity specified via functions
+* **Axis-aligned boxes** - 2D rectangular marker boundaries
+* **User-defined geometries** - Custom marker distributions and kinematics via
+  ``IBMUserDefinedGeometry.H`` in the example directory
 
 AMR Integration
 ---------------
@@ -51,7 +51,7 @@ the finest level throughout the simulation.
 API Documentation
 ------------------
 
-Detailed API documentation is generated from source code in ``Source/IB/``.
+Detailed API documentation is generated from source code in ``Source/IBM/``.
 Key classes and functions include:
 
 .. doxygengroup:: DFIBM

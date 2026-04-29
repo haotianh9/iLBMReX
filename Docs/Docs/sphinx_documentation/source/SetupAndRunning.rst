@@ -31,13 +31,13 @@ Input files specify:
 * Domain size and geometry
 * Refinement criteria and AMR parameters
 * Time stepping and output intervals
-* Immersed body geometries and motion
-* Physical parameters (viscosity, density)
+* Immersed body geometries and prescribed motion
+* Physical parameters (viscosity and reference velocities)
 * Boundary conditions
 
 See the example problems in ``Examples/`` directory for complete input files.
-Each example directory includes an ``inputs`` file that can be used as a template
-for creating your own simulations.
+Most example directories include an ``inputs`` file; some validation directories
+include multiple input files for related runs.
 
 Running iLBMReX
 ---------------
@@ -77,7 +77,7 @@ Customizing Your Problem
 
 To create a custom problem:
 
-1. **Create a new directoryunder ``Examples/``**
+1. **Create a new directory under ``Examples/``**
 
 2. **Copy an input file** from a similar example (e.g., Couette, Cylinder)
 
@@ -108,29 +108,34 @@ Key Input Parameters
 * ``amr.max_level`` - Maximum refinement level
 * ``amr.ref_ratio`` - Refinement ratio between levels
 * ``amr.regrid_int`` - Regridding interval
-* ``amr.n_error_buf`` - Buffer cells around tagged regions
+* ``amr.blocking_factor_x/y/z`` and ``amr.max_grid_size`` - Grid blocking and grid-size controls
 
 **Time Stepping:**
 
-* ``n_cell`` - Base grid resolution in each direction
+* ``amr.n_cell`` - Base grid resolution in each direction
 * ``max_step`` - Maximum number of time steps
 * ``stop_time`` - Simulation end time
-* ``dt`` - Initial time step (or CFL-based if adaptive)
+* ``amr.plot_int`` and ``amr.chk_int`` - Plotfile/checkpoint intervals
 
 **Immersed Boundary:**
 
-* ``ib.bodies`` - Number of immersed bodies
-* ``ib.body.N.geometry`` - Geometry type (sphere, circle, box, or custom)
-* ``ib.body.N.center`` - Body center position
-* ``ib.body.N.velocity`` - Body velocity (prescribed or rigid body dynamics)
+* ``ibm.use_cylinder`` - Enables the current marker/level-set IBM path when set to 1
+* ``ibm.method`` - IBM backend; supported marker values are ``1``, ``marker``, or ``iamr_marker``
+* ``ibm.x0``, ``ibm.y0``, ``ibm.z0``, ``ibm.R`` - Circle/sphere center and radius
+* ``ibm.marker_geometry`` - ``cylinder``, ``box``, or ``user_defined``
+* ``ibm.coupling_method`` - ``ivc``/``wu_shu``, ``explicit``, or ``explicit_diag``
+* ``ibm.force_interval`` and ``ibm.force_file`` - Integrated force output controls
 
 **Physical Parameters:**
 
-* ``lbm.nu`` - Kinematic viscosity
-* ``lbm.density`` - Fluid density
+* ``lbmPhysicalParameters.nu`` - Kinematic viscosity
+* ``lbmPhysicalParameters.nmac`` - Number of macroscopic components
+* ``lbmPhysicalParameters.U0`` - Reference velocity used by selected examples
+* ``lbm.prescribed_force`` - Optional uniform forcing vector for validation cases
 
 For complete documentation on all input parameters, see the example input files
-in the ``Examples/`` directory and refer to the source code in ``Source/Init/`` .
+in the ``Examples/`` directory and refer to ``AmrCoreLBM::ReadParameters`` in
+``Source/Core/AmrCoreLBM.cpp``.
 
 Git Workflow for Development
 ----------------------------

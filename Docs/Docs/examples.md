@@ -46,8 +46,8 @@ make -j
 
 ## Square Duct (3D)
 
-Steady laminar flow through a square duct demonstrates the 3D solver,
-adaptive refinement and GPU acceleration. It can be run as follows:
+Steady laminar flow through a square duct demonstrates the 3D solver and
+body-force-driven internal flow setup. It can be run as follows:
 
 ```sh
 cd Examples/SquareDuct_flow
@@ -55,16 +55,18 @@ make -j
 ./main3d.gnu.ex inputs
 ```
 
-## Cavity Flow with Obstacle (3D)
+## Cavity Flow with Obstacle (2D)
 
-This case simulates flow in a driven cavity with an immersed rectangular obstacle.
-It demonstrates the robustness of the IB coupling in three dimensions and the
-adaptive mesh refinement capabilities around the obstacle.
+This directory includes two 2D cavity variants:
+
+- `inputs_bc_ref`: moving lid imposed with physical boundary conditions.
+- `inputs_ibm_box`: moving lid imposed with marker IBM box geometry.
 
 ```sh
 cd Examples/Cavity_flow
 make -j
-./main3d.gnu.ex inputs
+./main2d.gnu.ex inputs_bc_ref
+./main2d.gnu.ex inputs_ibm_box
 ```
 
 ## Pitching NACA 0012 Airfoil (2D)
@@ -95,8 +97,8 @@ make -j
 
 ## GPU Execution
 
-If you have built the GPU version (with CUDA or HIP support), the executables
-will be named differently (e.g., `main2d.gnu.CUDA.ex` or `main3d.gnu.HIP.ex`).
+If you have built a GPU variant, the executable name includes the backend
+(for example, `main2d.gnu.CUDA.ex`).
 Run them the same way:
 
 ```sh
@@ -107,13 +109,13 @@ Run them the same way:
 
 The `Examples/` directory also includes:
 
-- **ForceValidation** - Validation of immersed boundary force computation
+- **ForceValidation** - Uniform-body-force validation in a periodic box (checks forcing implementation)
 - **Parameter_choice** - Studies on optimal parameter selection for LBM stability
 
 ## Visualizing Results
 
-Each example generates AMReX plotfiles (e.g., `plt_00000`, `plt_00100`, etc.)
-and checkpoint files. Visualize them using:
+Examples generate AMReX plotfiles (e.g., `plt_00000`, `plt_00100`, etc.).
+Checkpoint files are produced when `amr.chk_int > 0`. Visualize outputs using:
 
 - **ParaView**: Load the plotfiles directly
 - **VisIt**: Supports AMReX format natively

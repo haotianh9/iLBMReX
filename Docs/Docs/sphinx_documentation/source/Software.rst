@@ -16,7 +16,7 @@ code in the ``Source/`` directory or the Markdown documentation listed above:
 #. **Lattice Boltzmann Kernels** - BGK collision, streaming, and moment calculations
 #. **Immersed Boundary Coupling** - Lagrangian marker management and force spreading
 #. **I/O and Diagnostics** - Plotfile output and integrated force diagnostics
-#. **GPU Kernels** - Portable CUDA/HIP/CPU implementation via AMReX
+#. **GPU Kernels** - AMReX CPU/GPU implementation; CUDA builds are exposed by the provided GNUmake examples
 
 For more details on AMReX itself, see the official documentation:
 https://amrex-codes.github.io/amrex/docs_html/

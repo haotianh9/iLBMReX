@@ -44,7 +44,7 @@ The `Examples/` directory contains input files and post-processing scripts for a
 - **Couette flow**: planar shear flow with an analytic solution, useful for validation.
 - **Square duct (3D)**: steady laminar flow in a square duct that demonstrates the solver's 3D capabilities.
 - **Cylinder wake**: flow past a circular cylinder at moderate Reynolds number with IB markers attached to the finest AMR level; outputs include lift and drag coefficients.
-- **Immersed cavity box**: IB markers representing a box inside a cavity; tests 3D IB coupling.
+- **Immersed cavity box (2D)**: moving-lid cavity validation using a marker box geometry in 2D.
 - **Pitching NACA 0012 airfoil**: prescribed periodic pitching motion in 2D; illustrates support for moving geometries.
 - **Flow over a sphere**: 3D flow past a sphere; illustrates IBM support in 3D flows.
 
@@ -60,38 +60,40 @@ iLBMReX solver from source.
 Before compiling iLBMReX you will need:
 
 * A C++14-capable compiler, such as GCC >= 9 or Clang >= 11.
-* CMake >= 3.22.
+* GNU Make.
 * An MPI implementation (e.g. OpenMPI or MPICH) for parallel runs.
-* The AMReX library (<https://amrex-codes.github.io>). Optionally, build
-  AMReX with GPU support if you intend to run iLBMReX on NVIDIA or AMD
-  GPUs.
-* A CUDA toolkit (for NVIDIA GPUs) or ROCm (for AMD GPUs) when building
-  with GPU support.
+* The AMReX library (<https://amrex-codes.github.io>). This repository ships
+  an AMReX submodule under `./amrex`, which is the default path used by the
+  example Makefiles.
+* A CUDA toolkit when building GPU targets (`USE_CUDA = TRUE` in an example
+  `GNUmakefile`).
 
 ## Installing AMReX
 
 Follow the official AMReX installation guidelines at
 <https://amrex-codes.github.io>.
 
-After installation, set the `AMREX_HOME` environment variable to point
-to the installation directory if the installer does not place AMReX in a
-standard location.
+If you use an external AMReX checkout instead of the bundled submodule,
+set `AMREX_HOME` to that location when invoking `make`.
 
 ## Building iLBMReX
 
 Clone this repository and build the cylinder-flow example:
 
 ```sh
-git clone  --recurse-submodules https://github.com/haotianh9/lattice_boltzmann_method.git
-cd lattice_boltzmann_method
-cd Examples
-cd Cylinder_flow
-cmake ..
+git clone --recurse-submodules https://github.com/haotianh9/lattice_boltzmann_method.git
+cd lattice_boltzmann_method/Examples/Cylinder_flow
 make -j
 ```
 
-This will generate one or more executables, typically `main2d.gnu.ex` and
-`main2d.gnu.CUDA.ex`, depending on the dimensionality compiled.
+If AMReX lives outside this repository, build with:
+
+```sh
+make AMREX_HOME=/path/to/amrex -j
+```
+
+This generates an executable such as `main2d.gnu.ex` (and optionally a CUDA
+variant if enabled in `GNUmakefile`).
 
 ## Running a test case
 
@@ -126,8 +128,8 @@ Contributions of all kinds are welcome, including documentation improvements, bu
 To contribute:
 
 - submit a pull request against the main branch;
-- make sure new features include tests or examples when appropriate; and
-- follow the development workflow described in [CONTRIBUTING.md](CONTRIBUTING.md).
+- keep docs and examples updated when behavior changes; and
+- include a validation case or reproducible check for solver changes when possible.
 
 If you use iLBMReX in your own GitHub projects, consider adding `iLBMReX` as a repository topic to help others discover related work.
 
@@ -135,17 +137,9 @@ If you use iLBMReX in your own GitHub projects, consider adding `iLBMReX` as a r
 
 If you use iLBMReX in your research, please cite the JOSS paper associated with this software:
 
-```bibtex
-<!-- @article{Hang2026iLBMReX,
-  author = {Hang, Haotian and Zhang, Feihu and Zeng, Yadong},
-  title   = {iLBMReX: an adaptive immersed-boundary lattice Boltzmann solver built on AMReX},
-  journal = {Journal of Open Source Software},
-  year    = {2026},
-  doi     = {},
-} -->
-```
+See `JOSS_paper/paper.md` and `JOSS_paper/paper.bib` for the current citation entry.
 
-Please also check `JOSS_paper/paper.bib` for the most up-to-date citation information.
+Please check `JOSS_paper/paper.bib` for the most up-to-date citation information.
 
 ## License
 

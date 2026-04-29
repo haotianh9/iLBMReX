@@ -8,42 +8,43 @@ iLBMReX solver from source.
 Before compiling iLBMReX you will need:
 
 * A C++14‑capable compiler, such as GCC ≥ 9 or Clang ≥ 11.
-* CMake ≥ 3.22.
+* GNU Make.
 * An MPI implementation (e.g. OpenMPI or MPICH) for parallel runs.
-* The AMReX library (https://amrex-codes.github.io). Optionally, build
-  AMReX with GPU support if you intend to run iLBMReX on NVIDIA or AMD
-  GPUs.
-* A CUDA toolkit (for NVIDIA GPUs) or ROCm (for AMD GPUs) when building
-  with GPU support.
+* The AMReX library (https://amrex-codes.github.io). This repository includes
+  an AMReX submodule under `./amrex`, which is the default used by `Make.LBM`.
+* A CUDA toolkit if you enable CUDA builds (`USE_CUDA = TRUE` in an example
+  `GNUmakefile`).
 
 ## Installing AMReX
 
 Follow the official installation guidelines at the AMReX website
 (<https://amrex-codes.github.io>). When building with GPU support,
-select the appropriate backend (CUDA or HIP). Once installed, set the
-`AMREX_HOME` environment variable so that CMake can locate AMReX if it
-is not installed in a standard location.
+select the appropriate backend. If you are not using the bundled `./amrex`
+submodule, set `AMREX_HOME` so the GNUmake build can find AMReX.
 
 ## Building iLBMReX
 
 Clone this repository and build the example problems using the provided
-Makefiles.  Each example directory under ``Examples/`` contains a
-Makefile that automatically locates AMReX and builds both CPU and
-GPU executables (if a CUDA or HIP compiler is available).
+Makefiles. Each example directory under `Examples/` contains a
+`GNUmakefile` that includes `Make.LBM` and builds an executable for that case.
 
 For instance, to build the cylinder‑flow example:
 
 ```sh
-git clone https://github.com/haotianh9/lattice_boltzmann_method.git
+git clone --recurse-submodules https://github.com/haotianh9/lattice_boltzmann_method.git
 cd lattice_boltzmann_method/Examples/Cylinder_flow
-make -j        # builds main2d and (if available) GPU executables
+make -j
 ```
 
-The default target builds an executable named `main2d.gnu.ex` for CPU
-runs.  When a compatible GPU compiler is detected (e.g. ``nvcc`` or
-``hipcc``), the Makefile also builds a GPU version (usually
-``main2d.gnu.CUDA.ex`` or similar).  You can run the build with
-``make VERBOSE=1`` to see which commands are executed.
+If AMReX is external to this repository, provide it explicitly:
+
+```sh
+make AMREX_HOME=/path/to/amrex -j
+```
+
+The default target usually builds `main2d.gnu.ex` (or `main3d.gnu.ex` for 3D
+cases). You can run `make VERBOSE=1` to inspect the full compile and link
+commands.
 
 ## Running a test case
 
@@ -61,10 +62,16 @@ results.
 
 ## Advanced options
 
-The root `CMakeLists.txt` file exposes numerous options. You can enable
-or disable GPU support (`WITH_GPU`), choose the GPU backend
-(`AMREX_GPU_BACKEND`), enable AMR subcycling (`WITH_SUBCYCLING`), and
-build in debug mode (`CMAKE_BUILD_TYPE=Debug`). Refer to
-`Docs/design_overview.md` for more information about the solver
-architecture and to the source code in the `Source/` directory for
-implementation details.
+Build/runtime knobs are controlled through each example's `GNUmakefile` and
+its `inputs` file:
+
+* `DIM = 2` or `DIM = 3` selects dimensionality.
+* `USE_MPI`, `USE_OMP`, `USE_CUDA`, and `DEBUG` are compile-time toggles.
+* IBM marker runs require particle support; set `USE_PARTICLES = TRUE` for
+  cases that enable marker IBM (`ibm.method = 1`).
+* AMR behavior (e.g. `amr.max_level`, `amr.ref_ratio`, `amr.regrid_int`) and
+  physics parameters (e.g. `lbmPhysicalParameters.nu`) are configured in
+  `inputs`.
+
+Refer to `Docs/Docs/design_overview.md` and the implementation under
+`Source/` for details.

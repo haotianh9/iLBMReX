@@ -36,9 +36,10 @@ Output Data
 iLBMReX writes plotfiles at user-specified intervals containing:
 
 * Macroscopic fields: density, velocity components
-* Derived fields: vorticity magnitude, pressure perturbation
-* Force fields: immersed boundary force contributions (for IB cases)
-* Integrated diagnostics: lift and drag coefficients (in separate text files)
+* Derived fields: vorticity magnitude and pressure
+* Mesoscopic fields: distribution functions ``f_i``
+* Optional geometry field: level-set ``phi`` for cylinder/level-set runs
+* Integrated diagnostics: lift/drag coefficients in separate text files
 
 Each plotfile is a directory containing AMReX-format data that can be read by
 any of the visualization tools listed above.
